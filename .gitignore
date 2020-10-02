@@ -1,0 +1,9 @@
+.*
+!.gitignore
+virtualenv
+tmp*
+__pycache__
+*.pyc
+*.sqlite3
+passwords.py
+migrations
