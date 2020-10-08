@@ -2,4 +2,8 @@
 {% block content %}
 <h1>Help</h1>
 <p>This is the help site for the COMER web server.</p>
+<h2>Query input</h2>
+<p>COMER web server accepts two types of input: sequence input and multiple sequence alignment input.</p
+<p><a href="{% url 'input' %}">Sequence input</a> field accepts one or more sequence inputs in plain text or FASTA formats.</p>
+<p><a href="{% url 'input_msa' %}">Multiple sequence alignment input</a> field accepts one or more sequence inputs in FASTA formats or Stockholm formats.</p>
 {% endblock %}

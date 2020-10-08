@@ -1,13 +1,10 @@
 from django import forms
 from django.conf import settings
 
-class SequencesInputForm(forms.Form):
-    'COMER search input form'
+class BaseInputForm(forms.Form):
+    "COMER search input form"
     # Input sequence.
     sequence = forms.CharField(widget=forms.Textarea)
-    msa_input = forms.BooleanField(
-        required=False, label='Input is multiple sequence alignment'
-        )
     # Database to search.
     database = forms.ChoiceField(choices=settings.SEQUENCE_DATABASES)
     # Optional job name and email fields.
@@ -42,4 +39,16 @@ class SequencesInputForm(forms.Form):
     MINPP = forms.FloatField(
         min_value=0, max_value=1, label='Posterior probability threshold'
         )
+
+
+class SequencesInputForm(BaseInputForm):
+    "Input form for sequences"
+    msa_input = forms.BooleanField(
+        widget=forms.HiddenInput(), initial=False, required=False
+        )
+
+
+class MultipleAlignmentInputForm(BaseInputForm):
+    "Input form for sequences"
+    msa_input = forms.BooleanField(widget=forms.HiddenInput(), initial=True)
 

@@ -6,15 +6,25 @@ from . import forms
 from . import default
 from . import models
 
-def input(request):
+def input(request, multiple_sequence_alignment=False):
+    "View to input query sequences or MSA"
+    if multiple_sequence_alignment:
+        InputForm = forms.MultipleAlignmentInputForm
+    else:
+        InputForm = forms.SequencesInputForm
+
     if request.method == 'POST':
-        form = forms.SequencesInputForm(request.POST)
+        form = InputForm(request.POST)
         if form.is_valid():
             job_id = models.process_input_data(form.cleaned_data)
             return redirect('results', job_id=job_id)
     else:
-        form = forms.SequencesInputForm(initial=default.search_settings)
-    return render(request, 'search/input.html', {'form': form})
+        form = InputForm(initial=default.search_settings)
+    context = {
+        'form': form,
+        'multiple_sequence_alignment': multiple_sequence_alignment,
+        }
+    return render(request, 'search/input.html', context)
 
 
 def results(request, job_id):

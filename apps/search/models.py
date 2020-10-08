@@ -18,8 +18,8 @@ class Job(models.Model):
     NEW = 0
     QUEUED = 1
     RUNNING = 2
-    FINISHED = 5
-    FAILED = 5
+    FINISHED = 3
+    FAILED = 4
     possible_job_statuses = (
         (NEW, 'new'),
         (QUEUED, 'queued'),
