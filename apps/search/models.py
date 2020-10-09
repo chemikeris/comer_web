@@ -50,9 +50,9 @@ class Job(models.Model):
 
 
 def process_input_data(input_data):
-    print(input_data)
     sequences_data = input_data.pop('sequence')
     sequences = analyze_input_sequences(sequences_data)
+    print(sequences)
     input_is_msa = input_data.pop('msa_input')
     job_name = generate_job_name()
     email = input_data.pop('email')
