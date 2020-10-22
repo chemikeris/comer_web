@@ -34,18 +34,22 @@ class Job(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # Create job directory.
-        job_directory = os.path.join(
+        self.get_directory()
+        if not os.path.isdir(self.directory):
+            os.makedirs(self.directory)
+
+    def get_directory(self):
+        self.directory = os.path.join(
             settings.JOBS_DIRECTORY, str(self.date), self.name
             )
-        if not os.path.isdir(job_directory):
-            os.makedirs(job_directory)
-        self.directory = job_directory
+        return self.directory
 
     def __str__(self):
         s = 'COMER job\n'
         s += 'Date started: %s\n' % self.date
         s += 'Name: %s\n' % self.name
         s += 'Number of sequences: %s\n' % self.number_of_sequences
+        s += 'Status: %s\n' % self.get_status_display()
         return s
 
 
