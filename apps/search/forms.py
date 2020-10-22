@@ -138,7 +138,9 @@ class MultipleAlignmentInputForm(BaseInputForm):
                 if alignment:
                     alignments.append(alignment)
         elif seq_format == 'stockholm':
-            alignments = sequences_data.split('\n//\n')
+            alignments = sequences_data.rstrip().split('\n//\n')
+            # Cleaning last '//' from the last alignment
+            alignments[-1] = alignments[-1][:-3]
         else:
             raise ValidationError('Unknown input format!')
         return alignments, seq_format

@@ -50,22 +50,28 @@ class Job(models.Model):
 
 
 def process_input_data(input_data):
-    sequences_data = input_data.pop('sequence')
-    sequences = analyze_input_sequences(sequences_data)
-    print(sequences)
     input_is_msa = input_data.pop('msa_input')
+    sequences_data, seq_format = input_data.pop('sequence')
+    print(seq_format)
+    for s in sequences_data:
+        print(s)
+        print('###########################')
     job_name = generate_job_name()
     email = input_data.pop('email')
     database = input_data.pop('database')
     print(input_data)
     new_job = Job.objects.create(
         name=job_name, search_in_database=database, email=email,
-        number_of_sequences=len(sequences)
+        number_of_sequences=len(sequences_data)
         )
     print(new_job)
     save_comer_settings(
         input_data, os.path.join(new_job.directory, 'options.txt')
         )
+    for seq_num, sequence_data in enumerate(sequences_data):
+        where_to_write = os.path.join(new_job.directory, str(seq_num))
+        os.makedirs(where_to_write)
+        write_sequence(sequence_data, seq_format, where_to_write, input_is_msa)
     return new_job.name
 
 
@@ -74,10 +80,6 @@ def generate_job_name():
         random.choice(string.ascii_letters+string.digits) for x in range(12)
         )
     return job_name
-
-
-def analyze_input_sequences(sequences_data):
-    return [sequences_data]
 
 
 def save_comer_settings(settings, settings_file):
@@ -91,4 +93,42 @@ def save_comer_settings(settings, settings_file):
                 value = int(value)
             f.write('%s = %s' % (key, str(value)))
             f.write('\n')
+
+
+def write_sequence(
+        sequence_data, seq_format, where_to_write, multiple_sequence_alignment
+        ):
+    "Write input sequence or alignment to files"
+    if seq_format == 'plain':
+        extension = 'fasta'
+        output = get_fasta(('sequence', sequence_data))
+    elif seq_format == 'fasta':
+        extension = 'fasta'
+        if multiple_sequence_alignment:
+            output = ''
+            for s in sequence_data:
+                output += get_fasta(s)
+        else:
+            output = get_fasta(sequence_data)
+    elif seq_format == 'stockholm':
+        extension = 'sto'
+        output = get_stockholm(sequence_data)
+    else:
+        pass
+
+    output_file = os.path.join(where_to_write, '%s.%s' % ('input', extension))
+    with open(output_file, 'w') as f:
+        f.write(output)
+
+
+def get_fasta(sequence_data):
+    tag, sequence = sequence_data
+    return '>%s\n%s\n' % (tag, sequence)
+
+
+def get_stockholm(stockholm_data):
+    output = '# STOCKHOLM 1.0\n'
+    output += stockholm_data
+    output += '\n//\n'
+    return output
 
