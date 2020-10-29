@@ -107,7 +107,7 @@ class SequencesInputForm(BaseInputForm):
         "Clean single sequence input"
         sequences_data, seq_format = self.cleaned_data['sequence']
         if seq_format == 'plain':
-            sequences = self.validate_sequence(sequences_data, None)
+            sequences = (self.validate_sequence(sequences_data, None),)
         elif seq_format == 'fasta':
             sequences = self.validate_fasta(sequences_data)
         elif seq_format == 'stockholm':
