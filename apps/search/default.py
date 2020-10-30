@@ -33,3 +33,4 @@ search_settings = {
     'MAPALN': 1,
     'MINPP': 0.28,
 }
+number_of_results = 700

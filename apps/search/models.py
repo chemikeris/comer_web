@@ -63,6 +63,9 @@ def process_input_data(input_data):
     job_name = generate_job_name()
     email = input_data.pop('email')
     database = input_data.pop('database')
+    number_of_results = input_data.pop('number_of_results')
+    input_data['NOHITS'] = number_of_results
+    input_data['NOALNS'] = number_of_results
     print(input_data)
     new_job = Job.objects.create(
         name=job_name, search_in_database=database, email=email,

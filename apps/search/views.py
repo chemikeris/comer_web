@@ -1,5 +1,6 @@
 import os
 import json
+import copy
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, HttpResponse
@@ -21,7 +22,9 @@ def input(request, multiple_sequence_alignment=False):
             job_id = models.process_input_data(form.cleaned_data)
             return redirect('results', job_id=job_id)
     else:
-        form = InputForm(initial=default.search_settings)
+        search_settings = copy.deepcopy(default.search_settings)
+        search_settings['number_of_results'] = default.number_of_results
+        form = InputForm(initial=search_settings)
     context = {
         'form': form,
         'multiple_sequence_alignment': multiple_sequence_alignment,

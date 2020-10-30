@@ -33,8 +33,11 @@ class BaseInputForm(forms.Form):
     email = forms.EmailField(required=False, label='E-mail (optional)')
     # Output options.
     EVAL = forms.FloatField(min_value=0, max_value=10, label='E-value')
-    NOHITS = forms.IntegerField(label='Number of hits')
-    NOALNS = forms.IntegerField(label='Number of alignments')
+    # Number of results that will be converted to number of hits and number of
+    # alignments.
+    number_of_results = forms.IntegerField(
+        label='Number of results',  min_value=1
+        )
     # Profile construction options.
     ADJWGT = forms.FloatField(
         min_value=0, max_value=1, label='Weight of adjusted scores'
@@ -51,7 +54,7 @@ class BaseInputForm(forms.Form):
         choices=(
             ('0', 'depends on profile lengths'),
             ('1', 'depends on profile attributes and compositional similarity'),
-            ('2', 'depents on profile lengths but regards the amount of data used in simulations'),
+            ('2', 'depends on profile lengths but regards the amount of data used in simulations'),
             )
         )
     # Alignment options.
