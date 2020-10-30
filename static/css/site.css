@@ -1,0 +1,20 @@
+#schematic_sequences {
+    margin-left: 1em;
+    margin-right: 1em;
+}
+.sequence_scheme {
+    text-align: center;
+    border-bottom: solid 0.2em white;
+}
+.sequence_scheme a {
+    display: block;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+}
+.sequence_alignment {
+    font-family: monospace;
+    white-space: pre;
+    margin-top: 0;
+    margin-bottom: 0;
+}

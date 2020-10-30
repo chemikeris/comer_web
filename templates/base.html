@@ -2,12 +2,12 @@
 <html>
 <head>
 <title>COMER Web Server</title>
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/site.css' %}">
 </head>
 <body>
-
 	{% block content %}
 	{% endblock %}
-
 </body>
 <footer>
 	<a href="http://www.bioinformatics.lt">bioinformatics.lt</a>

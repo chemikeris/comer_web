@@ -1,4 +1,5 @@
 import os
+import json
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, HttpResponse
@@ -54,7 +55,7 @@ def results(request, job_id):
 
         sequences = range(job.number_of_sequences)
         return render(
-                request, 'search/results.html',
+                request, 'search/results_all.html',
                 {'job': job, 'sequences': sequences}
                 )
     else:
@@ -71,7 +72,7 @@ def detailed(request, job_id, sequence_no):
         job.get_directory(), str(sequence_no), 'results.json'
         )
     with open(results_file) as f:
-        results_json = f.read()
-    return HttpResponse(results_json)
+        results = json.load(f)
+    return render(request, 'search/results.html', {'results': results})
 
 

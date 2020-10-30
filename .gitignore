@@ -2,6 +2,7 @@
 !.gitignore
 virtualenv
 tmp*
+*.bak
 __pycache__
 *.pyc
 *.sqlite3
