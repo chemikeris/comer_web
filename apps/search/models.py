@@ -57,9 +57,8 @@ def process_input_data(input_data):
     input_is_msa = input_data.pop('msa_input')
     sequences_data, seq_format = input_data.pop('sequence')
     print(seq_format)
-    for s in sequences_data:
-        print(s)
-        print('###########################')
+    print(sequences_data)
+    print('###########################')
     job_name = generate_job_name()
     email = input_data.pop('email')
     database = input_data.pop('database')
@@ -75,10 +74,7 @@ def process_input_data(input_data):
     save_comer_settings(
         input_data, os.path.join(new_job.directory, 'options.txt')
         )
-    for seq_num, sequence_data in enumerate(sequences_data):
-        where_to_write = os.path.join(new_job.directory, str(seq_num))
-        os.makedirs(where_to_write)
-        write_sequence(sequence_data, seq_format, where_to_write, input_is_msa)
+    write_sequence(sequences_data, seq_format, new_job.directory, input_is_msa)
     return new_job.name
 
 
@@ -107,35 +103,18 @@ def write_sequence(
         ):
     "Write input sequence or alignment to files"
     if seq_format == 'plain':
-        extension = 'fasta'
-        output = get_fasta(('sequence', sequence_data))
+        extension = 'txt'
     elif seq_format == 'fasta':
-        extension = 'fasta'
         if multiple_sequence_alignment:
-            output = ''
-            for s in sequence_data:
-                output += get_fasta(s)
+            extension = 'afa'
         else:
-            output = get_fasta(sequence_data)
+            extension = 'fasta'
     elif seq_format == 'stockholm':
         extension = 'sto'
-        output = get_stockholm(sequence_data)
     else:
-        pass
+        raise ValueError('Unknown sequence format given: %s.' % seq_format)
 
     output_file = os.path.join(where_to_write, '%s.%s' % ('input', extension))
     with open(output_file, 'w') as f:
-        f.write(output)
-
-
-def get_fasta(sequence_data):
-    tag, sequence = sequence_data
-    return '>%s\n%s\n' % (tag, sequence)
-
-
-def get_stockholm(stockholm_data):
-    output = '# STOCKHOLM 1.0\n'
-    output += stockholm_data
-    output += '\n//\n'
-    return output
+        f.write(sequence_data)
 

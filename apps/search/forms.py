@@ -8,16 +8,13 @@ class SequenceField(forms.CharField):
     def to_python(self, value):
         input_str = super().to_python(value)
         # Normalizing newlines, always '\n' in further processing.
-        input_str = '\n'.join(input_str.splitlines())
+        sequences_data = '\n'.join(input_str.splitlines())
         if input_str.startswith('>'):
             seq_format = 'fasta'
-            sequences_data = input_str
         elif input_str.startswith('# STOCKHOLM'):
             seq_format = 'stockholm'
-            first_line, sequences_data = input_str.split('\n', 1)
         else:
             seq_format = 'plain'
-            sequences_data = input_str
         return (sequences_data, seq_format)
 
 
@@ -87,7 +84,6 @@ class BaseInputForm(forms.Form):
         sequences = []
         for s in sequences_data:
             description, sequence = s.split('\n', 1)
-            d = description + sequence
             sequence = self.validate_sequence(sequence, description)
             if sequence:
                 sequences.append((description, sequence))
@@ -97,7 +93,7 @@ class BaseInputForm(forms.Form):
                 if len(sequence) != first_sequence_length:
                     msg = 'Lengths of sequences in alignments are not equal!'
                     self.add_error('sequence', ValidationError(msg))
-        return sequences
+        return fasta_str
 
 
 class SequencesInputForm(BaseInputForm):
@@ -119,7 +115,7 @@ class SequencesInputForm(BaseInputForm):
                 )
         else:
             raise ValidationError('Unknown input format!')
-        return sequences, seq_format
+        return sequences_data, seq_format
 
 
 class MultipleAlignmentInputForm(BaseInputForm):
@@ -127,7 +123,7 @@ class MultipleAlignmentInputForm(BaseInputForm):
     msa_input = forms.BooleanField(widget=forms.HiddenInput(), initial=True)
 
     def clean_sequence(self):
-        "Clean single sequence input"
+        "Clean multiple sequence alignment input"
         sequences_data, seq_format = self.cleaned_data['sequence']
         if seq_format == 'plain':
             raise ValidationError(
@@ -146,5 +142,5 @@ class MultipleAlignmentInputForm(BaseInputForm):
             alignments[-1] = alignments[-1][:-3]
         else:
             raise ValidationError('Unknown input format!')
-        return alignments, seq_format
+        return sequences_data, seq_format
 
