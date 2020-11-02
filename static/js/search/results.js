@@ -17,7 +17,7 @@ function showResults(results) {
         var hit_record = search_hits[i].hit_record;
         // Parsing sequence summaries for summary display.
         var sequence_summary = formatSummary(search_summary[i].summary_entry, i);
-        addStyleForSummary(sequence_summary, hit_record.query_length, hit_record.alignment.query_from, hit_record.alignment.query_to);
+        addStyleForSummary(sequence_summary, hit_record.query_length, hit_record.alignment.query_from, hit_record.alignment.query_to, hit_record.alignment.pvalue);
         summary_div.appendChild(sequence_summary);
     
         // Parsing detailed information on search hits and adding info to table and formatting alignments for display.
@@ -64,14 +64,28 @@ function formatSummary(summary, result_no) {
     summary_element.appendChild(createLinkToAlignment(result_no, short_description));
     return summary_element;
 }
-function addStyleForSummary(summary_element, query_length, query_starts, query_ends) {
-    summary_element.style.background = 'gray';
+function addStyleForSummary(summary_element, query_length, query_starts, query_ends, p) {
     // Adding length styling according to query and alignment length.
     var left_margin = Math.round(100 * (query_starts / query_length));
     var right_margin = 100 - Math.round(100 * (query_ends / query_length));
     summary_element.style.marginLeft = left_margin + '%';
     summary_element.style.marginRight = right_margin + '%';
-    // TO DO: add coloring according to e-value
+    // Coloring according to p value. Linear scheme is used between log10(p)<-10 (red) and log10(p)>-0.3 (p~0.5) (blue).
+    // Different color schemes can be also implemented.
+    log_p = Math.log10(p)
+    if (log_p <= -10) {
+        color_value = 0;
+    }
+    else if (log_p > -0.3)
+    {
+        color_value = 250;
+    }
+    else
+    {
+        color_value = (26 * log_p) + 260;
+    }
+    console.log(p, log_p, color_value);
+    summary_element.style.background = 'hsl(' + color_value + ', 100%, 40%)';
 }
 function createTableHeader(column_names) {
     var table_head = document.createElement('thead');
