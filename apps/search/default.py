@@ -32,5 +32,11 @@ search_settings = {
     'DISTANCE': 12.96,
     'MAPALN': 1,
     'MINPP': 0.28,
+    'hhsuite_in_use': True,
+    'hhsuite_opt_niterations': 2,
+    'hhsuite_opt_evalue': 0.001,
+    'hmmer_in_use': False,
+    'hmmer_opt_niterations': 2,
+    'hmmer_opt_evalue': 0.001,
 }
 number_of_results = 700

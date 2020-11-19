@@ -23,7 +23,10 @@ class BaseInputForm(forms.Form):
     # Input sequence.
     sequence = SequenceField(widget=forms.Textarea, strip=True)
     # Database to search.
-    database = forms.ChoiceField(choices=settings.SEQUENCE_DATABASES)
+    database = forms.ChoiceField(choices=settings.COMER_DATABASES)
+    comer_db = forms.ChoiceField(
+        choices=settings.COMER_DATABASES, label='Database'
+        )
     # Optional job name and email fields.
     # job_name = forms.CharField(required=False, label='Job name (optional)')
     # Custom job name field to be introduced in the future.
@@ -35,6 +38,35 @@ class BaseInputForm(forms.Form):
     number_of_results = forms.IntegerField(
         label='Number of results',  min_value=1
         )
+    # Profile generation options.
+    # HHsuite.
+    hhsuite_in_use = forms.BooleanField(
+        label='Use HHblits for profile generation', required=False,
+        )
+    hhsuite_db = forms.ChoiceField(
+        choices=settings.HHSUITE_DATABASES, label='HHsuite database'
+        )
+    hhsuite_opt_niterations = forms.IntegerField(
+        label='Number of HHblits iterations', required=False
+        )
+    hhsuite_opt_evalue = forms.FloatField(
+        label='HHblits E-value threshold', required=False
+        )
+    # HMMer
+    hmmer_in_use = forms.BooleanField(
+        label='Use hmmer for profile generation', required=False, 
+        )
+    sequence_db = forms.ChoiceField(
+        choices = settings.SEQUENCE_DATABASES, label='hmmer database'
+        )
+    hmmer_opt_niterations = forms.IntegerField(
+        label='Number of hmmer iterations', required=False
+        )
+    hmmer_opt_evalue = forms.FloatField(
+        label='hmmer E-value threshold', required=False
+        )
+
+
     # Profile construction options.
     ADJWGT = forms.FloatField(
         min_value=0, max_value=1, label='Weight of adjusted scores'
@@ -94,6 +126,36 @@ class BaseInputForm(forms.Form):
                     msg = 'Lengths of sequences in alignments are not equal!'
                     self.add_error('sequence', ValidationError(msg))
         return fasta_str
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # If HHsuite or HMMer is used, it's settings have to be defined.
+        if cleaned_data['hhsuite_in_use']:
+            if not cleaned_data['hhsuite_opt_niterations']:
+                self.add_error(
+                    'hhsuite_opt_niterations',
+                    ValidationError(
+                        'Number of HHblits iterations is required!'
+                        )
+                    )
+            if not cleaned_data['hhsuite_opt_evalue']:
+                self.add_error(
+                    'hhsuite_opt_evalue',
+                    'HHsuite E-value is required!'
+                    )
+        if cleaned_data['hmmer_in_use']:
+            if not cleaned_data['hmmer_opt_niterations']:
+                self.add_error(
+                    'hmmer_opt_niterations',
+                    ValidationError(
+                        'Number of hmmer iterations is required!'
+                        )
+                    )
+            if not cleaned_data['hmmer_opt_evalue']:
+                self.add_error(
+                    'hmmer_opt_evalue',
+                    'hmmer E-value is required!'
+                    )
 
 
 class SequencesInputForm(BaseInputForm):

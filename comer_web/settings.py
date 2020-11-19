@@ -129,6 +129,15 @@ STATICFILES_DIRS = [
 
 # COMER server settings
 
-SEQUENCE_DATABASES = [
+COMER_DATABASES = [
     ('pdb', 'Protein Data Bank'),
 ]
+
+SEQUENCE_DATABASES = [
+    ('uniref50', 'UniRef50'),
+]
+
+HHSUITE_DATABASES = [
+    ('uniref30', 'UniRef30'),
+]
+
