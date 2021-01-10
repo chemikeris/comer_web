@@ -11,7 +11,8 @@ import configparser
 import io
 import logging
 
-import fabric
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from comer_web import calculation_server
 
 
 def nice_db_name(conf_name):
@@ -70,33 +71,21 @@ def main(arguments):
 
     if '--debug' in arguments[1:]:
         log_level = logging.DEBUG
-        arguments.remove('--delete')
+        arguments.remove('--debug')
     else:
         log_level = logging.INFO
     logging.basicConfig(level=log_level)
 
     server_config_file = arguments[1]
 
-    config = configparser.ConfigParser()
-    config.read(server_config_file)
-
-    if 'ssh_proxy_jump' in config:
-        jump_connection = fabric.Connection(
-            host=config['ssh_proxy_jump']['host'],
-            port=config['ssh_proxy_jump']['port']
-            )
-    else:
-        jump_connection = None
-    connection = fabric.Connection(
-        host=config['comer-ws-backend_server']['host'], gateway=jump_connection
-        )
+    server_connection = calculation_server.Connection(server_config_file)
     backend_config_fd = io.BytesIO()
-    connection.get(
-        config['comer-ws-backend_path']['config'], local=backend_config_fd
+    server_connection.connection.get(
+        server_connection.config['comer-ws-backend_path']['config'],
+        local=backend_config_fd
         )
     backend_config = backend_config_fd.getvalue().decode()
     backend_config_fd.close()
-    connection.close()
 
     databases = parse_comer_ws_backend_config(backend_config)
 

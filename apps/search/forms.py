@@ -23,7 +23,6 @@ class BaseInputForm(forms.Form):
     # Input sequence.
     sequence = SequenceField(widget=forms.Textarea, strip=True)
     # Database to search.
-    database = forms.ChoiceField(choices=settings.COMER_DATABASES)
     comer_db = forms.ChoiceField(
         choices=settings.COMER_DATABASES, label='Database'
         )
@@ -116,7 +115,7 @@ class BaseInputForm(forms.Form):
         sequences = []
         for s in sequences_data:
             description, sequence = s.split('\n', 1)
-            sequence = self.validate_sequence(sequence, description)
+            sequence = self.validate_sequence(sequence.rstrip('/'), description)
             if sequence:
                 sequences.append((description, sequence))
         if check_length:

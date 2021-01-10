@@ -19,8 +19,8 @@ def input(request, multiple_sequence_alignment=False):
     if request.method == 'POST':
         form = InputForm(request.POST)
         if form.is_valid():
-            job_id = models.process_input_data(form.cleaned_data)
-            return redirect('results', job_id=job_id)
+            new_job = models.process_input_data(form.cleaned_data)
+            return redirect('results', job_id=new_job.name)
     else:
         search_settings = copy.deepcopy(default.search_settings)
         search_settings['number_of_results'] = default.number_of_results
@@ -35,23 +35,34 @@ def input(request, multiple_sequence_alignment=False):
 def results(request, job_id):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
+    removed = False
+    job_log = None
     if job.status == job.NEW:
         finished = False
         status_msg = 'new'
+        # Submitting new job to calculation server.
+        job.submit_to_calculation()
     elif job.status == job.QUEUED:
         finished = False
         status_msg = 'queued'
+        # Checking job status.
+        job_log = job.check_status()
     elif job.status == job.RUNNING:
         finished = False
         status_msg = 'running'
+        job_log = job.check_status()
     elif job.status == job.FAILED:
         finished = False
         status_msg = 'failed'
     elif job.status == job.FINISHED:
         finished = True
+    elif job.status == job.REMOVED:
+        finished = True
+        removed = True
+        status_msg = 'removed'
     else:
         print('Unknown job status!')
-    if finished:
+    if finished and not removed:
         if job.number_of_sequences == 1:
             print('Single-sequence job, redirecting.')
             return redirect('detailed', job_id=job_id, sequence_no=0)
@@ -63,16 +74,17 @@ def results(request, job_id):
                 )
     else:
         return render(
-                request, 'search/job_not_finished.html',
-                {'status_msg': status_msg}
+                request, 'search/job_not_finished_or_removed.html',
+                {'status_msg': status_msg, 'removed': removed, 'log': job_log}
                 )
 
 
 def detailed(request, job_id, sequence_no):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
+    results_files = job.read_results_lst()
     results_file = os.path.join(
-        job.get_directory(), str(sequence_no), 'results.json'
+        job.get_directory(), results_files[sequence_no]
         )
     with open(results_file) as f:
         results = json.load(f)
