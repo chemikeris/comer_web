@@ -47,7 +47,7 @@ class Connection:
         if create:
             print(self.connection.run('mkdir -p %s' % current_job_directory))
         return current_job_directory
-    
+
     def retrieve_job_file_contents(self, job_id, extension):
         job_directory = self.job_directory(job_id, create=False)
         job_file = os.path.join(job_directory, '%s.%s' % (job_id, extension))

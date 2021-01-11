@@ -37,20 +37,24 @@ def results(request, job_id):
     print(job)
     removed = False
     job_log = None
+    refresh = False
     if job.status == job.NEW:
         finished = False
         status_msg = 'new'
         # Submitting new job to calculation server.
         job.submit_to_calculation()
+        refresh = True
     elif job.status == job.QUEUED:
         finished = False
         status_msg = 'queued'
         # Checking job status.
         job_log = job.check_status()
+        refresh = True
     elif job.status == job.RUNNING:
         finished = False
         status_msg = 'running'
         job_log = job.check_status()
+        refresh = True
     elif job.status == job.FAILED:
         finished = False
         status_msg = 'failed'
@@ -60,6 +64,7 @@ def results(request, job_id):
         finished = True
         removed = True
         status_msg = 'removed'
+        refresh = False
     else:
         print('Unknown job status!')
     if finished and not removed:
@@ -75,7 +80,7 @@ def results(request, job_id):
     else:
         return render(
                 request, 'search/job_not_finished_or_removed.html',
-                {'status_msg': status_msg, 'removed': removed, 'log': job_log}
+                {'status_msg': status_msg, 'reload': refresh, 'log': job_log}
                 )
 
 
