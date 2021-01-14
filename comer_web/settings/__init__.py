@@ -27,7 +27,7 @@ from comer_web.settings.passwords import SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.ibt.lt', '.bioinformatics.lt', '.bioinfo.lt', 'localhost']
 
 
 # Application definition
@@ -124,6 +124,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = '/opt/comer_web/static'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),

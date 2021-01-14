@@ -65,7 +65,7 @@ def parse_comer_ws_backend_config(backend_config):
 
 
 def main(arguments):
-    if (not arguments[1:]) or ('-h' in arguments) or ('--help' in arguments):
+    if ('-h' in arguments) or ('--help' in arguments):
         print(__doc__)
         return
 
@@ -76,7 +76,10 @@ def main(arguments):
         log_level = logging.INFO
     logging.basicConfig(level=log_level)
 
-    server_config_file = arguments[1]
+    try:
+        server_config_file = arguments[1]
+    except IndexError:
+        server_config_file = calculation_server.SERVER_CONFIG_FILE
 
     server_connection = calculation_server.Connection(server_config_file)
     backend_config_fd = io.BytesIO()
