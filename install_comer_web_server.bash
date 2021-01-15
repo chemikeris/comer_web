@@ -38,5 +38,8 @@ python manage.py collectstatic
 echo 'Deactivating virtual environment.'
 deactivate
 
+echo 'Setting ownership for files and directories.'
+chown -R comerws:comerws $directory
+
 echo 'Copying configuration files.'
 cp comer.conf /etc/httpd/conf.d/
