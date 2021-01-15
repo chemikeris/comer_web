@@ -21,6 +21,6 @@ import comer_web.views
 urlpatterns = [
     path('', comer_web.views.index),
     path('search/', include('apps.search.urls')),
-    path('admin/', admin.site.urls),
+    #path('admin/', admin.site.urls),
     path('help/', comer_web.views.help),
 ]

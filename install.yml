@@ -1,0 +1,89 @@
+---
+- name: Install Python3 on host machines, if necessary
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+      - name: Check for Python3
+        raw: which python3
+        changed_when: false
+        failed_when: false
+        register: check_python
+      - name: Install Python3
+        raw: dnf -y install python3
+        when: check_python.rc != 0
+- name: Install necessary software and configure environment
+  hosts: all
+  become: true
+  tasks:
+      - name: Install CentOS packages
+        dnf:
+            name: '{{ item }}'
+            state: present
+        loop:
+            - epel-release
+            - httpd
+            - git
+            - mc
+            - vim-enhanced
+            - python3-devel
+            - python3-virtualenv
+            - python3-mod_wsgi
+      - name: Configure firewall to allow httpd connections
+        firewalld:
+            service: http
+            zone: public
+            permanent: true
+            immediate: yes
+            state: enabled
+        ignore_errors: yes
+        tags:
+            - firewall
+      - name: Create user for COMER server tasks
+        user:
+            name: comerws
+            uid: 2021
+      - name: Create directories for PPI3D servers
+        file:
+            path: '/opt/comer_web/{{ item }}'
+            state: directory
+            mode: 02775
+            owner: comerws
+            group: comerws
+        loop:
+            - jobs
+            - logs
+            - static
+      - name: Set permissions for user apache
+        acl:
+            path: /opt/comer_web/
+            entry: default:user:apache:rwx
+            state: present
+            recursive: yes
+- name: Install COMER web server
+  hosts: all
+  become: true
+  vars_prompt:
+      - name: github_user
+        prompt: 'GitHub username'
+        private: no
+      - name: github_password
+        prompt: 'GitHub password'
+  tasks:
+      - name: Get COMER web server software
+        git:
+            repo: 'https://{{ github_user }}:{{ github_password }}@github.com/chemikeris/comer_web.git'
+            dest: /opt/comer_web/src
+        tags:
+            - github
+      - name: Remove password from Git directory
+        git_config:
+            name: remote.origin.url
+            value: https://github.com/chemikeris/comer_web.git
+            scope: local
+            repo: /opt/comer_web/src
+        tags:
+            - github
+      - name: Install COMER web server
+        shell: '/opt/comer_web/src/install_comer_web_server.bash > /opt/comer_web/logs/install.log 2>&1'
+...

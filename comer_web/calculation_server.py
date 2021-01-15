@@ -32,6 +32,7 @@ class Connection:
             jump_connection = None
         self.connection = fabric.Connection(
                 host=self.config['comer-ws-backend_server']['host'],
+                user=self.config['comer-ws-backend_server']['user'],
                 gateway=jump_connection
             )
 

@@ -25,10 +25,12 @@ BASE_DIR = os.path.dirname(
 from comer_web.settings.passwords import SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+try:
+    from comer_web.settings.debug import DEBUG
+except ImportError:
+    DEBUG = True
 
 ALLOWED_HOSTS = ['.ibt.lt', '.bioinformatics.lt', '.bioinfo.lt', 'localhost']
-
 
 # Application definition
 

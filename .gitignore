@@ -7,6 +7,7 @@ __pycache__
 *.pyc
 *.sqlite3
 passwords.py
+debug.py
 custom_servers.ini
 migrations
 comer_web/settings/comer_ws_backend.py
