@@ -3,6 +3,10 @@
 <h1>Results</h1>
 <p>Click to see results for input sequences.</p>
 {% for s in sequences %}
-<p>Results for sequence <a href="{% url 'detailed' job_id=job.name sequence_no=s %}">{{ s }}</a>.</p>
+<p>Results for <a href="{% url 'detailed' job_id=job.name sequence_no=forloop.counter0 %}">{{ s }}</a>.</p>
 {% endfor %}
+{% if errors %}
+<h2>Error log:</h2>
+<pre>{{ errors }} </pre>
+{% endif %}
 {% endblock %}

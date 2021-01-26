@@ -2,6 +2,7 @@ import os
 import string
 import random
 import tarfile
+import csv
 
 from django.db import models
 from django.conf import settings
@@ -51,6 +52,10 @@ class Job(models.Model):
             settings.JOBS_DIRECTORY, str(self.date), self.name
             )
         return self.directory
+
+    def results_file_path(self, results_file):
+        results_file = os.path.join(self.get_directory(), results_file)
+        return results_file
 
     def __str__(self):
         s = 'COMER job\n'
@@ -121,20 +126,30 @@ class Job(models.Model):
         tar.extractall(local_directory)
 
     def read_results_lst(self):
-        "Read results.lst file and retrieve list of results.json files"
-        results_lst_file = os.path.join(
-            self.get_directory(), self.get_output_name()+'.lst'
-            )
+        "Read results.lst file and retrieve list of results files"
+        results_lst_file = self.results_file_path(self.get_output_name()+'.lst')
         results_files = []
         with open(results_lst_file) as f:
             for line in f:
                 if line.startswith('#'):
                     continue
                 else:
-                    # Taking first element and unquoting it.
-                    rf = line.split()[0].rstrip('"').lstrip('"')
+                    # Taking first and last elements and unquoting them.
+                    files = list(
+                        csv.reader([line], delimiter='\t', quotechar='"')
+                        )[0]
+                    rf = {}
+                    rf['results_json'] = files[0]
+                    rf['input'] = files[-1]
                     results_files.append(rf)
         return results_files
+
+    def read_error_log(self):
+        "Read job error log"
+        err_file = self.results_file_path(self.name+'.err')
+        with open(err_file) as f:
+            errors = f.read().strip()
+        return errors
 
 
 def process_input_data(input_data):
@@ -189,4 +204,19 @@ def write_sequence(
         f.write(sequence_data)
 
 
+def read_input_name(input_file):
+    "Read input name from input file"
+    input_fname, input_ext = os.path.splitext(input_file)
+    if input_ext == '.fa':
+        with open(input_file) as f:
+            input_name = f.readline().rstrip()[1:]
+    elif input_ext == '.sto':
+        input_name = 'Query' + input_fname.rsplit('__', 1)[-1]
+        with open(input_file) as f:
+            for line in f:
+                if line.startswith('#=GF DE'):
+                    input_name = line.split(maxsplit=2)[-1].rstrip()
+    else:
+        raise ValueError('Input file extension should be ".fa" or ".sto".')
+    return input_name
 

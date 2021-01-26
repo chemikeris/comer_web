@@ -72,10 +72,16 @@ def results(request, job_id):
             print('Single-sequence job, redirecting.')
             return redirect('detailed', job_id=job_id, sequence_no=0)
 
-        sequences = range(job.number_of_sequences)
+        sequences = []
+        results_files = job.read_results_lst()
+        for rf in results_files:
+            input_file = job.results_file_path(rf['input'])
+            input_name = models.read_input_name(input_file)
+            sequences.append(input_name)
+        errors = job.read_error_log()
         return render(
                 request, 'search/results_all.html',
-                {'job': job, 'sequences': sequences}
+                {'job': job, 'sequences': sequences, 'errors': errors}
                 )
     else:
         return render(
@@ -88,8 +94,8 @@ def detailed(request, job_id, sequence_no):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
     results_files = job.read_results_lst()
-    results_file = os.path.join(
-        job.get_directory(), results_files[sequence_no]
+    results_file = job.results_file_path(
+        results_files[sequence_no]['results_json']
         )
     with open(results_file) as f:
         results = json.load(f)
