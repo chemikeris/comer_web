@@ -183,5 +183,5 @@ class SequencesInputForm(forms.Form):
                     cleaned_sequences_data.append(cleaned_sequence)
             else:
                 raise ValidationError('Unknown input format!')
-        return '\n//\n'.join(cleaned_sequences_data)
+        return cleaned_sequences_data
 

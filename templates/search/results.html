@@ -4,7 +4,7 @@
 <h1>COMER results</h1>
 {{ results|json_script:"raw_results" }}
 <script>const results = JSON.parse(document.getElementById('raw_results').textContent);</script>
-
+<p>Results for {{ input_name }}, input was a <a href="{% url 'detailed_show_input' job_id=job.name sequence_no=sequence_no %}">{{ seq_or_msa}}</a>.</p>
 <h2>Results summary</h2>
 <div id="schematic_sequences"></div>
 <h2>Results table</h2>

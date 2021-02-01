@@ -133,14 +133,16 @@ class TestFunctions(TestCase):
     def test_read_input_name_from_fasta(self):
         "Test reading input name from FASTA file"
         fname = os.path.join(settings.BASE_DIR, 'tests', 'files', 'fasta.fa')
-        name = models.read_input_name(fname)
+        name, msa_input = models.read_input_name_and_type(fname)
         self.assertEqual(name, '3VHS_1')
+        self.assertFalse(msa_input)
 
     def test_read_input_name_from_stockholm(self):
         "Test reading input name from Stockholm file"
         fname = os.path.join(
             settings.BASE_DIR, 'tests', 'files', 'stockholm.sto'
             )
-        name = models.read_input_name(fname)
+        name, msa_input = models.read_input_name_and_type(fname)
         self.assertEqual(name, 'CBS domain')
+        self.assertTrue(msa_input)
 

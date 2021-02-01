@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Error</h1>
+<p>Error parsing COMER results! Line {{ json_error.lineno }}, column {{ json_error.colno }}.</p>
+<pre>{{ json_error.doc }}</pre>
+{% endblock %}

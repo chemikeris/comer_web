@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>Results</h1>
+<p>{{ job.number_of_successful_sequences }} / {{ job.number_of_input_sequences }} queries were successful.</p>
 <p>Click to see results for input sequences.</p>
 {% for s in sequences %}
 <p>Results for <a href="{% url 'detailed' job_id=job.name sequence_no=forloop.counter0 %}">{{ s }}</a>.</p>
@@ -8,5 +9,6 @@
 {% if errors %}
 <h2>Error log:</h2>
 <pre>{{ errors }} </pre>
+<p><a href="{% url 'results_show_input' job_id=job.name %}">See input.<a></p>
 {% endif %}
 {% endblock %}

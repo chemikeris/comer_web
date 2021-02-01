@@ -18,7 +18,8 @@ class Job(models.Model):
     email = models.EmailField(null=True)
     # Number of sequences is estimated after job is finished, as the sequences
     # input is parsed by calculation server.
-    number_of_sequences = models.IntegerField(null=True)
+    number_of_input_sequences = models.IntegerField()
+    number_of_successful_sequences = models.IntegerField(null=True)
     search_in_database = models.CharField(max_length=20)
     # Possible job status. Jobs are new by default.
     NEW = 0
@@ -53,6 +54,14 @@ class Job(models.Model):
             )
         return self.directory
 
+    def write_sequences(self, sequence_data):
+        "Write input sequence or alignment to files"
+        output_file = os.path.join(
+            self.get_directory(), '%s.%s' % (self.name, 'in')
+            )
+        with open(output_file, 'w') as f:
+            f.write('\n//\n'.join(sequence_data))
+
     def results_file_path(self, results_file):
         results_file = os.path.join(self.get_directory(), results_file)
         return results_file
@@ -61,7 +70,10 @@ class Job(models.Model):
         s = 'COMER job\n'
         s += 'Date started: %s\n' % self.date
         s += 'Name: %s\n' % self.name
-        s += 'Number of sequences: %s\n' % self.number_of_sequences or '?'
+        s += 'Number of input sequences: %s\n' % \
+            self.number_of_input_sequences or '?'
+        s += 'Number of results sequences: %s\n' % \
+            self.number_of_successful_sequences or '?'
         s += 'Status: %s\n' % self.get_status_display()
         return s
 
@@ -99,7 +111,7 @@ class Job(models.Model):
             self.status = getattr(self, 'FINISHED')
             self.get_results_files(connection)
             results_files = self.read_results_lst()
-            self.number_of_sequences = len(results_files)
+            self.number_of_successful_sequences = len(results_files)
         elif job_status_code == 1:
             self.status = getattr(self, 'FAILED')
         else:
@@ -164,13 +176,14 @@ def process_input_data(input_data):
     input_data['NOALNS'] = number_of_results
     print(input_data)
     new_job = Job.objects.create(
-        name=job_name, search_in_database='', email=email
+        name=job_name, search_in_database='', email=email,
+        number_of_input_sequences=len(sequences_data)
         )
     print(new_job)
     save_comer_settings(
         input_data, os.path.join(new_job.directory, '%s.options' % new_job.name)
         )
-    write_sequence(sequences_data, new_job.directory, new_job.name)
+    new_job.write_sequences(sequences_data)
     return new_job
 
 
@@ -194,20 +207,18 @@ def save_comer_settings(settings, settings_file):
             f.write('\n')
 
 
-def write_sequence(sequence_data, where_to_write, job_name):
-    "Write input sequence or alignment to files"
-    output_file = os.path.join(where_to_write, '%s.%s' % (job_name, 'in'))
-    with open(output_file, 'w') as f:
-        f.write(sequence_data)
-
-
-def read_input_name(input_file):
+def read_input_name_and_type(input_file):
     "Read input name from input file"
     input_fname, input_ext = os.path.splitext(input_file)
     if input_ext in ('.fa', '.afa'):
         with open(input_file) as f:
             input_name = f.readline().rstrip()[1:]
+        if input_ext == '.fa':
+            multiple_sequence_alignment_input = False
+        else:
+            multiple_sequence_alignment_input = True
     elif input_ext == '.sto':
+        multiple_sequence_alignment_input = True
         input_name = 'Query' + input_fname.rsplit('__', 1)[-1]
         with open(input_file) as f:
             for line in f:
@@ -215,5 +226,5 @@ def read_input_name(input_file):
                     input_name = line.split(maxsplit=2)[-1].rstrip()
     else:
         raise ValueError('Input file extension should be ".fa", ".afa" or ".sto".')
-    return input_name
+    return input_name, multiple_sequence_alignment_input
 

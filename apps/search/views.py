@@ -9,12 +9,9 @@ from . import forms
 from . import default
 from . import models
 
-def input(request, multiple_sequence_alignment=False):
+def input(request):
     "View to input query sequences or MSA"
-    if multiple_sequence_alignment:
-        InputForm = forms.MultipleAlignmentInputForm
-    else:
-        InputForm = forms.SequencesInputForm
+    InputForm = forms.SequencesInputForm
 
     if request.method == 'POST':
         form = InputForm(request.POST)
@@ -26,7 +23,6 @@ def input(request, multiple_sequence_alignment=False):
         form = InputForm(initial=search_settings)
     context = {
         'form': form,
-        'multiple_sequence_alignment': multiple_sequence_alignment,
         }
     return render(request, 'search/input.html', context)
 
@@ -67,7 +63,7 @@ def results(request, job_id):
     else:
         print('Unknown job status!')
     if finished and not removed:
-        if job.number_of_sequences == 1:
+        if job.number_of_input_sequences == 1:
             print('Single-sequence job, redirecting.')
             return redirect('detailed', job_id=job_id, sequence_no=0)
 
@@ -75,7 +71,7 @@ def results(request, job_id):
         results_files = job.read_results_lst()
         for rf in results_files:
             input_file = job.results_file_path(rf['input'])
-            input_name = models.read_input_name(input_file)
+            input_name, msa_input = models.read_input_name_and_type(input_file)
             sequences.append(input_name)
         errors = job.read_error_log()
         return render(
@@ -97,7 +93,32 @@ def detailed(request, job_id, sequence_no):
         results_files[sequence_no]['results_json']
         )
     with open(results_file) as f:
-        results = json.load(f)
-    return render(request, 'search/results.html', {'results': results})
+        try:
+            results = json.load(f)
+        except json.JSONDecodeError as json_error:
+            return render(request, 'search/error.html', {'json_error': json_error})
+    input_file = job.results_file_path(results_files[sequence_no]['input'])
+    input_name, msa_input = models.read_input_name_and_type(input_file)
+
+    context = {
+        'job': job, 'sequence_no': sequence_no,
+        'results': results, 'input_name': input_name,
+        'seq_or_msa': 'multiple sequence alignment' if msa_input else \
+                'sequence'
+        }
+    return render(request, 'search/results.html', context)
 
 
+def show_input(request, job_id, sequence_no=None):
+    job = get_object_or_404(models.Job, name=job_id)
+    print(job)
+    if sequence_no is None:
+        input_file = job.get_input_file('in')
+    else:
+        results_files = job.read_results_lst()
+        input_file = job.results_file_path(results_files[sequence_no]['input'])
+    with open(input_file) as f:
+        input_data = f.read()
+    return render(
+            request, 'search/detailed_input.html', {'input_str': input_data}
+            )
