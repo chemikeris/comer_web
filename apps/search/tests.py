@@ -64,7 +64,7 @@ class TestInputValidation(TestCase):
         form_data['sequence'] = sequence
         form = forms.SequencesInputForm(form_data)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['sequence'], sequence)
+        self.assertEqual(form.cleaned_data['sequence'], [sequence])
 
     def test_sequence_input_fasta_msa(self):
         "Test multiple sequences alignment fasta input"
@@ -73,7 +73,7 @@ class TestInputValidation(TestCase):
         form_data['sequence'] = sequence
         form = forms.SequencesInputForm(form_data)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['sequence'], sequence)
+        self.assertEqual(form.cleaned_data['sequence'], [sequence])
 
     def test_sequence_input_fasta_with_unequal_sequences(self):
         "Test single sequence fasta input"
@@ -82,7 +82,7 @@ class TestInputValidation(TestCase):
         form_data['sequence'] = sequence
         form = forms.SequencesInputForm(form_data)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['sequence'], '>d1\nsss\n//\n>d2\ns')
+        self.assertEqual(form.cleaned_data['sequence'], ['>d1\nsss', '>d2\ns'])
 
     def test_multiple_sequences_input_with_incorrect_msa(self):
         "Test incorrect multiple sequences alignment fasta input"
@@ -99,7 +99,7 @@ class TestInputValidation(TestCase):
         form_data['sequence'] = sequence
         form = forms.SequencesInputForm(form_data)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['sequence'], sequence)
+        self.assertEqual(form.cleaned_data['sequence'], [sequence])
 
     def test_sequence_input_plain_text_with_gaps(self):
         "Test single sequence fasta input"
@@ -108,7 +108,7 @@ class TestInputValidation(TestCase):
         form_data['sequence'] = sequence
         form = forms.SequencesInputForm(form_data)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['sequence'], sequence)
+        self.assertEqual(form.cleaned_data['sequence'], [sequence])
 
     def test_sequence_input_plain_text_wrong(self):
         "Test single sequence fasta input"
@@ -125,7 +125,9 @@ class TestInputValidation(TestCase):
         form_data['sequence'] = sequence
         form = forms.SequencesInputForm(form_data)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['sequence'], sequence)
+        self.assertEqual(
+            form.cleaned_data['sequence'], ['>d1\nfasta', 'plain']
+            )
 
 
 class TestFunctions(TestCase):
