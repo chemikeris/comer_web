@@ -6,9 +6,23 @@ import io
 
 import fabric
 
-SERVER_CONFIG_FILE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), 'settings', 'servers.ini'
-    )
+# Setting server config file
+def set_server_config_file():
+    possible_config_files = ['custom_servers.ini', 'servers.ini']
+    found_config = None
+    while possible_config_files and not found_config:
+        cf = possible_config_files.pop(0)
+        config_file = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), 'settings', cf
+            )
+        if os.path.isfile(config_file):
+            found_config = config_file
+    if not found_config:
+        logging.critical('COMER servers config file not found!')
+        sys.exit(1)
+    return found_config
+
+SERVER_CONFIG_FILE = set_server_config_file()
 
 
 def read_config_file(config_file):
