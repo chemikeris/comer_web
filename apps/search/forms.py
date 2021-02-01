@@ -2,23 +2,19 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
+from . import default
+from . import sequences
 
 class SequenceField(forms.CharField):
     "Sequence input field"
     def to_python(self, value):
         input_str = super().to_python(value)
         # Normalizing newlines, always '\n' in further processing.
-        sequences_data = '\n'.join(input_str.splitlines())
-        if input_str.startswith('>'):
-            seq_format = 'fasta'
-        elif input_str.startswith('# STOCKHOLM'):
-            seq_format = 'stockholm'
-        else:
-            seq_format = 'plain'
-        return (sequences_data, seq_format)
+        sequences_data = '\n'.join(input_str.splitlines()).split('\n//\n')
+        return sequences_data
 
 
-class BaseInputForm(forms.Form):
+class SequencesInputForm(forms.Form):
     "COMER search input form"
     # Input sequence.
     sequence = SequenceField(widget=forms.Textarea, strip=True)
@@ -35,7 +31,8 @@ class BaseInputForm(forms.Form):
     # Number of results that will be converted to number of hits and number of
     # alignments.
     number_of_results = forms.IntegerField(
-        label='Number of results',  min_value=1
+        label='Number of results',  min_value=1,
+        initial=default.number_of_results
         )
     # Profile generation options.
     # HHsuite.
@@ -65,7 +62,6 @@ class BaseInputForm(forms.Form):
         label='hmmer E-value threshold', required=False
         )
 
-
     # Profile construction options.
     ADJWGT = forms.FloatField(
         min_value=0, max_value=1, label='Weight of adjusted scores'
@@ -91,7 +87,7 @@ class BaseInputForm(forms.Form):
         min_value=0, max_value=1, label='Posterior probability threshold'
         )
 
-    def validate_sequence(self, sequence_str, description):
+    def validate_plain_sequence(self, sequence_str, description):
         "Making valid sequence from input"
         # Trimming all whitespace from input string first.
         sequence_str = ''.join(sequence_str.split())
@@ -109,22 +105,16 @@ class BaseInputForm(forms.Form):
             self.add_error('sequence', ValidationError(msg, params=params))
             return None
 
-    def validate_fasta(self, fasta_str, check_length=False):
-        "Validate fasta input"
-        sequences_data = fasta_str[1:].split('\n>')
-        sequences = []
-        for s in sequences_data:
-            description, sequence = s.split('\n', 1)
-            sequence = self.validate_sequence(sequence.rstrip('/'), description)
-            if sequence:
-                sequences.append((description, sequence))
-        if check_length:
-            first_sequence_length = len(sequences[0][1])
-            for unused_description, sequence in sequences:
-                if len(sequence) != first_sequence_length:
-                    msg = 'Lengths of sequences in alignments are not equal!'
-                    self.add_error('sequence', ValidationError(msg))
-        return fasta_str
+    def validate_fasta(self, input_fasta_str):
+        all_sequences = sequences.split_fasta(input_fasta_str)
+        if len(all_sequences) > 1:
+            correct_msa = sequences.length_is_the_same(all_sequences)
+            if not correct_msa:
+                msg = 'Lengths of sequences in alignment are not equal!'
+                self.add_error('sequence', ValidationError(msg))
+        for description, sequence in all_sequences:
+            sequence = self.validate_plain_sequence(sequence, description)
+        return input_fasta_str
 
     def clean(self):
         cleaned_data = super().clean()
@@ -156,52 +146,42 @@ class BaseInputForm(forms.Form):
                     'hmmer E-value is required!'
                     )
 
-
-class SequencesInputForm(BaseInputForm):
-    "Input form for sequences"
-    msa_input = forms.BooleanField(
-        widget=forms.HiddenInput(), initial=False, required=False
-        )
-
     def clean_sequence(self):
         "Clean single sequence input"
-        sequences_data, seq_format = self.cleaned_data['sequence']
-        if seq_format == 'plain':
-            sequences = (self.validate_sequence(sequences_data, None),)
-        elif seq_format == 'fasta':
-            sequences = self.validate_fasta(sequences_data)
-        elif seq_format == 'stockholm':
-            raise ValidationError(
-                'Sequence input does not accept Stockholm format!'
-                )
-        else:
-            raise ValidationError('Unknown input format!')
-        return sequences_data, seq_format
+        sequences_data = self.cleaned_data['sequence']
+        # If no // separator is found and sequences format is fasta, it might
+        # be in fact multiple sequences input that needs to be checked if it is
+        # MSA, and splitted using // otherwise.
+        if len(sequences_data) == 1:
+            seq_format = sequences.format(sequences_data[0])
+            if seq_format == 'fasta':
+                all_sequences = sequences.split_fasta(sequences_data[0])
+                msa_input = sequences.length_is_the_same(all_sequences)
+                if msa_input:
+                    pass
+                else:
+                    # Splitting fasta input into sequences because it is not a
+                    # multiple sequence alignment.
+                    new_sequences_data = []
+                    for desc, seq in all_sequences:
+                        new_sequences_data.append(sequences.fasta_format(desc, seq))
+                    sequences_data = new_sequences_data
 
-
-class MultipleAlignmentInputForm(BaseInputForm):
-    "Input form for sequences"
-    msa_input = forms.BooleanField(widget=forms.HiddenInput(), initial=True)
-
-    def clean_sequence(self):
-        "Clean multiple sequence alignment input"
-        sequences_data, seq_format = self.cleaned_data['sequence']
-        if seq_format == 'plain':
-            raise ValidationError(
-                'MSA input does not accept plain text format!'
-                )
-        elif seq_format == 'fasta':
-            alignments_data = sequences_data.split('\n//\n')
-            alignments = []
-            for a in alignments_data:
-                alignment = self.validate_fasta(a, check_length=True)
-                if alignment:
-                    alignments.append(alignment)
-        elif seq_format == 'stockholm':
-            alignments = sequences_data.rstrip().split('\n//\n')
-            # Cleaning last '//' from the last alignment
-            alignments[-1] = alignments[-1][:-3]
-        else:
-            raise ValidationError('Unknown input format!')
-        return sequences_data, seq_format
+        cleaned_sequences_data = []
+        for s in sequences_data:
+            seq_format = sequences.format(s)
+            if seq_format == 'stockholm':
+                # Stockholm format is not validated in web server.
+                cleaned_sequences_data.append(s)
+            elif seq_format == 'fasta':
+                cleaned_sequences_data.append(self.validate_fasta(s))
+            elif seq_format == 'plain':
+                cleaned_sequence = self.validate_plain_sequence(
+                    s, 'plain text query'
+                    )
+                if cleaned_sequence:
+                    cleaned_sequences_data.append(cleaned_sequence)
+            else:
+                raise ValidationError('Unknown input format!')
+        return '\n//\n'.join(cleaned_sequences_data)
 

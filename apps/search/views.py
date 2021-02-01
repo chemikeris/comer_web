@@ -23,7 +23,6 @@ def input(request, multiple_sequence_alignment=False):
             return redirect('results', job_id=new_job.name)
     else:
         search_settings = copy.deepcopy(default.search_settings)
-        search_settings['number_of_results'] = default.number_of_results
         form = InputForm(initial=search_settings)
     context = {
         'form': form,

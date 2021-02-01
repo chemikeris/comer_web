@@ -153,9 +153,8 @@ class Job(models.Model):
 
 
 def process_input_data(input_data):
-    input_is_msa = input_data.pop('msa_input')
-    sequences_data, seq_format = input_data.pop('sequence')
-    print(seq_format)
+    "Process input sequences and settings"
+    sequences_data = input_data.pop('sequence')
     print(sequences_data)
     print('###########################')
     job_name = generate_job_name()
@@ -171,7 +170,7 @@ def process_input_data(input_data):
     save_comer_settings(
         input_data, os.path.join(new_job.directory, '%s.options' % new_job.name)
         )
-    write_sequence(sequences_data, seq_format, new_job.directory, new_job.name)
+    write_sequence(sequences_data, new_job.directory, new_job.name)
     return new_job
 
 
@@ -195,9 +194,7 @@ def save_comer_settings(settings, settings_file):
             f.write('\n')
 
 
-def write_sequence(
-        sequence_data, seq_format, where_to_write, job_name
-        ):
+def write_sequence(sequence_data, where_to_write, job_name):
     "Write input sequence or alignment to files"
     output_file = os.path.join(where_to_write, '%s.%s' % (job_name, 'in'))
     with open(output_file, 'w') as f:
@@ -207,7 +204,7 @@ def write_sequence(
 def read_input_name(input_file):
     "Read input name from input file"
     input_fname, input_ext = os.path.splitext(input_file)
-    if input_ext == '.fa':
+    if input_ext in ('.fa', '.afa'):
         with open(input_file) as f:
             input_name = f.readline().rstrip()[1:]
     elif input_ext == '.sto':
@@ -217,6 +214,6 @@ def read_input_name(input_file):
                 if line.startswith('#=GF DE'):
                     input_name = line.split(maxsplit=2)[-1].rstrip()
     else:
-        raise ValueError('Input file extension should be ".fa" or ".sto".')
+        raise ValueError('Input file extension should be ".fa", ".afa" or ".sto".')
     return input_name
 

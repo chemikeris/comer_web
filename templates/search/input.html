@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Input query {% if multiple_sequence_alignment %} multiple sequence alignments {% else %} sequences {% endif %}</h1>
+<h1>Input queries</h1>
 <form action="." method="post">{% csrf_token %}
 {{ form.as_p }}
 <input type="submit" value="Submit">

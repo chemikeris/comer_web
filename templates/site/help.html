@@ -3,7 +3,12 @@
 <h1>Help</h1>
 <p>This is the help site for the COMER web server.</p>
 <h2>Query input</h2>
-<p>COMER web server accepts two types of input: sequence input and multiple sequence alignment input.</p
-<p><a href="{% url 'input' %}">Sequence input</a> field accepts one or more sequence inputs in plain text or FASTA formats.</p>
-<p><a href="{% url 'input_msa' %}">Multiple sequence alignment input</a> field accepts one or more sequence inputs in FASTA formats or Stockholm formats.</p>
+<p>COMER web server accepts several types of <a href="{% url 'input' %}">input</a>:</p>
+<ul>
+    <li>Single sequence input in FASTA or plain text formats;</li>
+    <li>Single multiple-sequence alignment in FASTA or Stockholm formats;</li>
+    <li>Multiple sequences input in FASTA format;</li>
+    <li>Multiple inputs format, mixed of sequences and sequence alignments in plain text, FASTA, or Stockholm formats, separated by lines containing "//".</li>
+</ul>
+<p>Input is assigned automatically to one of the above types. For example, FASTA input having all sequences of the same length is considered to be a multiple sequence alingment, and if sequence lengths differ, it is further analyzed as input of multiple sequences.
 {% endblock %}
