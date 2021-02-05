@@ -221,6 +221,7 @@ def save_comer_settings(settings, settings_file):
     for key, value in settings.items():
         all_settings[key] = value
     with open(settings_file, 'w') as f:
+        f.write('[OPTIONS]\n')
         for key, value in all_settings.items():
             if isinstance(value, bool):
                 value = int(value)

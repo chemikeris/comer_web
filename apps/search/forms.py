@@ -5,19 +5,31 @@ from django.core.exceptions import ValidationError
 from . import default
 from . import sequences
 
+MAX_SEQUENCE_INPUT = 1048576
+MAX_NUMBER_OF_SEQUENCES = 100
+
 class SequenceField(forms.CharField):
     "Sequence input field"
     def to_python(self, value):
         input_str = super().to_python(value)
+        input_size = len(input_str)
+        if input_size >= MAX_SEQUENCE_INPUT:
+            raise ValidationError(
+                'Sequence input is too large (%s characters)!' % input_size
+                )
         # Normalizing newlines, always '\n' in further processing.
-        sequences_data = '\n'.join(input_str.splitlines()).split('\n//\n')
+        sequences_data = '\n'.join(input_str.splitlines())
+        sequences_data = sequences_data.rstrip('/').split('\n//\n')
+        sequences_data = [s.strip() for s in sequences_data]
         return sequences_data
 
 
 class SequencesInputForm(forms.Form):
     "COMER search input form"
     # Input sequence.
-    sequence = SequenceField(widget=forms.Textarea, strip=True)
+    sequence = SequenceField(
+        widget=forms.Textarea, strip=True, max_length=MAX_SEQUENCE_INPUT
+        )
     # Database to search.
     comer_db = forms.ChoiceField(
         choices=settings.COMER_DATABASES, label='Database'
@@ -92,7 +104,7 @@ class SequencesInputForm(forms.Form):
         # Trimming all whitespace from input string first.
         sequence_str = ''.join(sequence_str.split())
         # Allowing gaps (-) in sequence.
-        sequence_to_check = sequence_str.replace('-', '')
+        sequence_to_check = sequence_str.replace('-', '').replace('.', '')
         if sequence_to_check.isalpha():
             return sequence_str
         else:
@@ -106,7 +118,9 @@ class SequencesInputForm(forms.Form):
             return None
 
     def validate_fasta(self, input_fasta_str):
-        all_sequences = sequences.split_fasta(input_fasta_str)
+        all_sequences, problematic_sequences = sequences.split_fasta(
+            input_fasta_str
+            )
         if len(all_sequences) > 1:
             correct_msa = sequences.length_is_the_same(all_sequences)
             if not correct_msa:
@@ -114,7 +128,15 @@ class SequencesInputForm(forms.Form):
                 self.add_error('sequence', ValidationError(msg))
         for description, sequence in all_sequences:
             sequence = self.validate_plain_sequence(sequence, description)
+        self.add_problematic_fasta_errors(problematic_sequences)
         return input_fasta_str
+
+    def add_problematic_fasta_errors(self, problematic_sequences):
+        for sequence in problematic_sequences:
+            self.add_error(
+                'sequence',
+                ValidationError('Problems with FASTA input: %s' % sequence)
+                )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -155,7 +177,10 @@ class SequencesInputForm(forms.Form):
         if len(sequences_data) == 1:
             seq_format = sequences.format(sequences_data[0])
             if seq_format == 'fasta':
-                all_sequences = sequences.split_fasta(sequences_data[0])
+                all_sequences, problematic_sequences = sequences.split_fasta(
+                    sequences_data[0]
+                    )
+                self.add_problematic_fasta_errors(problematic_sequences)
                 msa_input = sequences.length_is_the_same(all_sequences)
                 if msa_input:
                     pass
@@ -167,6 +192,12 @@ class SequencesInputForm(forms.Form):
                         new_sequences_data.append(sequences.fasta_format(desc, seq))
                     sequences_data = new_sequences_data
 
+        if len(sequences_data) > MAX_NUMBER_OF_SEQUENCES:
+            raise ValidationError(
+                'Number of input sequences is too big, '\
+                    'maximum %(max)s is allowed!',
+                params={'max': MAX_NUMBER_OF_SEQUENCES}
+                )
         cleaned_sequences_data = []
         for s in sequences_data:
             seq_format = sequences.format(s)

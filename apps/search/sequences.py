@@ -1,3 +1,6 @@
+import logging
+
+
 def format(input_str):
     "Check input format"
     if input_str.startswith('>'):
@@ -12,11 +15,17 @@ def format(input_str):
 def split_fasta(fasta_str):
     sequences_data = fasta_str[1:].split('\n>')
     sequences = []
+    problematic_sequences = []
     for s in sequences_data:
-        description, sequence = s.split('\n', 1)
+        try:
+            description, sequence = s.split('\n', 1)
+        except:
+            logging.error('Error parsing FASTA: %s', s)
+            problematic_sequences.append(s)
+            continue
         sequence = ''.join(sequence.split())
         sequences.append((description, sequence))
-    return sequences
+    return sequences, problematic_sequences
 
 
 def fasta_format(description, sequence):
