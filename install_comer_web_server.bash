@@ -43,3 +43,6 @@ chown -R comerws:comerws $directory
 
 echo 'Copying configuration files.'
 cp comer.conf /etc/httpd/conf.d/
+
+echo 'Reloading httpd.'
+service httpd reload
