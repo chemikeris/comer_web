@@ -6,6 +6,7 @@ import csv
 
 from django.db import models
 from django.conf import settings
+from django.core.mail import send_mail
 
 from . import default
 from comer_web import calculation_server
@@ -99,7 +100,7 @@ class Job(models.Model):
         self.save(update_fields=['status', 'slurm_job_no'])
         connection.close()
 
-    def check_status(self):
+    def check_status(self, uri):
         connection = calculation_server.Connection()
         job_status_code, job_status_log = connection.check_slurm_job(
             self.slurm_job_no, self.name
@@ -108,12 +109,14 @@ class Job(models.Model):
             pass
             # This means that job status will not be changed in DB.
         elif job_status_code == 0:
-            self.status = getattr(self, 'FINISHED')
             self.get_results_files(connection)
             results_files = self.read_results_lst()
             self.number_of_successful_sequences = len(results_files)
+            self.status = getattr(self, 'FINISHED')
+            self.send_confirmation_email('finished', uri)
         elif job_status_code == 1:
             self.status = getattr(self, 'FAILED')
+            self.send_confirmation_email('failed', uri)
         else:
             raise ValueError(
                 'Unknown COMER job status code: %s' % job_status_code
@@ -162,6 +165,24 @@ class Job(models.Model):
         with open(err_file) as f:
             errors = f.read().strip()
         return errors
+
+    def send_confirmation_email(self, status, uri):
+        if self.email:
+            print('Sending confirmation email to %s.' % self.email)
+            message = ''
+            message += 'COMER web server job %s has %s.\n' % (self.name, status)
+            message += '\n'
+            message += 'To see results, please go to website:\n'
+            message += uri
+            message += '\n'
+            send_mail(
+                subject='COMER web server job %s' % self.name,
+                message=message,
+                from_email=None,
+                recipient_list=[self.email]
+                )
+        else:
+            return
 
 
 def process_input_data(input_data):

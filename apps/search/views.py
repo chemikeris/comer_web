@@ -43,12 +43,12 @@ def results(request, job_id):
         finished = False
         status_msg = 'queued'
         # Checking job status.
-        job_log = job.check_status()
+        job_log = job.check_status(request.build_absolute_uri())
         refresh = True
     elif job.status == job.RUNNING:
         finished = False
         status_msg = 'running'
-        job_log = job.check_status()
+        job_log = job.check_status(request.build_absolute_uri())
         refresh = True
     elif job.status == job.FAILED:
         finished = False

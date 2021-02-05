@@ -32,6 +32,9 @@ except ImportError:
 
 ALLOWED_HOSTS = ['.ibt.lt', '.bioinformatics.lt', '.bioinfo.lt', 'localhost']
 
+EMAIL_HOST = 'mailrelay.vu.lt'
+DEFAULT_FROM_EMAIL = 'noreply@bioinformatics.lt'
+
 # Application definition
 
 INSTALLED_APPS = [
