@@ -13,6 +13,12 @@ function showResults(results) {
     var results_table_head = createTableHeader(results_table_columns);
     results_table.appendChild(results_table_head);
     var results_table_body = document.createElement('tbody');
+    // Creating query sequence schematic view.
+    var query_summary_element = document.createElement('div');
+    query_summary_element.classList.add('sequence_scheme');
+    query_summary_element.style.background = 'grey';
+    query_summary_element.innerHTML = '<a>Query</a>';
+    summary_div.appendChild(query_summary_element);
     for (var i = 0; i < search_hits.length; i++) {
         var hit_record = search_hits[i].hit_record;
         // Parsing sequence summaries for summary display.
@@ -66,7 +72,7 @@ function formatSummary(summary, result_no) {
 }
 function addStyleForSummary(summary_element, query_length, query_starts, query_ends, p) {
     // Adding length styling according to query and alignment length.
-    var left_margin = Math.round(100 * (query_starts / query_length));
+    var left_margin = Math.round(100 * ((query_starts - 1) / query_length));
     var right_margin = 100 - Math.round(100 * (query_ends / query_length));
     summary_element.style.marginLeft = left_margin + '%';
     summary_element.style.marginRight = right_margin + '%';
