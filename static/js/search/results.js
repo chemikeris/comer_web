@@ -35,7 +35,7 @@ function showResults(results) {
         number_column.appendChild(createLinkToAlignment(i, i+1));
         row.appendChild(number_column);
         // ID
-        row.appendChild(createTableData(shortDescription(hit_record.target_description)));
+        row.appendChild(createTableData(createLink(shortDescription(hit_record.target_description))));
         // Description
         row.appendChild(createTableData(hit_record.target_description));
         // Pvalue
@@ -104,7 +104,7 @@ function createTableHeader(column_names) {
 }
 function createTableData(text) {
     var td = document.createElement('td');
-    td.innerText = text;
+    td.innerHTML = text;
     return td;
 }
 function createLinkToAlignment(result_no, description) {
@@ -113,7 +113,26 @@ function createLinkToAlignment(result_no, description) {
     a.href = '#alignment_' + result_no;
     return a;
 }
-function createRCSBLink(pdb_id) {
+function createLink(result_id) {
+    if (result_id.startsWith('PF')) {
+        link = createPfamLink(result_id);
+    }
+    else if ((result_id[0] == 'd') || (result_id[0] == 'g')) {
+        link = createSCOPeLink(result_id);
+    }
+    else {
+        link = createRCSBLink(result_id);
+    }
+    return '<a href="' + link + '">' + result_id + '</a>'
+}
+function createSCOPeLink(scop_id) {
+    return 'https://scop.berkeley.edu/sid=' + scop_id;
+}
+function createPfamLink(pfam_id) {
+    return 'https://pfam.xfam.org/family/' + pfam_id;
+}
+function createRCSBLink(pdb_chain_id) {
+    pdb_id = pdb_chain_id.substr(0,4)
     return 'https://www.rcsb.org/structure/' + pdb_id;
 }
 function formatAlignment(result_no, hit_record) {
@@ -122,7 +141,8 @@ function formatAlignment(result_no, hit_record) {
     var header = document.createElement('h3');
     header.innerHTML = (result_no+1).toString();
     var [short_description, ...other_description] = hit_record.target_description.split(" ");
-    header.innerHTML += ' <a href="' + createRCSBLink(short_description.substr(0,4)) + '">' + short_description + '</a>';
+    header.innerHTML += ' ';
+    header.innerHTML += createLink(short_description);
     header.innerHTML += ' ' + other_description.join(' ');
     header.id = 'alignment_' + result_no;
     alignment_div.appendChild(header);
