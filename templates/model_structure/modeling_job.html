@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Structure modeling results</h1>
+<p>Generated structural models:<p>
+{% for t in templates %}
+<p>Model using template <a href="{% url 'model_structure_show_model' modeling_job_id=job.name model_no=forloop.counter0 %}">{{ t }}</a>.</p>
+{% endfor %}
+{% if errors %}
+<h2>Error log:</h2>
+<pre>{{ errors }} </pre>
+{% endif %}
+{% endblock %}

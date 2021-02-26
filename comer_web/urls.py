@@ -21,6 +21,8 @@ import comer_web.views
 urlpatterns = [
     path('', comer_web.views.index),
     path('search/', include('apps.search.urls')),
+    path('model_structure/', include('apps.model_structure.urls')),
     #path('admin/', admin.site.urls),
     path('help/', comer_web.views.help),
+    path('msa/', comer_web.views.index, name='submit_msa'),
 ]

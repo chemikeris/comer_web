@@ -6,4 +6,8 @@
 <p>Refreshing every 10 seconds.</p>
 <meta http-equiv="refresh" content="10">
 {% endif %}
+{% if errors %}
+<h2>Error log:</h2>
+<pre>{{ errors }} </pre>
+{% endif %}
 {% endblock %}

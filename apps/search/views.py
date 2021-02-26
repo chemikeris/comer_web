@@ -1,5 +1,4 @@
 import os
-import json
 import copy
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -8,6 +7,8 @@ from django.http import Http404, HttpResponse
 from . import forms
 from . import default
 from . import models
+from comer_web import utils
+from comer_web.models import track_status
 
 def input(request):
     "View to input query sequences or MSA"
@@ -30,38 +31,8 @@ def input(request):
 def results(request, job_id):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
-    removed = False
-    job_log = None
-    refresh = False
-    if job.status == job.NEW:
-        finished = False
-        status_msg = 'new'
-        # Submitting new job to calculation server.
-        job.submit_to_calculation()
-        refresh = True
-    elif job.status == job.QUEUED:
-        finished = False
-        status_msg = 'queued'
-        # Checking job status.
-        job_log = job.check_status(request.build_absolute_uri())
-        refresh = True
-    elif job.status == job.RUNNING:
-        finished = False
-        status_msg = 'running'
-        job_log = job.check_status(request.build_absolute_uri())
-        refresh = True
-    elif job.status == job.FAILED:
-        finished = False
-        status_msg = 'failed'
-    elif job.status == job.FINISHED:
-        finished = True
-    elif job.status == job.REMOVED:
-        finished = True
-        removed = True
-        status_msg = 'removed'
-        refresh = False
-    else:
-        print('Unknown job status!')
+    uri = request.build_absolute_uri()
+    finished, removed, status_msg, job_log, refresh = track_status(job, uri)
     if finished and not removed:
         if job.number_of_input_sequences == 1:
             print('Single-sequence job, redirecting.')
@@ -80,7 +51,7 @@ def results(request, job_id):
                 )
     else:
         return render(
-                request, 'search/job_not_finished_or_removed.html',
+                request, 'jobs/not_finished_or_removed.html',
                 {'status_msg': status_msg, 'reload': refresh, 'log': job_log}
                 )
 
@@ -92,11 +63,9 @@ def detailed(request, job_id, sequence_no):
     results_file = job.results_file_path(
         results_files[sequence_no]['results_json']
         )
-    with open(results_file) as f:
-        try:
-            results = json.load(f)
-        except json.JSONDecodeError as json_error:
-            return render(request, 'search/error.html', {'json_error': json_error})
+    results = utils.read_json_file(results_file)
+    if results is None:
+        return render(request, 'search/error.html', {'json_error': json_error})
     input_file = job.results_file_path(results_files[sequence_no]['input'])
     input_name, msa_input = models.read_input_name_and_type(input_file)
 

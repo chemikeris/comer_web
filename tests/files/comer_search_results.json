@@ -1,0 +1,116 @@
+{"comer_search": {
+  "program": "comer",
+  "version": "2.02.04",
+  "references": [
+    "Margelevicius, M. (2020). COMER2: GPU-accelerated sensitive and specific homology searches. Bioinformatics 36, 3570-3572.",
+    "Margelevicius, M. (2016). Bayesian nonparametrics in protein remote homology search. Bioinformatics 32, 2744-2752."
+  ],
+  "query": {
+    "length": 32,
+    "name": "",
+    "description": "T1059"
+  },
+  "database": {
+    "name": "pdb70_210120",
+    "number_of_profiles": 85746,
+    "number_of_positions": 23917249
+  },
+  "message": "Profiles found below the e-value threshold:",
+  "search_summary": [
+    {"summary_entry": {
+      "description": "1PVZ_A K+ toxin-like peptide; ALPHA\/BETA scaffold, toxin; NMR {Mesobuth...",
+      "score": 36,
+      "evalue": 6.9e-14
+    }},
+    {"summary_entry": {
+      "description": "6U6G_A Putative Late nodulin; FUNGAL DISEASE, ANTIFUNGAL AGENT, ANTIFUNG...",
+      "score": 38,
+      "evalue": 2.9e-13
+    }}
+  ],
+  "search_hits": [
+    {"hit_record": {
+      "target_description": "1PVZ_A K+ toxin-like peptide; ALPHA\/BETA scaffold, toxin; NMR {Mesobuthus martensii} SCOP: g.3.7.2",
+      "query_length": 32,
+      "query_eno": 5.0,
+      "target_length": 31,
+      "target_eno": 9.0,
+      "alignment": {
+        "score": 36.34,
+        "bit_score": 73.2,
+        "evalue": 6.9e-14,
+        "pvalue": 6.9e-14,
+        "n_identities": 12,
+        "n_positives": 15,
+        "n_gaps": 3,
+        "aln_length": 30,
+        "query_from": 1,
+        "query_to": 30,
+        "target_from": 4,
+        "target_to": 30,
+        "query_secstr_available": 1,
+        "target_secstr_available": 1,
+        "query_secstr": "                     eee  eeee",
+        "target_secstr": "                     eee  eeee",
+        "query_aln": "TKPCQSDKDCKKFACRKPKVPKCINGFCKC",
+        "target_aln": "AIKCATDADCSR---KCPGNPPCRNGFCAC",
+        "middle": "+++C++D+DC++   ++P++P+C+NGFC+C",
+        "computed_K_ungapped": "0.1477",
+        "computed_lambda_ungapped": "0.7805",
+        "estimated_K_gapped": "0.0019",
+        "estimated_lambda_gapped": "0.3924",
+        "entropy": 0.4000,
+        "expected_score": -0.4923,
+        "min_score": -3,
+        "max_score": 3
+      }
+    }},
+    {"hit_record": {
+      "target_description": "6U6G_A Putative Late nodulin; FUNGAL DISEASE, ANTIFUNGAL AGENT, ANTIFUNGAL; NMR {Medicago truncatula}",
+      "query_length": 32,
+      "query_eno": 5.0,
+      "target_length": 36,
+      "target_eno": 9.0,
+      "alignment": {
+        "score": 37.85,
+        "bit_score": 71.2,
+        "evalue": 2.9e-13,
+        "pvalue": 2.9e-13,
+        "n_identities": 12,
+        "n_positives": 17,
+        "n_gaps": 3,
+        "aln_length": 32,
+        "query_from": 1,
+        "query_to": 32,
+        "target_from": 6,
+        "target_to": 34,
+        "query_secstr_available": 1,
+        "target_secstr_available": 1,
+        "query_secstr": "                     eee  eeeee ",
+        "target_secstr": "                  eeeeee  eeeeee",
+        "query_aln": "TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR",
+        "target_aln": "SKPCISDKECSI---VKNYRARCRKGYCVRRR",
+        "middle": "+KPC+SDK+C++   +K+++++C++G+C+++R",
+        "computed_K_ungapped": "0.1517",
+        "computed_lambda_ungapped": "0.8260",
+        "estimated_K_gapped": "0.0019",
+        "estimated_lambda_gapped": "0.4152",
+        "entropy": 0.4690,
+        "expected_score": -0.5202,
+        "min_score": -3,
+        "max_score": 3
+      }
+    }}
+  ],
+  "search_statistics": {
+    "reference_K_ungapped": 0.1158,
+    "reference_lambda_ungapped": 1.1163,
+    "reference_K_gapped": 0.0015,
+    "reference_lambda_gapped": 0.5611,
+    "query_length": 32,
+    "database_size": 23917249,
+    "effective_query_length": 32,
+    "effective_database_size": 23917249,
+    "effective_search_space": 765351936
+  }
+}}

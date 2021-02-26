@@ -9,7 +9,7 @@ function showResults(results) {
     var search_hits = results.comer_search.search_hits;
     
     var results_table = document.createElement('table');
-    var results_table_columns = ['No.', 'ID', 'Description', 'Pvalue', 'Evalue', 'Score (bits)', 'Length'];
+    var results_table_columns = ['', 'No.', 'ID', 'Description', 'Pvalue', 'Evalue', 'Score (bits)', 'Length'];
     var results_table_head = createTableHeader(results_table_columns);
     results_table.appendChild(results_table_head);
     var results_table_body = document.createElement('tbody');
@@ -29,6 +29,8 @@ function showResults(results) {
         // Parsing detailed information on search hits and adding info to table and formatting alignments for display.
         var row = document.createElement('tr');
 
+        // 0th column is a checkbox
+        row.appendChild(createTableData('<input type="checkbox" id="table' + i + '" value="' + i + '" name="process">'));
         // First column contains a link, thus it is different.
         // No.
         var number_column = createTableData('');
