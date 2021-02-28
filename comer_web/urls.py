@@ -24,5 +24,5 @@ urlpatterns = [
     path('model_structure/', include('apps.model_structure.urls')),
     #path('admin/', admin.site.urls),
     path('help/', comer_web.views.help),
-    path('msa/', comer_web.views.index, name='submit_msa'),
+    path('msa/', include('apps.msa.urls')),
 ]

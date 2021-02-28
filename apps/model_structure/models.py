@@ -1,6 +1,5 @@
 import os
 import shutil
-import json
 
 from django.db import models
 
@@ -10,7 +9,9 @@ from apps.search.models import Job as SearchJob
 
 
 class Job(ComerWebServerJob):
-    search_job = models.ForeignKey(SearchJob, on_delete=models.CASCADE)
+    search_job = models.ForeignKey(
+        SearchJob, on_delete=models.CASCADE, related_name='modeling_job'
+        )
     sequence_no = models.IntegerField()
     number_of_templates = models.IntegerField()
 

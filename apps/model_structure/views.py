@@ -2,7 +2,6 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from comer_web.models import track_status
-from apps.search.models import Job as SearchJob
 from . import models
 
 def submit_single_template_structure_model(request):

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'apps.search',
     'apps.model_structure',
+    'apps.msa',
 ]
 
 MIDDLEWARE = [
