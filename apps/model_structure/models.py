@@ -5,7 +5,7 @@ import json
 from django.db import models
 
 from comer_web import utils, sequences
-from comer_web.models import ComerWebServerJob
+from comer_web.models import ComerWebServerJob, generate_job_name
 from apps.search.models import Job as SearchJob
 
 
@@ -91,3 +91,23 @@ class Template(models.Model):
 class StructureModel(models.Model):
     modeling_job = models.ForeignKey(Job, on_delete=models.CASCADE)
     templates = models.ManyToManyField(Template)
+
+
+def save_structure_modeling_job(post_data, use_multiple_templates):
+    "Save data for structure modeling job"
+    search_job = SearchJob.objects.get(name=post_data['job_id'])
+    job_name = generate_job_name()
+    sequence_no = int(post_data['sequence_no'])
+    templates = sorted([int(t) for t in post_data.getlist('process')])
+    modeller_key = post_data['modeller_key']
+    modeling_job = Job.objects.create(
+        name=job_name, search_job=search_job,
+        sequence_no=sequence_no,
+        number_of_templates=1
+        )
+    model_all_pairs = not use_multiple_templates
+    modeling_job.create_settings_file(modeller_key, model_all_pairs)
+    alignments = modeling_job.create_input_data(templates)
+    modeling_job.write_sequences(alignments)
+    return search_job, modeling_job
+

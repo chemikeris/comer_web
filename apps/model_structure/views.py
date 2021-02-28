@@ -1,26 +1,15 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from comer_web.models import generate_job_name, track_status
+from comer_web.models import track_status
 from apps.search.models import Job as SearchJob
 from . import models
 
 def submit_single_template_structure_model(request):
-    print('Submitting data for structure modeling.')
-    print(request.POST)
-    search_job = SearchJob.objects.get(name=request.POST['job_id'])
-    job_name = generate_job_name()
-    sequence_no = int(request.POST['sequence_no'])
-    templates = sorted([int(t) for t in request.POST.getlist('process')])
-    modeller_key = request.POST['modeller_key']
-    modeling_job = models.Job.objects.create(
-        name=job_name, search_job=search_job,
-        sequence_no=sequence_no,
-        number_of_templates=1
+    print('Submitting data for structure modeling using single template.')
+    search_job, modeling_job = models.save_structure_modeling_job(
+        request.POST, False
         )
-    modeling_job.create_settings_file(modeller_key, True)
-    alignments = modeling_job.create_input_data(templates)
-    modeling_job.write_sequences(alignments)
     return redirect(
             'show_modeling_job', search_job_id=search_job.name,
             modeling_job_id=modeling_job.name
@@ -28,7 +17,10 @@ def submit_single_template_structure_model(request):
 
 
 def submit_multiple_templates_structure_model(request):
-    modeling_job.create_settings_file(request.POST['modeller_key'], False)
+    print('Submitting data for structure modeling using multiple templates.')
+    search_job, modeling_job = models.save_structure_modeling_job(
+        request.POST, True
+        )
     return redirect(
             'show_modeling_job', search_job_id=search_job.name,
             modeling_job_id=modeling_job.name
