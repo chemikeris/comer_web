@@ -32,6 +32,8 @@ fi
 echo 'Setting up Django.'
 python manage.py makemigrations
 python manage.py makemigrations search
+python manage.py makemigrations model_structure
+python manage.py makemigrations msa
 python manage.py migrate
 python manage.py collectstatic
 
