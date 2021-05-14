@@ -91,7 +91,11 @@ def save_comer_settings(settings, settings_file):
     "Save COMER search settings to a file"
     all_settings = default.search_settings
     for key, value in settings.items():
-        all_settings[key] = value
+        if isinstance(value, list):
+            writable_value = ','.join(value)
+        else:
+            writable_value = value
+        all_settings[key] = writable_value
     with open(settings_file, 'w') as f:
         f.write('[OPTIONS]\n')
         for key, value in all_settings.items():

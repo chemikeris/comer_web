@@ -31,8 +31,8 @@ class SequencesInputForm(forms.Form):
         widget=forms.Textarea, strip=True, max_length=MAX_SEQUENCE_INPUT
         )
     # Database to search.
-    comer_db = forms.ChoiceField(
-        choices=settings.COMER_DATABASES, label='Database'
+    comer_db = forms.MultipleChoiceField(
+        choices=settings.COMER_DATABASES, label='Databases'
         )
     # Optional job name and email fields.
     # job_name = forms.CharField(required=False, label='Job name (optional)')
