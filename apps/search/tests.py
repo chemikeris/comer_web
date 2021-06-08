@@ -14,7 +14,7 @@ class TestInputValidation(TestCase):
         self.form_data['sequence'] = 'SEQUENCE'
         self.form_data['number_of_results'] = 700
         # Setting default databases
-        self.form_data['comer_db'] = settings.COMER_DATABASES[0][0]
+        self.form_data['comer_db'] = [settings.COMER_DATABASES[0][0]]
         self.form_data['hhsuite_db'] = settings.HHSUITE_DATABASES[0][0]
         self.form_data['sequence_db'] = settings.SEQUENCE_DATABASES[0][0]
 

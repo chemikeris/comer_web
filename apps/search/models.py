@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 
 from . import default
 from comer_web import calculation_server
-from comer_web.models import ComerWebServerJob, generate_job_name
+from apps.core.models import ComerWebServerJob, generate_job_name
 
 
 class Job(ComerWebServerJob):

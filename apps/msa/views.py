@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 
-from comer_web.models import track_status
+from apps.core.models import track_status
 from . import models
 
 def submit(request):

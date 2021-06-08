@@ -3,8 +3,8 @@ import shutil
 
 from django.db import models
 
-from comer_web import utils, sequences
-from comer_web.models import ComerWebServerJob, generate_job_name
+from apps.core import utils, sequences
+from apps.core.models import ComerWebServerJob, generate_job_name
 from apps.search.models import Job as SearchJob
 
 

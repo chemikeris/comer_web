@@ -1,8 +1,7 @@
 import os
 import unittest
 
-from comer_web import utils
-from comer_web import sequences
+from apps.core import utils, sequences
 
 class Test_convert_comer_json_to_fasta(unittest.TestCase):
     def setUp(self):

@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from . import default
-from comer_web import sequences
+from apps.core import sequences
 
 MAX_SEQUENCE_INPUT = 1048576
 MAX_NUMBER_OF_SEQUENCES = 100

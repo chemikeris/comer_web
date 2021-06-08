@@ -7,8 +7,8 @@ from django.http import Http404, HttpResponse
 from . import forms
 from . import default
 from . import models
-from comer_web import utils
-from comer_web.models import track_status
+from apps.core import utils
+from apps.core.models import track_status
 
 def input(request):
     "View to input query sequences or MSA"
