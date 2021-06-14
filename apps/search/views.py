@@ -8,7 +8,6 @@ from . import forms
 from . import default
 from . import models
 from apps.core import utils
-from apps.core.models import track_status
 
 def input(request):
     "View to input query sequences or MSA"
@@ -32,7 +31,7 @@ def results(request, job_id):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
     uri = request.build_absolute_uri()
-    finished, removed, status_msg, job_log, refresh = track_status(job, uri)
+    finished, removed, status_msg, refresh = job.status_info()
     if finished and not removed:
         if job.number_of_input_sequences == 1:
             print('Single-sequence job, redirecting.')
@@ -52,7 +51,9 @@ def results(request, job_id):
     else:
         return render(
                 request, 'jobs/not_finished_or_removed.html',
-                {'status_msg': status_msg, 'reload': refresh, 'log': job_log}
+                {'status_msg': status_msg, 'reload': refresh,
+                    'log': job.calculation_log
+                    }
                 )
 
 

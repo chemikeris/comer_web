@@ -33,6 +33,7 @@ class ComerWebServerJob(models.Model):
         choices=possible_job_statuses, default=NEW
         )
     slurm_job_no = models.IntegerField(null=True)
+    calculation_log = models.TextField(null=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -56,9 +57,8 @@ class ComerWebServerJob(models.Model):
             f.write('\n//\n'.join(sequence_data))
             f.write('\n//\n')
 
-    def submit_to_calculation(self):
+    def submit_to_calculation(self, connection):
         "Submit COMER job for calculation to calculation server"
-        connection = calculation_server.Connection()
         remote_job_directory = connection.job_directory(self.name, create=True)
         connection.send_file(self.get_input_file('options'), remote_job_directory)
         connection.send_file(self.get_input_file('in'), remote_job_directory)
@@ -70,10 +70,9 @@ class ComerWebServerJob(models.Model):
         self.status = self.QUEUED
         self.slurm_job_no = int(job_calculation_slurm_id)
         self.save(update_fields=['status', 'slurm_job_no'])
-        connection.close()
 
-    def check_status(self, uri):
-        connection = calculation_server.Connection()
+    def check_calculation_status(self, connection):
+        uri = None
         job_status_code, job_status_log = connection.check_slurm_job(
             self.slurm_job_no, self.name
             )
@@ -94,13 +93,10 @@ class ComerWebServerJob(models.Model):
                 'Unknown COMER job status code: %s' % job_status_code
                 )
         self.save()
-        connection.close()
         return job_status_log
 
-    def get_results_files(self, connection=None):
+    def get_results_files(self, connection):
         "Retrieve results files from calculation server"
-        if connection is None:
-            connection = calculation_server.Connection()
         # Getting remote archive.
         archive_filename = self.get_output_name() + '.tar.gz'
         remote_directory = connection.job_directory(self.name, create=False)
@@ -151,6 +147,32 @@ class ComerWebServerJob(models.Model):
     def send_confirmation_email(self, *args, **kwargs):
         pass
 
+    def status_info(self):
+        finished = False
+        removed = False
+        status_msg = None
+        refresh = False
+        if self.status == self.NEW:
+            status_msg = 'new'
+            refresh = True
+        elif self.status == self.QUEUED:
+            status_msg = 'queued'
+            refresh = True
+        elif self.status == self.RUNNING:
+            status_msg = 'running'
+            refresh = True
+        elif self.status == self.FAILED:
+            status_msg = 'failed'
+        elif self.status == self.FINISHED:
+            status_msg = 'finished'
+            finished = True
+        elif self.status == self.REMOVED:
+            status_msg = 'removed'
+            finished = True
+            removed = True
+        else:
+            print('Unknown job status!')
+        return finished, removed, status_msg, refresh
 
 def generate_job_name():
     "Generate job name having 12 random alphanumeric symbols"
@@ -158,38 +180,4 @@ def generate_job_name():
         random.choice(string.ascii_letters+string.digits) for x in range(12)
         )
     return job_name
-
-
-def track_status(job, uri):
-    finished = False
-    removed = False
-    status_msg = None
-    job_log = None
-    refresh = False
-    if job.status == job.NEW:
-        status_msg = 'new'
-        # Submitting new job to calculation server.
-        job.submit_to_calculation()
-        refresh = True
-    elif job.status == job.QUEUED:
-        status_msg = 'queued'
-        # Checking job status.
-        job_log = job.check_status(uri)
-        refresh = True
-    elif job.status == job.RUNNING:
-        status_msg = 'running'
-        job_log = job.check_status(uri)
-        refresh = True
-    elif job.status == job.FAILED:
-        status_msg = 'failed'
-    elif job.status == job.FINISHED:
-        status_msg = 'finished'
-        finished = True
-    elif job.status == job.REMOVED:
-        status_msg = 'removed'
-        finished = True
-        removed = True
-    else:
-        print('Unknown job status!')
-    return finished, removed, status_msg, job_log, refresh
 

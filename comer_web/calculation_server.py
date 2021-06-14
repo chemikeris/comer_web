@@ -107,6 +107,7 @@ class Connection:
         return err_code
 
     def check_job_status_file(self, job_id):
+        print('Retrieving status log for %s' % job_id)
         job_status_log = self.retrieve_job_file_contents(job_id, 'status')
         return job_status_log
 

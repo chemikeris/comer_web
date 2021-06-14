@@ -1,7 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from apps.core.models import track_status
 from . import models
 
 def submit_single_template_structure_model(request):
@@ -29,7 +28,7 @@ def submit_multiple_templates_structure_model(request):
 def show_modeling_job(request, search_job_id, modeling_job_id):
     job = get_object_or_404(models.Job, name=modeling_job_id)
     uri = request.build_absolute_uri()
-    finished, removed, status_msg, job_log, refresh = track_status(job, uri)
+    finished, removed, status_msg, refresh = job.status_info()
     if finished and not removed:
         results_files = job.read_results_lst()
         errors = job.read_error_log()
@@ -43,7 +42,9 @@ def show_modeling_job(request, search_job_id, modeling_job_id):
     else:
         return render(
                 request, 'jobs/not_finished_or_removed.html',
-                {'status_msg': status_msg, 'reload': refresh, 'log': job_log}
+                {'status_msg': status_msg, 'reload': refresh,
+                    'log': job.calculation_log
+                    }
                 )
 
 

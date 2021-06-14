@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 
-from apps.core.models import track_status
 from . import models
 
 def submit(request):
@@ -12,7 +11,7 @@ def submit(request):
 def show(request, msa_job_id):
     job = get_object_or_404(models.Job, name=msa_job_id)
     uri = request.build_absolute_uri()
-    finished, removed, status_msg, job_log, refresh = track_status(job, uri)
+    finished, removed, status_msg, refresh = job.status_info()
     if finished and not removed:
         alignment_file = job.read_results_lst()
         full_alignment_file_path = job.results_file_path(alignment_file)
@@ -25,5 +24,7 @@ def show(request, msa_job_id):
     else:
         return render(
                 request, 'jobs/not_finished_or_removed.html',
-                {'status_msg': status_msg, 'reload': refresh, 'log': job_log}
+                {'status_msg': status_msg, 'reload': refresh,
+                    'log': job.calculation_log
+                    }
                 )
