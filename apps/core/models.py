@@ -84,10 +84,16 @@ class ComerWebServerJob(models.Model):
             results_files = self.read_results_lst()
             self.number_of_successful_sequences = len(results_files)
             self.status = getattr(self, 'FINISHED')
-            self.send_confirmation_email('finished', uri)
+            try:
+                self.send_confirmation_email('finished', uri)
+            except:
+                print('Sending confirmation email failed.')
         elif job_status_code == 1:
             self.status = getattr(self, 'FAILED')
-            self.send_confirmation_email('failed', uri)
+            try:
+                self.send_confirmation_email('finished', uri)
+            except:
+                print('Sending confirmation email failed.')
         else:
             raise ValueError(
                 'Unknown COMER job status code: %s' % job_status_code
