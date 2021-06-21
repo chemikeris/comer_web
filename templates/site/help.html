@@ -5,11 +5,12 @@
 <h2>Query input</h2>
 <p>COMER web server accepts several types of <a href="{% url 'input' %}">input</a>:</p>
 <ul>
-    <li>Single sequence input in FASTA or plain text formats;</li>
-    <li>Single multiple-sequence alignment in FASTA or Stockholm formats;</li>
-    <li>Multiple sequences input in FASTA format;</li>
-    <li>Multiple inputs format, mixed of sequences and sequence alignments in plain text, FASTA, or Stockholm formats, separated by lines containing "//".</li>
+    <li>Sequence input in FASTA or plain text formats;</li>
+    <li>Multiple-sequence alignment in FASTA, A3M or Stockholm formats;</li>
+    <li>COMER profile.</li>
 </ul>
-<p>Input is assigned automatically to one of the above types. For example, FASTA input having all sequences of the same length is considered to be a multiple sequence alingment, and if sequence lengths differ, it is further analyzed as input of multiple sequences.</p>
+<p>Input is assigned automatically to one of the above types. For example, FASTA input having all sequences of the same length is considered to be a multiple sequence alignment, and if sequence lengths differ, it is further analyzed as A3M format.</p>
+<p>Multiple input queries can be provided, mixed of sequences and sequence alignments in all formats, separated by lines containing "//".
+If the input contains a single FASTA query, each sequence can be treated as a separate query, if the checkbox "In case of single FASTA query, treat each sequence as a separate query" is checked.</p>
 <p>Maximum number of input sequences/alignments/profiles is 100.</p>
 {% endblock %}

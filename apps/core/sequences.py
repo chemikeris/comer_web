@@ -5,8 +5,12 @@ def format(input_str):
     "Check input format"
     if input_str.startswith('>'):
         seq_format = 'fasta'
+    elif input_str.startswith('#A3M'):
+        seq_format = 'a3m'
     elif input_str.startswith('# STOCKHOLM'):
         seq_format = 'stockholm'
+    elif input_str.startswith('COMER'):
+        seq_format = 'comer'
     else:
         seq_format = 'plain'
     return seq_format

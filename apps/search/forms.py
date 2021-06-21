@@ -30,6 +30,10 @@ class SequencesInputForm(forms.Form):
     sequence = SequenceField(
         widget=forms.Textarea, strip=True, max_length=MAX_SEQUENCE_INPUT
         )
+    multi_sequence_fasta = forms.BooleanField(
+        label='In case of single FASTA query, treat each sequence as a separate query',
+        required=False
+        )
     # Database to search.
     comer_db = forms.MultipleChoiceField(
         choices=settings.COMER_DATABASES, label='Databases'
@@ -121,11 +125,6 @@ class SequencesInputForm(forms.Form):
         all_sequences, problematic_sequences = sequences.split_fasta(
             input_fasta_str
             )
-        if len(all_sequences) > 1:
-            correct_msa = sequences.length_is_the_same(all_sequences)
-            if not correct_msa:
-                msg = 'Lengths of sequences in alignment are not equal!'
-                self.add_error('sequence', ValidationError(msg))
         for description, sequence in all_sequences:
             sequence = self.validate_plain_sequence(sequence, description)
         self.add_problematic_fasta_errors(problematic_sequences)
@@ -167,16 +166,18 @@ class SequencesInputForm(forms.Form):
                     'hmmer_opt_evalue',
                     'hmmer E-value is required!'
                     )
-
-    def clean_sequence(self):
-        "Clean single sequence input"
-        sequences_data = self.cleaned_data['sequence']
+        # Clean sequence input
+        sequences_data = cleaned_data['sequence']
+        try:
+            multi_sequence_fasta = cleaned_data.pop('multi_sequence_fasta')
+        except KeyError:
+            multi_sequence_fasta = False
         # If no // separator is found and sequences format is fasta, it might
         # be in fact multiple sequences input that needs to be checked if it is
         # MSA, and splitted using // otherwise.
         if len(sequences_data) == 1:
             seq_format = sequences.format(sequences_data[0])
-            if seq_format == 'fasta':
+            if seq_format == 'fasta' and multi_sequence_fasta:
                 all_sequences, problematic_sequences = sequences.split_fasta(
                     sequences_data[0]
                     )
@@ -201,8 +202,8 @@ class SequencesInputForm(forms.Form):
         cleaned_sequences_data = []
         for s in sequences_data:
             seq_format = sequences.format(s)
-            if seq_format == 'stockholm':
-                # Stockholm format is not validated in web server.
+            if seq_format in ('stockholm', 'comer', 'a3m'):
+                # These formats are not validated in web server.
                 cleaned_sequences_data.append(s)
             elif seq_format == 'fasta':
                 cleaned_sequences_data.append(self.validate_fasta(s))
@@ -214,5 +215,5 @@ class SequencesInputForm(forms.Form):
                     cleaned_sequences_data.append(cleaned_sequence)
             else:
                 raise ValidationError('Unknown input format!')
-        return cleaned_sequences_data
+        cleaned_data['sequence'] = cleaned_sequences_data
 

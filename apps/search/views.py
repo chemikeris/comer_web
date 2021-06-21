@@ -41,7 +41,7 @@ def results(request, job_id):
         results_files = job.read_results_lst()
         for rf in results_files:
             input_file = job.results_file_path(rf['input'])
-            input_name, msa_input = models.read_input_name_and_type(input_file)
+            input_name, i_f, i_d = models.read_input_name_and_type(input_file)
             sequences.append(input_name)
         errors = job.read_error_log()
         return render(
@@ -68,13 +68,13 @@ def detailed(request, job_id, sequence_no):
     if results is None:
         return render(request, 'search/error.html', {'json_error': json_error})
     input_file = job.results_file_path(results_files[sequence_no]['input'])
-    input_name, msa_input = models.read_input_name_and_type(input_file)
-
+    input_name, input_format, input_description = \
+        models.read_input_name_and_type(input_file)
     context = {
         'job': job, 'sequence_no': sequence_no,
         'results': results, 'input_name': input_name,
-        'seq_or_msa': 'multiple sequence alignment' if msa_input else \
-                'sequence'
+        'input_description': input_description,
+        'input_format': '' if input_format is None else f' ({input_format})'
         }
     return render(request, 'search/results.html', context)
 

@@ -109,20 +109,43 @@ def read_input_name_and_type(input_file):
     "Read input name from input file"
     input_fname, input_ext = os.path.splitext(input_file)
     if input_ext in ('.fa', '.afa'):
+        input_format = 'Fasta'
         with open(input_file) as f:
             input_name = f.readline().rstrip()[1:]
         if input_ext == '.fa':
-            multiple_sequence_alignment_input = False
+            input_description = 'sequence'
         else:
-            multiple_sequence_alignment_input = True
+            input_description = 'multiple sequence alignment'
+    elif input_ext == '.a3m':
+        input_format = 'A3M'
+        input_description = 'multiple sequence alignment'
+        with open(input_file) as f:
+            line = f.readline().strip()
+            description_found = False
+            while not description_found:
+                if line.startswith('>'):
+                    input_name = line[1:]
+                    description_found = True
+                else:
+                    line = f.readline().strip()
     elif input_ext == '.sto':
-        multiple_sequence_alignment_input = True
+        input_format = 'Stockholm'
+        input_description = 'multiple sequence alignment'
         input_name = 'Query' + input_fname.rsplit('__', 1)[-1]
         with open(input_file) as f:
             for line in f:
                 if line.startswith('#=GF DE'):
                     input_name = line.split(maxsplit=2)[-1].rstrip()
+    elif input_ext == '.pro':
+        input_description = 'COMER profile'
+        input_format = None
+        with open(input_file) as f:
+            for line in f:
+                if line.startswith('DESC:'):
+                    input_name = line.split(':', 1)[1].strip()
     else:
-        raise ValueError('Input file extension should be ".fa", ".afa" or ".sto".')
-    return input_name, multiple_sequence_alignment_input
+        raise ValueError(
+            'Input file extension should be "fa", "afa", "a3m", "pro" or "sto".'
+            )
+    return input_name, input_format, input_description
 

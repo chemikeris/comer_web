@@ -80,17 +80,10 @@ class TestInputValidation(TestCase):
         sequence = '>d1\nsss\n>d2\ns'
         form_data = copy.deepcopy(self.form_data)
         form_data['sequence'] = sequence
+        form_data['multi_sequence_fasta'] = True
         form = forms.SequencesInputForm(form_data)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['sequence'], ['>d1\nsss', '>d2\ns'])
-
-    def test_multiple_sequences_input_with_incorrect_msa(self):
-        "Test incorrect multiple sequences alignment fasta input"
-        sequence = '>d1\nsds\n>d2\ns-\n//\n>d3\na'
-        form_data = copy.deepcopy(self.form_data)
-        form_data['sequence'] = sequence
-        form = forms.SequencesInputForm(form_data)
-        self.assertFalse(form.is_valid())
 
     def test_sequence_input_plain_text(self):
         "Test single sequence fasta input"
@@ -135,16 +128,18 @@ class TestFunctions(TestCase):
     def test_read_input_name_from_fasta(self):
         "Test reading input name from FASTA file"
         fname = os.path.join(settings.BASE_DIR, 'tests', 'files', 'fasta.fa')
-        name, msa_input = models.read_input_name_and_type(fname)
+        name, input_format, desc = models.read_input_name_and_type(fname)
         self.assertEqual(name, '3VHS_1')
-        self.assertFalse(msa_input)
+        self.assertEqual(input_format, 'Fasta')
+        self.assertEqual(desc, 'sequence')
 
     def test_read_input_name_from_stockholm(self):
         "Test reading input name from Stockholm file"
         fname = os.path.join(
             settings.BASE_DIR, 'tests', 'files', 'stockholm.sto'
             )
-        name, msa_input = models.read_input_name_and_type(fname)
+        name, input_format, desc = models.read_input_name_and_type(fname)
         self.assertEqual(name, 'CBS domain')
-        self.assertTrue(msa_input)
+        self.assertEqual(input_format, 'Stockholm')
+        self.assertEqual(desc, 'multiple sequence alignment')
 
