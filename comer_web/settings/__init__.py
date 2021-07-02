@@ -28,8 +28,9 @@ from comer_web.settings.passwords import SECRET_KEY
 try:
     from comer_web.settings.debug import DEBUG
 except ImportError:
-    DEBUG = True
+    DEBUG = False
 
+BASE_URL = 'https://bioinformatics.lt/comer'
 ALLOWED_HOSTS = ['.ibt.lt', '.bioinformatics.lt', '.bioinfo.lt', 'localhost']
 
 EMAIL_HOST = 'mailrelay.vu.lt'

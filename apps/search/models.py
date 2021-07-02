@@ -2,10 +2,12 @@ import os
 
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 from django.core.mail import send_mail
 
 from . import default
 from comer_web import calculation_server
+from comer_web.settings import BASE_URL
 from apps.core.models import ComerWebServerJob, generate_job_name
 
 
@@ -45,22 +47,30 @@ class Job(ComerWebServerJob):
         rf['input'] = files_line[-1]
         return rf
 
-    def send_confirmation_email(self, status, uri):
+    def uri(self):
+        uri = reverse('results', args=[self.name])
+        return BASE_URL+uri
+
+    def send_confirmation_email(self, status):
         if self.email:
             print('Sending confirmation email to %s.' % self.email)
             message = ''
             message += 'COMER web server job %s has %s.\n' % (self.name, status)
             message += '\n'
             message += 'To see results, please go to website:\n'
-            message += uri
+            message += self.uri()
             message += '\n'
-            send_mail(
-                subject='COMER web server job %s' % self.name,
-                message=message,
-                from_email=None,
-                recipient_list=[self.email]
-                )
-        else:
+            try:
+                send_mail(
+                    subject='COMER web server job %s' % self.name,
+                    message=message,
+                    from_email=None,
+                    recipient_list=[self.email]
+                    )
+            except:
+                print('Sending confirmation email failed.')
+                import traceback
+                traceback.print_exc()
             return
 
 

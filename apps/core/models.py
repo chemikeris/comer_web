@@ -84,16 +84,10 @@ class ComerWebServerJob(models.Model):
             results_files = self.read_results_lst()
             self.number_of_successful_sequences = len(results_files)
             self.status = getattr(self, 'FINISHED')
-            try:
-                self.send_confirmation_email('finished', uri)
-            except:
-                print('Sending confirmation email failed.')
+            self.send_confirmation_email('finished')
         elif job_status_code == 1:
             self.status = getattr(self, 'FAILED')
-            try:
-                self.send_confirmation_email('finished', uri)
-            except:
-                print('Sending confirmation email failed.')
+            self.send_confirmation_email('failed')
         else:
             raise ValueError(
                 'Unknown COMER job status code: %s' % job_status_code
@@ -153,6 +147,9 @@ class ComerWebServerJob(models.Model):
     def send_confirmation_email(self, *args, **kwargs):
         pass
 
+    def uri(self):
+        raise NotImplementedError
+
     def status_info(self):
         finished = False
         removed = False
@@ -179,6 +176,7 @@ class ComerWebServerJob(models.Model):
         else:
             print('Unknown job status!')
         return finished, removed, status_msg, refresh
+
 
 def generate_job_name():
     "Generate job name having 12 random alphanumeric symbols"

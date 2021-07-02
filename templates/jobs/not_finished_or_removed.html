@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
 <p>Job status: {{ status_msg }}.</p>
-{% if log %} <pre>{{ log }}</pre> {% endif %}
 {% if reload %}
+{% if log %} <pre>{{ log }}</pre> {% endif %}
 <p>Refreshing every 10 seconds.</p>
 <meta http-equiv="refresh" content="10">
 {% endif %}
