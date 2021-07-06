@@ -1,7 +1,23 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 <h1>COMER Multiple Sequence Alignment</h1>
-<pre>{{ msa_str }}</pre>
+<p><a href="{% url 'download_msa' msa_job_id=msa_job_id %}">Download</a></p>
+<div id="display_msa"></div>
+<script src="{% static 'msa.min.js' %}"></script>
+<script>
+var opts = {
+    el: document.getElementById("display_msa"),
+    vis: {
+      conserv: false,
+      overviewbox: false
+    },
+    menu: "small",
+    bootstrapMenu: true
+};
+var m = new msa.msa(opts);
+m.u.file.importURL("{% url 'download_msa' msa_job_id=msa_job_id  %}", function(){m.render();}); 
+</script>
 {% if errors %}
 <h2>Error log:</h2>
 <pre>{{ errors }} </pre>

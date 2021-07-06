@@ -9,4 +9,9 @@ urlpatterns = [
         views.show,
         name='show_msa'
         ),
+    path(
+        'download/<slug:msa_job_id>/',
+        views.download,
+        name='download_msa'
+        ),
 ]
