@@ -11,3 +11,4 @@ debug.py
 custom_servers.ini
 migrations
 comer_web/settings/comer_ws_backend.py
+static/*.js

@@ -48,7 +48,7 @@ def show_modeling_job(request, search_job_id, modeling_job_id):
                 )
 
 
-def show_model(request, modeling_job_id, model_no):
+def download_model(request, modeling_job_id, model_no):
     job = get_object_or_404(models.Job, name=modeling_job_id)
     results_files = job.read_results_lst()
     model_file = job.results_file_path(results_files[model_no]['model_file'])

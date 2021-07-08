@@ -1,9 +1,15 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
+<script src="{% static 'ngl.js' %}"></script>
+<script src="{% static 'js/model_structure/show_structure.js' %}"></script>
 <h1>Structure modeling results</h1>
 <p>Generated structural models:<p>
 {% for t in templates %}
-<p>Model using template <a href="{% url 'model_structure_show_model' modeling_job_id=job.name model_no=forloop.counter0 %}">{{ t }}</a>.</p>
+    {% url 'model_structure_download_model' modeling_job_id=job.name model_no=forloop.counter0 as m_url %}
+    <p>Model using {{ t }} (<a href="{{ m_url }}">download</a>).</p>
+    <div id="model_{{ t }}" class="structure_viewer"></div>
+    <script>show_structure("{{ m_url }}", "model_{{ t }}");</script>
 {% endfor %}
 {% if errors %}
 <h2>Error log:</h2>

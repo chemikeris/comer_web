@@ -19,8 +19,8 @@ urlpatterns = [
         name='show_modeling_job'
         ),
     path(
-        'show_model/<slug:modeling_job_id>/<int:model_no>',
-        views.show_model,
-        name='model_structure_show_model'
+        'download_model/<slug:modeling_job_id>/<int:model_no>',
+        views.download_model,
+        name='model_structure_download_model'
         ),
 ]
