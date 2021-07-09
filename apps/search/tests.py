@@ -17,6 +17,7 @@ class TestInputValidation(TestCase):
         self.form_data['comer_db'] = [settings.COMER_DATABASES[0][0]]
         self.form_data['hhsuite_db'] = settings.HHSUITE_DATABASES[0][0]
         self.form_data['sequence_db'] = settings.SEQUENCE_DATABASES[0][0]
+        self.form_data['cother_db'] = [settings.COTHER_DATABASES[0][0]]
 
     def test_default_sequences_form(self):
         form = forms.SequencesInputForm(default.search_settings)

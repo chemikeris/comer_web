@@ -5,8 +5,9 @@ function showResults(results) {
     const table_div = document.getElementById('results_table');
     const alignments_div = document.getElementById('alignments');
 
-    var search_summary = results.comer_search.search_summary;
-    var search_hits = results.comer_search.search_hits;
+    var search_method = Object.keys(results)[0];
+    var search_summary = results[search_method].search_summary;
+    var search_hits = results[search_method].search_hits;
     
     var results_table = document.createElement('table');
     var results_table_columns = ['', 'No.', 'ID', 'Description', 'Pvalue', 'Evalue', 'Score (bits)', 'Length'];

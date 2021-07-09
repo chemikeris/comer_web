@@ -34,9 +34,17 @@ class SequencesInputForm(forms.Form):
         label='In case of single FASTA query, treat each sequence as a separate query',
         required=False
         )
+    use_cother = forms.BooleanField(
+        label='Use COTHER (threading) search', required=False
+        )
     # Database to search.
     comer_db = forms.MultipleChoiceField(
-        choices=settings.COMER_DATABASES, label='Databases'
+        choices=settings.COMER_DATABASES, label='COMER databases',
+        initial=settings.COMER_DATABASES[0][0]
+        )
+    cother_db = forms.MultipleChoiceField(
+        choices=settings.COTHER_DATABASES, label='COTHER databases',
+        initial=settings.COTHER_DATABASES[0][0]
         )
     # Optional job name and email fields.
     # job_name = forms.CharField(required=False, label='Job name (optional)')
@@ -202,7 +210,7 @@ class SequencesInputForm(forms.Form):
         cleaned_sequences_data = []
         for s in sequences_data:
             seq_format = sequences.format(s)
-            if seq_format in ('stockholm', 'comer', 'a3m'):
+            if seq_format in ('stockholm', 'comer', 'cother', 'a3m'):
                 # These formats are not validated in web server.
                 cleaned_sequences_data.append(s)
             elif seq_format == 'fasta':

@@ -11,6 +11,8 @@ def format(input_str):
         seq_format = 'stockholm'
     elif input_str.startswith('COMER'):
         seq_format = 'comer'
+    elif input_str.startswith('COTHER'):
+        seq_format = 'cother'
     else:
         seq_format = 'plain'
     return seq_format

@@ -1,7 +1,7 @@
 import json
 import logging
 
-def read_json_file(fname):
+def read_json_file(fname, filter_key=None):
     "Read JSON file contents into Python format"
     with open(fname) as f:
         try:
@@ -9,5 +9,8 @@ def read_json_file(fname):
         except json.JSONDecodeError as json_error:
             logging.error('JSON file unparsable: %s', fname)
             contents = None
-    return contents
+    if filter_key is None:
+        return contents
+    else:
+        return contents[filter_key]
 

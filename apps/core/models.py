@@ -7,6 +7,7 @@ import csv
 from django.db import models
 
 from comer_web import calculation_server
+from . import utils
 
 class ComerWebServerJob(models.Model):
     class Meta:
@@ -57,13 +58,19 @@ class ComerWebServerJob(models.Model):
             f.write('\n//\n'.join(sequence_data))
             f.write('\n//\n')
 
+    def task(self):
+        return self._meta.app_label
+
+    def method(self):
+        raise NotImplementedError
+
     def submit_to_calculation(self, connection):
         "Submit COMER job for calculation to calculation server"
         remote_job_directory = connection.job_directory(self.name, create=True)
         connection.send_file(self.get_input_file('options'), remote_job_directory)
         connection.send_file(self.get_input_file('in'), remote_job_directory)
         run_result = connection.run_comer(
-            self.name, remote_job_directory, self._meta.app_label
+            self.name, remote_job_directory, self.task()
             )
         job_calculation_slurm_id = run_result.stdout
         print(job_calculation_slurm_id)
@@ -176,6 +183,26 @@ class ComerWebServerJob(models.Model):
         else:
             print('Unknown job status!')
         return finished, removed, status_msg, refresh
+
+
+class SearchSubJob:
+    "Class for defining common methods for jobs derived from SearchJob"
+    def get_directory(self):
+        parent_directory = self.search_job.get_directory()
+        self.directory = os.path.join(
+            parent_directory, self.task() , self.name
+            )
+        return self.directory
+    
+    def read_search_json(self):
+        search_files = self.search_job.read_results_lst()
+        search_json_file = self.search_job.results_file_path(
+            search_files[self.sequence_no]['results_json']
+            )
+        search_results = utils.read_json_file(
+            search_json_file, filter_key='%s_search' % self.search_job.method()
+            )
+        return search_results
 
 
 def generate_job_name():

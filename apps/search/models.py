@@ -18,7 +18,20 @@ class Job(ComerWebServerJob):
     # input is parsed by calculation server.
     number_of_input_sequences = models.IntegerField()
     number_of_successful_sequences = models.IntegerField(null=True)
-    search_in_database = models.CharField(max_length=20)
+    is_cother_search = models.BooleanField()
+
+    def task(self):
+        app_label = self._meta.app_label
+        if self.is_cother_search:
+            return 'cother_'+app_label
+        else:
+            return app_label
+
+    def method(self):
+        if self.is_cother_search:
+            return 'cother'
+        else:
+            return 'comer'
 
     def get_directory(self):
         self.directory = os.path.join(
@@ -38,7 +51,7 @@ class Job(ComerWebServerJob):
         return s
 
     def get_output_name(self):
-        return '%s__comer_out' % self.name
+        return '%s__%s_out' % (self.name, self.method())
 
     def read_results_lst_files_line(self, files_line):
         "Reading results lst line for Comer search job"
@@ -77,6 +90,7 @@ class Job(ComerWebServerJob):
 def process_input_data(input_data):
     "Process input sequences and settings"
     sequences_data = input_data.pop('sequence')
+    use_cother = input_data.pop('use_cother')
     print(sequences_data)
     print('###########################')
     job_name = generate_job_name()
@@ -86,7 +100,7 @@ def process_input_data(input_data):
     input_data['NOALNS'] = number_of_results
     print(input_data)
     new_job = Job.objects.create(
-        name=job_name, search_in_database='', email=email,
+        name=job_name, email=email, is_cother_search=use_cother,
         number_of_input_sequences=len(sequences_data)
         )
     print(new_job)
@@ -146,16 +160,17 @@ def read_input_name_and_type(input_file):
             for line in f:
                 if line.startswith('#=GF DE'):
                     input_name = line.split(maxsplit=2)[-1].rstrip()
-    elif input_ext == '.pro':
-        input_description = 'COMER profile'
+    elif input_ext in ('.pro', '.tpro'):
         input_format = None
         with open(input_file) as f:
+            input_description = f.readline().strip()
             for line in f:
                 if line.startswith('DESC:'):
                     input_name = line.split(':', 1)[1].strip()
     else:
         raise ValueError(
-            'Input file extension should be "fa", "afa", "a3m", "pro" or "sto".'
+            'Input file extension should be '\
+                '"fa", "afa", "a3m", "pro", "tpro" or "sto".'
             )
     return input_name, input_format, input_description
 

@@ -1,4 +1,5 @@
 search_settings = {
+    # COMER settings
     'EVAL': 10.0,
     'NOHITS': 700,
     'NOALNS': 700,
@@ -32,6 +33,13 @@ search_settings = {
     'DISTANCE': 12.96,
     'MAPALN': 1,
     'MINPP': 0.28,
+    # COTHER settings
+    #'DSTSEGM': 6,
+    #'DSTNPOS': 12,
+    #'DSTSEP6': 12,
+    #'DSTGAPL': 24,
+    #'DSTFREE': 3,
+    # MSA for profile generation settings
     'hhsuite_in_use': True,
     'hhsuite_opt_niterations': 2,
     'hhsuite_opt_evalue': 0.001,

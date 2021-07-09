@@ -40,6 +40,7 @@ def parse_comer_ws_backend_config(backend_config):
     c.read_string('[values]\n' + backend_config)
     databases = {}
     databases['comer'] = []
+    databases['cother'] = []
     databases['hmmer'] = []
     databases['hhsuite'] = []
     for setting, value in c['values'].items():
@@ -57,6 +58,11 @@ def parse_comer_ws_backend_config(backend_config):
         elif s.startswith('cprodb'):
             logging.info('%s = %s', setting, v)
             databases['comer'].append(
+                (v, '%s (%s)' % (nice_db_name(s), db_version(v)))
+                )
+        elif s.startswith('cotherprodb'):
+            logging.info('%s = %s', setting, v)
+            databases['cother'].append(
                 (v, '%s (%s)' % (nice_db_name(s), db_version(v)))
                 )
         else:
@@ -93,6 +99,7 @@ def main(arguments):
     databases = parse_comer_ws_backend_config(backend_config)
 
     print('COMER_DATABASES = %s' % databases['comer'])
+    print('COTHER_DATABASES = %s' % databases['cother'])
     print('SEQUENCE_DATABASES = %s' % databases['hmmer'])
     print('HHSUITE_DATABASES = %s' % databases['hhsuite'])
 
