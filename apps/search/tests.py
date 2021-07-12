@@ -123,6 +123,24 @@ class TestInputValidation(TestCase):
             form.cleaned_data['sequence'], ['>d1\nfasta', 'plain']
             )
 
+    def test_comer_profile_input_for_cother_search(self):
+        "Test if COMER profile input is allowed for COTHER search"
+        profile = 'COMER profile v2.0\nDESC: test\n'
+        form_data = copy.deepcopy(self.form_data)
+        form_data['sequence'] = profile
+        form_data['use_cother'] = True
+        form = forms.SequencesInputForm(form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_cother_profile_input_for_comer_search(self):
+        "Test if COTHER profile input is allowed for COMER search"
+        profile = 'COTHER profile v2.5\nDESC: test\n'
+        form_data = copy.deepcopy(self.form_data)
+        form_data['sequence'] = profile
+        form_data['use_cother'] = False
+        form = forms.SequencesInputForm(form_data)
+        self.assertFalse(form.is_valid())
+
 
 class TestFunctions(TestCase):
     "Various tests for search app"

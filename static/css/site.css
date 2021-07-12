@@ -22,3 +22,11 @@
     width: 400px;
     height: 400px;
 }
+.errorlist {
+    padding: inherit;
+}
+.errorlist li {
+    list-style-type: none;
+    color: red;
+    border: 1px solid red;
+}

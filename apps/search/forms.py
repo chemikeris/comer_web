@@ -35,7 +35,7 @@ class SequencesInputForm(forms.Form):
         required=False
         )
     use_cother = forms.BooleanField(
-        label='Use COTHER (threading) search', required=False
+        label='Perform COTHER search by threading', required=False
         )
     # Database to search.
     comer_db = forms.MultipleChoiceField(
@@ -145,6 +145,26 @@ class SequencesInputForm(forms.Form):
                 ValidationError('Problems with FASTA input: %s' % sequence)
                 )
 
+    def add_comer_profile_errors(self, problematic_profiles):
+        for profile in problematic_profiles:
+            self.add_error(
+                'sequence',
+                ValidationError(
+                    'COMER profiles cannot be used for the COTHER threading '\
+                        'search.'
+                    )
+                )
+
+    def add_cother_profile_errors(self, problematic_profiles):
+        for profile in problematic_profiles:
+            self.add_error(
+                'sequence',
+                ValidationError(
+                    'COTHER threading profiles cannot be used for the '\
+                        'COMER search.'
+                    )
+                )
+
     def clean(self):
         cleaned_data = super().clean()
         # If HHsuite or HMMer is used, it's settings have to be defined.
@@ -208,11 +228,25 @@ class SequencesInputForm(forms.Form):
                 params={'max': MAX_NUMBER_OF_SEQUENCES}
                 )
         cleaned_sequences_data = []
+        problematic_comer_profiles = []
+        problematic_cother_profiles = []
         for s in sequences_data:
             seq_format = sequences.format(s)
-            if seq_format in ('stockholm', 'comer', 'cother', 'a3m'):
+            if seq_format in ('stockholm', 'a3m'):
                 # These formats are not validated in web server.
                 cleaned_sequences_data.append(s)
+            elif seq_format == 'comer':
+                if cleaned_data['use_cother']:
+                    # COTHER cannot use COMER profiles.
+                    problematic_comer_profiles.append(s)
+                else:
+                    cleaned_sequences_data.append(s)
+            elif seq_format == 'cother':
+                if cleaned_data['use_cother']:
+                    cleaned_sequences_data.append(s)
+                else:
+                    # COMER cannot use COTHER profiles.
+                    problematic_cother_profiles.append(s)
             elif seq_format == 'fasta':
                 cleaned_sequences_data.append(self.validate_fasta(s))
             elif seq_format == 'plain':
@@ -223,5 +257,7 @@ class SequencesInputForm(forms.Form):
                     cleaned_sequences_data.append(cleaned_sequence)
             else:
                 raise ValidationError('Unknown input format!')
+        self.add_comer_profile_errors(problematic_comer_profiles)
+        self.add_cother_profile_errors(problematic_cother_profiles)
         cleaned_data['sequence'] = cleaned_sequences_data
 
