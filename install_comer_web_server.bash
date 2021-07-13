@@ -35,7 +35,7 @@ python manage.py makemigrations search
 python manage.py makemigrations model_structure
 python manage.py makemigrations msa
 python manage.py migrate
-python manage.py collectstatic
+python manage.py collectstatic --noinput
 
 echo 'Deactivating virtual environment.'
 deactivate
@@ -45,6 +45,11 @@ chown -R comerws:comerws $directory
 
 echo 'Copying configuration files.'
 cp comer.conf /etc/httpd/conf.d/
+
+echo 'Installing and running COMER server daemon.'
+cp comer.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable comer.service
 
 echo 'Reloading httpd.'
 service httpd reload

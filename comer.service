@@ -1,0 +1,14 @@
+[Unit]
+Description=COMER web server daemon
+
+[Service]
+WorkingDirectory=/opt/comer_web/src/
+ExecStart=/opt/comer_web/src/virtualenv/bin/python manage.py run_jobs
+StandardOutput=file:/opt/comer_web/logs/daemon.log
+StandardError=file:/opt/comer_web/logs/daemon.log
+User=comerws
+Group=comerws
+Type=idle
+
+[Install]
+WantedBy=multi-user.target

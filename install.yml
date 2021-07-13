@@ -29,6 +29,8 @@
             - python3-devel
             - python3-virtualenv
             - python3-mod_wsgi
+        tags:
+            - install-dnf
       - name: Configure firewall to allow httpd connections
         firewalld:
             service: http
@@ -43,7 +45,7 @@
         user:
             name: comerws
             uid: 2021
-      - name: Create directories for PPI3D servers
+      - name: Create directories for COMER web server
         file:
             path: '/opt/comer_web/{{ item }}'
             state: directory
@@ -54,12 +56,32 @@
             - jobs
             - logs
             - static
+            - dependencies
       - name: Set permissions for user apache
         acl:
             path: /opt/comer_web/
             entry: default:user:apache:rwx
             state: present
             recursive: yes
+- name: Install JavaScript dependencies
+  hosts: all
+  become: true
+  tasks:
+    - name: Download BioJS-MSA
+      get_url:
+          url: 'https://s3.eu-central-1.amazonaws.com/cdn.bio.sh/msa/latest/msa.min.gz.js'
+          dest: '/opt/comer_web/dependencies/msa.min.gz.js'
+    - name: Unzip BioJS-MSA
+      shell: 'zcat /opt/comer_web/dependencies/msa.min.gz.js > /opt/comer_web/static/msa.min.js'
+    - name: Download NGL Viewer
+      git:
+          repo: 'https://github.com/nglviewer/ngl'
+          dest: '/opt/comer_web/dependencies/ngl'
+    - name: Copy NGL Viewer to static files directory
+      copy:
+          remote_src: yes
+          src: '/opt/comer_web/dependencies/ngl/dist/ngl.js'
+          dest: '/opt/comer_web/static'
 - name: Install COMER web server
   hosts: all
   become: true
