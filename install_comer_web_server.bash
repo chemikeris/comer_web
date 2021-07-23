@@ -49,7 +49,7 @@ cp comer.conf /etc/httpd/conf.d/
 echo 'Installing and running COMER server daemon.'
 cp comer.service /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable comer.service
+systemctl enable --now comer.service
 
 echo 'Reloading httpd.'
 service httpd reload

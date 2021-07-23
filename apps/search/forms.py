@@ -61,7 +61,7 @@ class SequencesInputForm(forms.Form):
     # Profile generation options.
     # HHsuite.
     hhsuite_in_use = forms.BooleanField(
-        label='Use HHblits for profile generation', required=False,
+        label='Use HHblits for sequence search', required=False,
         )
     hhsuite_db = forms.ChoiceField(
         choices=settings.HHSUITE_DATABASES, label='HHsuite database'
@@ -74,7 +74,7 @@ class SequencesInputForm(forms.Form):
         )
     # HMMer
     hmmer_in_use = forms.BooleanField(
-        label='Use hmmer for profile generation', required=False, 
+        label='Use hmmer for sequence search', required=False, 
         )
     sequence_db = forms.ChoiceField(
         choices = settings.SEQUENCE_DATABASES, label='hmmer database'
@@ -150,8 +150,7 @@ class SequencesInputForm(forms.Form):
             self.add_error(
                 'sequence',
                 ValidationError(
-                    'COMER profiles cannot be used for the COTHER threading '\
-                        'search.'
+                    'COMER profiles cannot be used for COTHER threading.'
                     )
                 )
 
@@ -160,8 +159,7 @@ class SequencesInputForm(forms.Form):
             self.add_error(
                 'sequence',
                 ValidationError(
-                    'COTHER threading profiles cannot be used for the '\
-                        'COMER search.'
+                    'COTHER profiles cannot be used for the COMER search.'
                     )
                 )
 

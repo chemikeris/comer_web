@@ -39,6 +39,7 @@ search_settings = {
     #'DSTSEP6': 12,
     #'DSTGAPL': 24,
     #'DSTFREE': 3,
+    #'DDMSWGT': 0.2,
     # MSA for profile generation settings
     'hhsuite_in_use': True,
     'hhsuite_opt_niterations': 2,

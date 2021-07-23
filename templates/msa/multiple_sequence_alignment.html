@@ -10,10 +10,11 @@ var opts = {
     el: document.getElementById("display_msa"),
     vis: {
       conserv: false,
-      overviewbox: false
+      overviewbox: true
     },
     menu: "small",
-    bootstrapMenu: true
+    bootstrapMenu: true,
+    colorscheme: {scheme: "clustal"}
 };
 var m = new msa.msa(opts);
 m.u.file.importURL("{% url 'download_msa' msa_job_id=msa_job_id  %}", function(){m.render();}); 
