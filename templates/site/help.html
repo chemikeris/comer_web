@@ -1,16 +1,149 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load static %}
 <h1>Help</h1>
-<p>This is the help site for the COMER web server.</p>
-<h2>Query input</h2>
-<p>COMER web server accepts several types of <a href="{% url 'input' %}">input</a>:</p>
+<p>
+The COMER server is a multipurpose web service for protein analysis.
+It is powered by the COMER2 homology search engine. COMER2 is a sensitive and specific homology search method [1] that accelerates homology searches by harnessing the power of GPUs [2].
+The COMER2 software architecture allows for simultaneously running multiple instances of homology search on the same GPU independently.
+This property allows the webserver to efficiently exploit computational resources and distribute workload across multiple dedicated GPUs.
+</p>
+<h2>Homology Search Methods</h2>
+<p>
+The server allows for an analysis of the results of two tools: COMER and COTHER.
+Both tools are profile-profile comparison and alignment methods whose homology search is based on comparing the query profile (sequence family) model with the entries (profiles) of selected database(s).
+And both tools employ the fast GPU-accelerated search engine originally implemented in COMER2.
+The difference between COMER and the new threading method COTHER (to be published) is that COTHER compares a profile with a protein structure.
+In addition to divergence measures between profiles, this kind of comparison rests on evaluating how closely inter-residue distances predicted for the query match the distances observed in a structure.
+Deep convolutional neural networks are used to predict inter-residue distances for the query [3].
+</p>
+<h2>Workflow</h2>
+<p>
+The workflow for using the tools COMER and COTHER in the webserver environment is identical.
+The user is expected to enter her or his queries into the <a href="{% url 'input' %}">input form</a>, select a tool and databases, adjust parameters if desired, and hit the Submit button.
+Information displaying the progress of the job will show up.
+The results will appear once the job jas finished.
+An e-mail with a link to the results will be sent if the e-mail address was provided by the user.
+</p>
+<h3>Input</h3>
+<p>The user is allowed to enter multiple queries in different formats.
+Processing user queries in bulk removes the limitation of focusing on a single protein of interest at a time and allows the server to utilize computing power efficiently.
+Results will be provided by the server for each query.
+The number of queries in the input field is limited to 100 for COMER searches.
+That corresponding number for COTHER is 10.
+Also, the maximum allowed length of a COTHER profile model is 1000.
+If a query is in aligned FASTA format (see below), the number of residues of the first sequence should be less than this number.
+The COMER profile length is not constrained.
+</p>
+<p>
+Individual queries are separated by a line containing two slashes ("//").
+The format of a query is recognized automatically.
+Currently, these formats are supported for sequences: plain sequence and FASTA.
+A multiple sequence alignment (MSA) can be provided in these formats: aligned FASTA (FASTA with gaps "-" allowed), STOCKHOLM, and A3M.
+Also, the server recognizes COMER and COTHER profiles as individual queries.
+COMER and COTHER profiles cannot be used by these tools interchangeably.
+Therefore, COMER profiles will be ignores during a COTHER search, and COTHER profiles will be ignored during a COMER search.
+</p>
+<p>An example of an input record containing multiple queries is shown below:</p>
+<pre>
+KAITKERDSDFVKELFHQPELMADEEELQRATEQVVEMIENFKSFSLHFPLFWYDERYCISNILELEDLDEVWHTLPNDESCVDLWNMYKN
+//
+>1BKV_C T3-785; COLLAGEN, HYDROXYPROLINE, HYDROGEN BONDING, TRIPLE; HET: HYP, ACY; 2.0A {N/A} SCOP: k.3.1.1
+PPGPPGPPGITGARGLAGPPGPPGPPGPPG
+>tr|H9FJ52|H9FJ52_MACMU Collagen alpha-1(XXIV) chain (Fragment) OS=Macaca mulatta GN=COL24A1 PE=2 SV=1
+PRGEKGFRGETGPQGPRGQPGPPGPPGAPG
+>tr|B4KBY1|B4KBY1_DROMO Uncharacterized protein OS=Drosophila mojavensis GN=Dmoj\GI10190 PE=4 SV=2
+PPGPPGPPGppgPpgpPGPRGFTGATGPRGRDAPRT
+//
+>OsSUT1, RICE LEAVES, 538 residues|
+MARGSGAGGGGGGGGGGLELSV-GVGG---GGG--------A-RGG----GG-G-E-A--AAAV----ETA---AP-I--S-LGR---L-I-L--SGM--V-A
+>UniRef50_A0A444XBP0/16-506 (16-506) Uncharacterized protein n=2 Tax=Arachis hypogaea TaxID=3818 RepID=A0A444XBP0_ARAHY  Expect=3.8e-184  Expect=3.8e-184
+---------------------------------------------------N-S-L-Q--LESG----SRE---QP-S--P-IWK---L-V-A--VAS--I-A
+>UniRef50_A0A251VK29/1-393 (1-393) Putative sucrose/H+ symporter, plant, Major facilitator superfamily domain protein n=1 Tax=Helia  Expect=1e-129  Expect=1e-129
+--------------------------------------------------------------------------------------------M--VSA--I-A
+//
+</pre>
+<p>
+The last separator in the input field is optional.
+If only one MSA in aligned FASTA format is provided, the user can activate a checkbox to instruct the server to treat each sequence in the MSA as an individual query (gaps are ignored).
+In that case, the server will process multiple query sequences, corresponding to the number of sequences in the MSA, instead of one MSA. 
+</p>
+<p>For example, the following input</p>
+<pre>
+>OsSUT1, RICE LEAVES, 538 residues|
+MARGSGAGGGGGGGGGGLELSV-GVGG---GGG--------A-RGG----GG-G-E-A--AAAV----ETA---AP-I--S-LGR---L-I-L--SGM--V-A
+>UniRef50_A0A444XBP0/16-506 (16-506) 
+---------------------------------------------------N-S-L-Q--LESG----SRE---QP-S--P-IWK---L-V-A--VAS--I-A
+>UniRef50_A0A251VK29/1-393 (1-393)
+--------------------------------------------------------------------------------------------M--VSA--I-A
+</pre>
+<p>can be configured to represent three different queries (sequences in the MSA).</p>
+<h3>Limits</h3>
 <ul>
-    <li>Sequence input in FASTA or plain text formats;</li>
-    <li>Multiple-sequence alignment in FASTA, A3M or Stockholm formats;</li>
-    <li>COMER profile.</li>
+    <li>Maximum number of queries in the input field for COMER searches = 100.</li>
+    <li>Maximum number of queries in the input field for COTHER = 10.</li>
+    <li>Maximum query length (corresponding to the COTHER profile length) when using COTHER = 1000.</li>
+    <li>Maximum number of models when generating multiple 3D models = 100.</li>
+    <li>Maximum number of alignments when generating one 3D model = 10.</li>
 </ul>
-<p>Input is assigned automatically to one of the above types. For example, FASTA input having all sequences of the same length is considered to be a multiple sequence alignment, and if sequence lengths differ, it is further analyzed as A3M format.</p>
-<p>Multiple input queries can be provided, mixed of sequences and sequence alignments in all formats, separated by lines containing "//".
-If the input contains a single FASTA query, each sequence can be treated as a separate query, if the checkbox "In case of single FASTA query, treat each sequence as a separate query" is checked.</p>
-<p>Maximum number of input sequences/alignments/profiles is 100.</p>
+<h3>Profile Construction</h3>
+<p>
+The COMER and COTHER profile are constructed from an MSA.
+A profile and an MSA can be provided directly (see Input).
+Otherwise, or optionally in the case of MSAs, the query is searched in sequence database(s) to build an MSA.
+Sequence search can be configured to be conducted using either HHblits [4] or HMMER [5] or both.
+The latter means that HHblits and HMMER are used independently, and their resulting pairwise sequence alignments are combined into a final MSA.
+Note that if an MSA provided as a query is to be searched for, it first undergoes (HHblits and/or HMMER) profile construction followed by a profile-to-sequence search.
+</p>
+<h3>Profile Databases</h3>
+<p>
+Three profile databases are available for COMER search: PDB filtered to 70% sequence identity (PDB70), SCOP, and PFAM.
+Multiple databases can be selected (Ctrl key + Mouse's left-click) before submitting a job.
+The PDB70 database of COTHER profiles is available for COTHER search by threading.
+</p>
+<h3>Results and Supported Services</h3>
+<p>
+The format of COMER and COTHER results is the same.
+Results show the list of pairwise profile-profile (COMER) or profile-structure (COTHER) alignments.
+The formats of alignments produced by both tools are equivalent.
+The original input, final MSA, profile, log files, and the result file in JSON format are all available for download for each query.
+</p>
+<p>
+The server offers two services.
+One is the construction of the MSA based on selected pairwise alignments.
+The possibility to select a set of alignments by providing the thresholds of statistical significance estimates (E-values) may prove useful in the case of numerous hits identified and alignments produced.
+The other service is 3D structural model generation. Models are generated using Modeller [6]. 
+</p>
+<p>
+There are two options for generating models based on selected alignments.
+One possibility is to generate a structural model using multiple templates and alignments as restraints.
+Or, the server can be instructed to generate multiple models, one for each selected alignment, again utilizing computational resources efficiently.
+The maximum number of models is limited to 100.
+When generating one model, the maximum number of alignments is 10.
+</p>
+<p>
+The services are activated by submitting a job.
+Once the results are ready, a visualization layer is added for convenience to depict data generated by the services graphically.
+</p>
+<h2>Software and Data Availability</h2>
+<ul>
+    <li>The COMER2 software is available at <a href="https://github.com/minmarg/comer2">GitHub</a>.</li>
+    <li>ROPIUS0 for inter-residue distance prediction is available at <a href="https://github.com/minmarg/ropius0">GitHub</a>.</li>
+    <li>The COTHER software will be available shortly.</li>
+    <li>The source code of the COMER webserver backend and frontend will be available shortly.</li>
+    <li>COMER2 profile databases are available <a href="https://sourceforge.net/projects/comer2/files/comer2-profile-databases-2.02">for download</a>.</li>
+    <li>The COTHER profile database for PDB70 sequences will be available shortly.</li>
+</ul>
+<h2>Funding</h2>
+<p>This work was supported by the European Regional Development Fund [01.2.2-LMT-K-718-010028] under a grant agreement with the Research Council of Lithuania (LMTLT).</p>
+<img src="{% static 'ESFIVP-I-3.jpg' %}" alt="EU Funds">
+<h2>References</h2>
+<ol>
+    <li>Margelevičius M. Bayesian nonparametrics in protein remote homology search. <a href="https://doi.org/10.1093/bioinformatics/btw213">Bioinformatics. 2016;32(18):2744-52</a>.</li>
+    <li>Margelevičius M. COMER2: GPU-accelerated sensitive and specific homology searches. <a href="https://doi.org/10.1093/bioinformatics/btaa185">Bioinformatics. 2020;36(11):3570-3572</a>.</li>
+    <li>Margelevičius M. ROPIUS0: A deep learning-based protocol for protein structure prediction and model selection and its performance in CASP14. <a href="https://doi.org/10.1101/2021.06.22.449457">bioRxiv. 2021.06.22.449457</a>.</li>
+    <li>Remmert M, Biegert A, Hauser A, Söding J. HHblits: lightning-fast iterative protein sequence searching by HMM-HMM alignment. <a href="https://doi.org/10.1038/nmeth.1818">Nat Methods. 2011;9(2):173-5</a>.</li>
+    <li>Eddy SR. Accelerated Profile HMM Searches. <a href="https://doi.org/10.1371/journal.pcbi.1002195">PLoS Comput Biol. 2011;7(10):e1002195</a>.</li>
+    <li>Webb B, Sali A. Protein Structure Modeling with MODELLER. <a href="https://doi.org/10.1007/978-1-4939-7231-9_4">Methods Mol Biol. 2017;1654:39-54</a>.</li>
+</ol>
 {% endblock %}
