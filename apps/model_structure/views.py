@@ -28,13 +28,13 @@ def submit_multiple_templates_structure_model(request):
 def show_modeling_job(request, search_job_id, modeling_job_id):
     job = get_object_or_404(models.Job, name=modeling_job_id)
     uri = request.build_absolute_uri()
-    finished, removed, status_msg, refresh = job.status_info()
+    finished, removed, status_msg, errors, refresh = job.status_info()
     if finished and not removed:
         results_files = job.read_results_lst()
         errors = job.read_error_log()
         context = {
             'templates': [r['template_ids'] for r in results_files],
-            'job': job
+            'job': job, 'errors': errors
             }
         return render(
                 request, 'model_structure/modeling_job.html', context
@@ -43,7 +43,7 @@ def show_modeling_job(request, search_job_id, modeling_job_id):
         return render(
                 request, 'jobs/not_finished_or_removed.html',
                 {'status_msg': status_msg, 'reload': refresh,
-                    'log': job.calculation_log
+                    'log': job.calculation_log, 'errors': errors
                     }
                 )
 

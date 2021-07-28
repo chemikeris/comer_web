@@ -31,7 +31,7 @@ def results(request, job_id):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
     uri = request.build_absolute_uri()
-    finished, removed, status_msg, refresh = job.status_info()
+    finished, removed, status_msg, errors, refresh = job.status_info()
     if finished and not removed:
         if job.number_of_input_sequences == 1:
             print('Single-sequence job, redirecting.')
@@ -43,7 +43,6 @@ def results(request, job_id):
             input_file = job.results_file_path(rf['input'])
             input_name, i_f, i_d = models.read_input_name_and_type(input_file)
             sequences.append(input_name)
-        errors = job.read_error_log()
         return render(
                 request, 'search/results_all.html',
                 {'job': job, 'sequences': sequences, 'errors': errors}
@@ -52,7 +51,7 @@ def results(request, job_id):
         return render(
                 request, 'jobs/not_finished_or_removed.html',
                 {'status_msg': status_msg, 'reload': refresh,
-                    'log': job.calculation_log
+                    'log': job.calculation_log, 'errors': errors
                     }
                 )
 

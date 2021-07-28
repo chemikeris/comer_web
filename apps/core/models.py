@@ -94,6 +94,7 @@ class ComerWebServerJob(models.Model):
             self.send_confirmation_email('finished')
         elif job_status_code == 1:
             self.status = getattr(self, 'FAILED')
+            self.get_error_file(connection)
             self.send_confirmation_email('failed')
         else:
             raise ValueError(
@@ -106,14 +107,34 @@ class ComerWebServerJob(models.Model):
         "Retrieve results files from calculation server"
         # Getting remote archive.
         archive_filename = self.get_output_name() + '.tar.gz'
-        remote_directory = connection.job_directory(self.name, create=False)
-        remote_results_archive = os.path.join(remote_directory, archive_filename)
         local_directory = self.get_directory()
-        local_results_archive = os.path.join(local_directory, archive_filename)
-        connection.get_file(remote_results_archive, local_results_archive)
+        local_results_archive = self.get_remote_file(
+            connection, archive_filename
+            )
         # Extracting results files.
         tar = tarfile.open(local_results_archive, 'r')
         tar.extractall(local_directory)
+
+    def get_error_file(self, connection):
+        "Retrieve error file for failed job"
+        error_filename = self.name + '.err'
+        local_error_file = self.get_remote_file(connection, error_filename)
+        # Truncating two last lines which provide error code.
+        with open(local_error_file, 'r+') as f:
+            lines = f.readlines()
+            f.seek(0)
+            for l in lines[:-2]:
+                f.write(l)
+            f.truncate()
+
+    def get_remote_file(self, connection, fname):
+        "Retrieve job file from calculation server"
+        remote_directory = connection.job_directory(self.name, create=False)
+        remote_file = os.path.join(remote_directory, fname)
+        local_directory = self.get_directory()
+        local_file = os.path.join(local_directory, fname)
+        connection.get_file(remote_file, local_file)
+        return local_file
     
     def read_error_log(self):
         "Read job error log"
@@ -161,6 +182,7 @@ class ComerWebServerJob(models.Model):
         finished = False
         removed = False
         status_msg = None
+        errors = None
         refresh = False
         if self.status == self.NEW:
             status_msg = 'new'
@@ -173,16 +195,18 @@ class ComerWebServerJob(models.Model):
             refresh = True
         elif self.status == self.FAILED:
             status_msg = 'failed'
+            errors = self.read_error_log()
         elif self.status == self.FINISHED:
             status_msg = 'finished'
             finished = True
+            errors = self.read_error_log()
         elif self.status == self.REMOVED:
             status_msg = 'removed'
             finished = True
             removed = True
         else:
             print('Unknown job status!')
-        return finished, removed, status_msg, refresh
+        return finished, removed, status_msg, errors, refresh
 
 
 class SearchSubJob:

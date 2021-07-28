@@ -11,17 +11,17 @@ def submit(request):
 
 def show(request, msa_job_id):
     job = get_object_or_404(models.Job, name=msa_job_id)
-    finished, removed, status_msg, refresh = job.status_info()
+    finished, removed, status_msg, errors, refresh = job.status_info()
     if finished and not removed:
         return render(
                 request, 'msa/multiple_sequence_alignment.html',
-                {'msa_job_id': msa_job_id}
+                {'msa_job_id': msa_job_id, 'errors': errors}
                 )
     else:
         return render(
                 request, 'jobs/not_finished_or_removed.html',
                 {'status_msg': status_msg, 'reload': refresh,
-                    'log': job.calculation_log
+                    'log': job.calculation_log, 'errors': errors
                     }
                 )
 
