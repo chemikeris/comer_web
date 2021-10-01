@@ -1,7 +1,9 @@
 import copy
 import os
+import tempfile
 
 from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from . import forms
 from . import default
@@ -57,6 +59,15 @@ class TestInputValidation(TestCase):
         self.form_data['hmmer_opt_evalue'] = 1e-3
         form = forms.SequencesInputForm(self.form_data)
         self.assertTrue(form.is_valid())
+
+    def test_fail_with_empty_sequence_input_and_no_file(self):
+        "Test no input failure"
+        sequence = ''
+        form_data = copy.deepcopy(self.form_data)
+        form_data['sequence'] = sequence
+        form = forms.SequencesInputForm(form_data)
+        valid_form = form.is_valid()
+        self.assertFalse(valid_form)
 
     def test_sequence_input_fasta_single(self):
         "Test single sequence fasta input"
@@ -140,6 +151,31 @@ class TestInputValidation(TestCase):
         form_data['use_cother'] = False
         form = forms.SequencesInputForm(form_data)
         self.assertFalse(form.is_valid())
+
+    def test_input_file(self):
+        form_data = copy.deepcopy(self.form_data)
+        form_data['sequence'] = None
+        form_files = {}
+        f = tempfile.NamedTemporaryFile()
+        s = '>s\nA'
+        form_files['input_query_file'] = SimpleUploadedFile(f.name, s.encode())
+        form = forms.SequencesInputForm(form_data, form_files)
+        valid_form = form.is_valid()
+        self.assertTrue(valid_form)
+        self.assertEqual(form.cleaned_data['sequence'], [s])
+
+    def test_input_both_text_and_file(self):
+        form_files = {}
+        f = tempfile.NamedTemporaryFile()
+        s = '>s\nA'
+        form_files['input_query_file'] = SimpleUploadedFile(f.name, s.encode())
+        form = forms.SequencesInputForm(self.form_data, form_files)
+        valid_form = form.is_valid()
+        self.assertTrue(valid_form)
+        self.assertEqual(
+            form.cleaned_data['sequence'],
+            [self.form_data['sequence'], s]
+            )
 
 
 class TestFunctions(TestCase):

@@ -1,14 +1,18 @@
 import os
+import copy
 
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
 from django.core.mail import send_mail
+from django.core.files.uploadedfile import UploadedFile
+
 
 from . import default
 from comer_web import calculation_server
 from comer_web.settings import BASE_URL
 from apps.core.models import ComerWebServerJob, generate_job_name
+from apps.core.utils import search_input_files_exist
 
 
 class Job(ComerWebServerJob):
@@ -87,36 +91,42 @@ class Job(ComerWebServerJob):
             return
 
 
-def process_input_data(input_data):
+def process_input_data(input_data, input_files):
     "Process input sequences and settings"
     sequences_data = input_data.pop('sequence')
+    input_query_f, input_parameters_f = search_input_files_exist(input_files)
     use_cother = input_data.pop('use_cother')
-    print(sequences_data)
     print('###########################')
     job_name = generate_job_name()
     email = input_data.pop('email')
     number_of_results = input_data.pop('number_of_results')
     input_data['NOHITS'] = number_of_results
     input_data['NOALNS'] = number_of_results
-    print(input_data)
     new_job = Job.objects.create(
         name=job_name, email=email, is_cother_search=use_cother,
         number_of_input_sequences=len(sequences_data)
         )
     print(new_job)
-    save_comer_settings(
-        input_data, os.path.join(new_job.directory, '%s.options' % new_job.name)
-        )
+    options_file = new_job.get_input_file('options')
+    if input_parameters_f:
+        with open(options_file, 'wb') as f:
+            f.write(input_parameters_f.read())
+    else:
+        save_comer_settings(input_data, options_file)
     new_job.write_sequences(sequences_data)
     return new_job
 
 
 def save_comer_settings(settings, settings_file):
     "Save COMER search settings to a file"
-    all_settings = default.search_settings
+    all_settings = copy.deepcopy(default.search_settings)
     for key, value in settings.items():
         if isinstance(value, list):
             writable_value = ','.join(value)
+        elif isinstance(value, UploadedFile):
+            continue
+        elif value is None:
+            continue
         else:
             writable_value = value
         all_settings[key] = writable_value

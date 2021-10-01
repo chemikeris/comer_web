@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 
 from . import default
 from apps.core import sequences
+from apps.core.utils import search_input_files_exist
 
 MAX_SEQUENCE_INPUT = 1048576
 MAX_NUMBER_OF_SEQUENCES = 100
@@ -17,26 +18,38 @@ class SequenceField(forms.CharField):
             raise ValidationError(
                 'Sequence input is too large (%s characters)!' % input_size
                 )
-        # Normalizing newlines, always '\n' in further processing.
-        sequences_data = '\n'.join(input_str.splitlines())
-        sequences_data = sequences_data.rstrip('/').split('\n//\n')
-        sequences_data = [s.strip() for s in sequences_data]
+        elif input_size == 0:
+            sequences_data = []
+        else:
+            sequences_data = process_sequences_input_str(input_str)
         return sequences_data
+
+
+def process_sequences_input_str(input_str):
+    # Normalizing newlines, always '\n' in further processing.
+    sequences_data = '\n'.join(input_str.splitlines())
+    sequences_data = sequences_data.rstrip('/').split('\n//\n')
+    sequences_data = [s.strip() for s in sequences_data]
+    return sequences_data
 
 
 class SequencesInputForm(forms.Form):
     "COMER search input form"
     # Input sequence.
     sequence = SequenceField(
-        widget=forms.Textarea, strip=True, max_length=MAX_SEQUENCE_INPUT
+        widget=forms.Textarea, strip=True, max_length=MAX_SEQUENCE_INPUT,
+        required=False
         )
+    input_query_file = forms.FileField(required=False)
     multi_sequence_fasta = forms.BooleanField(
         label='In case of single FASTA query, treat each sequence as a separate query',
         required=False
         )
+    email = forms.EmailField(required=False, label='E-mail (optional)')
     use_cother = forms.BooleanField(
         label='Perform COTHER search by threading', required=False
         )
+    input_search_parameters_file = forms.FileField(required=False)
     # Database to search.
     comer_db = forms.MultipleChoiceField(
         choices=settings.COMER_DATABASES, label='COMER databases',
@@ -49,7 +62,6 @@ class SequencesInputForm(forms.Form):
     # Optional job name and email fields.
     # job_name = forms.CharField(required=False, label='Job name (optional)')
     # Custom job name field to be introduced in the future.
-    email = forms.EmailField(required=False, label='E-mail (optional)')
     # Output options.
     EVAL = forms.FloatField(min_value=0, max_value=10, label='E-value')
     # Number of results that will be converted to number of hits and number of
@@ -74,7 +86,7 @@ class SequencesInputForm(forms.Form):
         )
     # HMMer
     hmmer_in_use = forms.BooleanField(
-        label='Use hmmer for sequence search', required=False, 
+        label='Use hmmer for sequence search', required=False,
         )
     sequence_db = forms.ChoiceField(
         choices = settings.SEQUENCE_DATABASES, label='hmmer database'
@@ -192,8 +204,21 @@ class SequencesInputForm(forms.Form):
                     'hmmer_opt_evalue',
                     'hmmer E-value is required!'
                     )
-        # Clean sequence input
-        sequences_data = cleaned_data['sequence']
+        # Using file input or text input?
+        query_file, parameters_file = search_input_files_exist(self.files)
+        sequences_data = []
+        if cleaned_data['sequence']:
+            sequences_data += cleaned_data['sequence']
+        if query_file:
+            sequences_data += process_sequences_input_str(
+                query_file.read().decode()
+                )
+        if not sequences_data:
+            raise ValidationError(
+                'Please provide query sequence or file with queries!'
+                )
+
+        # Clean sequence input (if no file was present)
         try:
             multi_sequence_fasta = cleaned_data.pop('multi_sequence_fasta')
         except KeyError:

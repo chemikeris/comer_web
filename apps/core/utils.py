@@ -14,3 +14,16 @@ def read_json_file(fname, filter_key=None):
     else:
         return contents[filter_key]
 
+
+def search_input_files_exist(files):
+    "Check if search input files exist"
+    try:
+        input_query_file = files['input_query_file']
+    except KeyError:
+        input_query_file = None
+    try:
+        input_parameters_file = files['input_search_parameters_file']
+    except KeyError:
+        input_parameters_file = None
+    return input_query_file, input_parameters_file
+

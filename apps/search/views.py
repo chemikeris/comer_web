@@ -14,9 +14,11 @@ def input(request):
     InputForm = forms.SequencesInputForm
 
     if request.method == 'POST':
-        form = InputForm(request.POST)
+        form = InputForm(request.POST, request.FILES)
         if form.is_valid():
-            new_job = models.process_input_data(form.cleaned_data)
+            new_job = models.process_input_data(
+                form.cleaned_data, request.FILES
+                )
             return redirect('results', job_id=new_job.name)
     else:
         search_settings = copy.deepcopy(default.search_settings)
@@ -91,3 +93,4 @@ def show_input(request, job_id, sequence_no=None):
     return render(
             request, 'search/detailed_input.html', {'input_str': input_data}
             )
+
