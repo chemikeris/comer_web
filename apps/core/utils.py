@@ -6,13 +6,16 @@ def read_json_file(fname, filter_key=None):
     with open(fname) as f:
         try:
             contents = json.load(f)
-        except json.JSONDecodeError as json_error:
+        except json.JSONDecodeError as error:
             logging.error('JSON file unparsable: %s', fname)
             contents = None
+            json_error = error
+        else:
+            json_error = None
     if filter_key is None:
-        return contents
+        return contents, json_error
     else:
-        return contents[filter_key]
+        return contents[filter_key], json_error
 
 
 def search_input_files_exist(files):

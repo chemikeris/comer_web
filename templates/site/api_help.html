@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<h1>COMER web server API description</h1>
+<p>The COMER web server can be used from a command line API.</p>
+<p>Submit a job using single sequence and default settings:</p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR</code>
+<p>After job is submitted, the server returns job identifier (jobID) that can be used to query job status:</p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_job_status' job_id='JobID' %}</code></p>
+<p>When job finishes, its results can be retrieved in JSON format:</p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_results_json' job_id='JobID' %}</code></p>
+<p>The full results of a finished job can be also retrieved as a zip file:</p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_results_zip' job_id='JobID' %}</code></p>
+<p>If necessary, job input data, search options or error log can be queried as well:</p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_job_input' job_id='JobID' %}</code></p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_job_options' job_id='JobID' %}</code></p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_job_error' job_id='JobID' %}</code></p>
+<p>A demo Python script that submits a job and waits for its results using this COMER is <a href="{% static 'api_demo.py' %}">available</a>.</p>
+{% endblock %}

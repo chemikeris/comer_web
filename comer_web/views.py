@@ -5,3 +5,7 @@ def index(request):
 
 def help(request):
     return render(request, 'site/help.html')
+
+def api_help(request):
+    return render(request, 'site/api_help.html')
+

@@ -2,7 +2,11 @@ import os
 import copy
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse, FileResponse
+from django.conf import settings
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 
 from . import forms
 from . import default
@@ -29,10 +33,70 @@ def input(request):
     return render(request, 'search/input.html', context)
 
 
+@csrf_exempt
+def submit(request):
+    "Submit query input from command line"
+    if request.method == 'POST':
+        # Generating starting data based on default search settings.
+        input_data_and_settings = copy.deepcopy(default.search_settings)
+        input_data_and_settings['number_of_results'] = \
+            default.number_of_results
+        input_data_and_settings['comer_db'] = [settings.COMER_DATABASES[0][0]]
+        input_data_and_settings['cother_db'] = [settings.COTHER_DATABASES[0][0]]
+        input_data_and_settings['hhsuite_db'] = settings.HHSUITE_DATABASES[0][0]
+        input_data_and_settings['sequence_db'] = settings.SEQUENCE_DATABASES[0][0]
+        # If there are input data in POST request, changing the defaults to
+        # user selected parameters.
+        input_data_and_settings.update(request.POST.dict())
+        form = forms.SequencesInputForm(input_data_and_settings, request.FILES)
+        result = {}
+        if form.is_valid():
+            print('valid')
+            new_job = models.process_input_data(
+                form.cleaned_data, request.FILES
+                )
+            result['success'] = True
+            result['job_id'] = new_job.name
+        else:
+            result['success'] = False
+            result['form_errors'] = dict(form.errors.items())
+    else:
+        result = {}
+    return JsonResponse(result)
+
+
+class ApiResultsView(View):
+    "Parent class for API views"
+    def get(self, request, job_id):
+        job_exists = models.Job.objects.filter(name=job_id)
+        if job_exists:
+            job = job_exists[0]
+            result_response = self.format_output(job)
+        else:
+            result = {}
+            result['success'] = False
+            result['status'] = 'Job %s does not exist!' % job_id
+            result_response = JsonResponse(result)
+        return result_response
+
+    def format_output(self, *args, **kwargs):
+        raise NotImplementedError
+
+
+class ApiJobStatus(ApiResultsView):
+    "API view showing job status"
+    def format_output(self, job):
+        result = {}
+        result['success'] = True
+        finished, removed, status_msg, errors, refresh = job.status_info()
+        result['status'] = status_msg
+        result['log'] = job.calculation_log
+        return JsonResponse(result)
+
+
 def results(request, job_id):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
-    uri = request.build_absolute_uri()
     finished, removed, status_msg, errors, refresh = job.status_info()
     if finished and not removed:
         if job.number_of_input_sequences == 1:
@@ -58,6 +122,59 @@ def results(request, job_id):
                 )
 
 
+class ApiResultsJson(ApiResultsView):
+    "API view showing results in JSON format"
+    def format_output(self, job):
+        result = {}
+        result['success'] = True
+        finished, removed, status_msg, errors, refresh = job.status_info()
+        result['status'] = status_msg
+        result['error_log'] = errors
+        result['number_of_input_sequences'] = job.number_of_input_sequences
+        result['number_of_successful_sequences'] = \
+            job.number_of_successful_sequences or 0
+        result['results'] = []
+        if job.status == job.FINISHED:
+            results_files = job.read_results_lst()
+            for rf in results_files:
+                results_json_file = job.results_file_path(rf['results_json'])
+                sequence_results, err = utils.read_json_file(results_json_file)
+                result['results'].append(sequence_results)
+        result['web_url'] = reverse(results, kwargs={'job_id': job.name})
+        return JsonResponse(result)
+
+
+class ApiResultsDownloadFile(ApiResultsView):
+    "Base API view for retrieving results files"
+    def format_output(self, job):
+        rf = job.results_file_path(self.fname(job))
+        if os.path.isfile(rf):
+            return FileResponse(open(rf, 'rb'))
+        else:
+            print('File %s not found!' % rf)
+            return HttpResponse('File not found!\n')
+
+
+class ApiResultsZip(ApiResultsDownloadFile):
+    def fname(self, job):
+        return job.get_output_name()+'.tar.gz'
+
+
+class ApiJobOptions(ApiResultsDownloadFile):
+    def fname(self, job):
+        return job.results_file_path(job.name+'.options')
+
+
+class ApiJobInput(ApiResultsDownloadFile):
+    def fname(self, job):
+        return job.results_file_path(job.name+'.in')
+
+
+class ApiJobError(ApiResultsDownloadFile):
+    def fname(self, job):
+        return job.results_file_path(job.name+'.err')
+
+
 def detailed(request, job_id, sequence_no):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
@@ -65,9 +182,9 @@ def detailed(request, job_id, sequence_no):
     results_file = job.results_file_path(
         results_files[sequence_no]['results_json']
         )
-    results = utils.read_json_file(results_file)
+    results, json_error = utils.read_json_file(results_file)
     if results is None:
-        return render(request, 'search/error.html', {'json_error': json_error})
+        return render(request, 'search/error.html', {'json_error': results})
     input_file = job.results_file_path(results_files[sequence_no]['input'])
     input_name, input_format, input_description = \
         models.read_input_name_and_type(input_file)

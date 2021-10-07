@@ -135,7 +135,7 @@ class ComerWebServerJob(models.Model):
         local_file = os.path.join(local_directory, fname)
         connection.get_file(remote_file, local_file)
         return local_file
-    
+
     def read_error_log(self):
         "Read job error log"
         err_file = self.results_file_path(self.name+'.err')
@@ -146,7 +146,7 @@ class ComerWebServerJob(models.Model):
     def results_file_path(self, results_file):
         results_file = os.path.join(self.get_directory(), results_file)
         return results_file
-   
+
     def read_results_lst(self):
         "Read results.lst file and retrieve list of results files"
         results_lst_file = self.results_file_path(self.get_output_name()+'.lst')
@@ -166,7 +166,7 @@ class ComerWebServerJob(models.Model):
 
     def read_results_lst_files_line(self, *args, **kwargs):
         raise NotImplementedError
-   
+
     def get_input_file(self, what_file):
         self.get_directory()
         fname = os.path.join(self.directory, '%s.%s' % (self.name, what_file))
@@ -217,7 +217,7 @@ class SearchSubJob:
             parent_directory, self.task() , self.name
             )
         return self.directory
-    
+
     def read_search_json(self):
         search_files = self.search_job.read_results_lst()
         search_json_file = self.search_job.results_file_path(

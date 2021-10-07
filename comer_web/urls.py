@@ -24,5 +24,6 @@ urlpatterns = [
     path('model_structure/', include('apps.model_structure.urls')),
     #path('admin/', admin.site.urls),
     path('help/', comer_web.views.help),
+    path('api_help/', comer_web.views.api_help),
     path('msa/', include('apps.msa.urls')),
 ]
