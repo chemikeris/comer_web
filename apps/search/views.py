@@ -2,7 +2,8 @@ import os
 import copy
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import Http404, HttpResponse, JsonResponse, FileResponse
+from django.http import Http404, HttpResponse, JsonResponse, FileResponse, \
+        QueryDict
 from django.conf import settings
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -38,20 +39,32 @@ def submit(request):
     "Submit query input from command line"
     if request.method == 'POST':
         # Generating starting data based on default search settings.
-        input_data_and_settings = copy.deepcopy(default.search_settings)
-        input_data_and_settings['number_of_results'] = \
-            default.number_of_results
-        input_data_and_settings['comer_db'] = [settings.COMER_DATABASES[0][0]]
-        input_data_and_settings['cother_db'] = [settings.COTHER_DATABASES[0][0]]
-        input_data_and_settings['hhsuite_db'] = settings.HHSUITE_DATABASES[0][0]
-        input_data_and_settings['sequence_db'] = settings.SEQUENCE_DATABASES[0][0]
+        input_data_and_settings = QueryDict(mutable=True)
+        input_data_and_settings.update(copy.deepcopy(default.search_settings))
         # If there are input data in POST request, changing the defaults to
         # user selected parameters.
-        input_data_and_settings.update(request.POST.dict())
-        form = forms.SequencesInputForm(input_data_and_settings, request.FILES)
+        input_data_and_settings.update(request.POST)
+        # Filling default databases, if they are not provided by user.
+        input_data_and_settings.setdefault(
+            'number_of_results', default.number_of_results
+            )
+        input_data_and_settings.setdefault(
+            'comer_db', settings.COMER_DATABASES[0][0]
+            )
+        input_data_and_settings.setdefault(
+            'cother_db', settings.COTHER_DATABASES[0][0]
+            )
+        input_data_and_settings.setdefault(
+            'hhsuite_db', settings.HHSUITE_DATABASES[0][0]
+            )
+        input_data_and_settings.setdefault(
+            'sequence_db', settings.SEQUENCE_DATABASES[0][0]
+            )
+        form = forms.SequencesInputFormWithAllSettings(
+            input_data_and_settings, request.FILES
+            )
         result = {}
         if form.is_valid():
-            print('valid')
             new_job = models.process_input_data(
                 form.cleaned_data, request.FILES
                 )
@@ -129,7 +142,7 @@ class ApiResultsJson(ApiResultsView):
         result['success'] = True
         finished, removed, status_msg, errors, refresh = job.status_info()
         result['status'] = status_msg
-        result['error_log'] = errors
+        result['error_log'] = '' if errors is None else errors
         result['number_of_input_sequences'] = job.number_of_input_sequences
         result['number_of_successful_sequences'] = \
             job.number_of_successful_sequences or 0

@@ -49,7 +49,6 @@ class SequencesInputForm(forms.Form):
     use_cother = forms.BooleanField(
         label='Perform COTHER search by threading', required=False
         )
-    input_search_parameters_file = forms.FileField(required=False)
     # Database to search.
     comer_db = forms.MultipleChoiceField(
         choices=settings.COMER_DATABASES, label='COMER databases',
@@ -283,4 +282,8 @@ class SequencesInputForm(forms.Form):
         self.add_comer_profile_errors(problematic_comer_profiles)
         self.add_cother_profile_errors(problematic_cother_profiles)
         cleaned_data['sequence'] = cleaned_sequences_data
+
+
+class SequencesInputFormWithAllSettings(SequencesInputForm):
+    input_search_parameters_file = forms.FileField(required=False)
 

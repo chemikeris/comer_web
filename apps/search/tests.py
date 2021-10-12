@@ -1,8 +1,9 @@
 import copy
 import os
 import tempfile
+import json
 
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from . import forms
@@ -176,6 +177,27 @@ class TestInputValidation(TestCase):
             form.cleaned_data['sequence'],
             [self.form_data['sequence'], s]
             )
+
+
+class TestApi(TestCase):
+    "Test search API functionality"
+    def setUp(self):
+        self.client = Client()
+
+    def test_empty_input(self):
+        "Test empty query, it should fail"
+        response = self.client.post('/search/api/submit', {})
+        response_json = json.loads(response.content)
+        self.assertFalse(response_json['success'])
+
+    def test_sequence_input_only(self):
+        "Query with sequence only should be successful"
+        sequence = 'SEQUENCE'
+        response = self.client.post(
+            '/search/api/submit', {'sequence': sequence}
+            )
+        response_json = json.loads(response.content)
+        self.assertTrue(response_json['success'])
 
 
 class TestFunctions(TestCase):

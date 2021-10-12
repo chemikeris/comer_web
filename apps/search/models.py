@@ -1,5 +1,6 @@
 import os
 import copy
+import logging
 
 from django.db import models
 from django.conf import settings
@@ -96,7 +97,6 @@ def process_input_data(input_data, input_files):
     sequences_data = input_data.pop('sequence')
     input_query_f, input_parameters_f = search_input_files_exist(input_files)
     use_cother = input_data.pop('use_cother')
-    print('###########################')
     job_name = generate_job_name()
     email = input_data.pop('email')
     number_of_results = input_data.pop('number_of_results')
@@ -106,7 +106,7 @@ def process_input_data(input_data, input_files):
         name=job_name, email=email, is_cother_search=use_cother,
         number_of_input_sequences=len(sequences_data)
         )
-    print(new_job)
+    logging.info(new_job)
     options_file = new_job.get_input_file('options')
     if input_parameters_f:
         with open(options_file, 'wb') as f:
