@@ -51,7 +51,12 @@ def track_status(job, connection):
     if job.status == job.NEW:
         status_msg = 'new'
         # Submitting new job to calculation server.
-        job.submit_to_calculation(connection)
+        try:
+            job.submit_to_calculation(connection)
+        except Exception as e:
+            logging.error(e)
+            job.status = job.FAILED
+            job.save()
         refresh = True
     elif job.status == job.QUEUED:
         status_msg = 'queued'

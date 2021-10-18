@@ -223,7 +223,7 @@ class SearchSubJob:
         search_json_file = self.search_job.results_file_path(
             search_files[self.sequence_no]['results_json']
             )
-        search_results = utils.read_json_file(
+        search_results, unused_json_err = utils.read_json_file(
             search_json_file, filter_key='%s_search' % self.search_job.method()
             )
         return search_results
