@@ -97,6 +97,12 @@ class SequencesInputForm(forms.Form):
         label='hmmer E-value threshold', required=False
         )
 
+    # Low complexity filtering.
+    LCFILTEREACH = forms.BooleanField(
+        label='Invoke low-complexity filtering for each sequence in alignment',
+        required=False,
+        initial=True
+        )
     # Profile construction options.
     ADJWGT = forms.FloatField(
         min_value=0, max_value=1, label='Weight of adjusted scores'
@@ -286,4 +292,49 @@ class SequencesInputForm(forms.Form):
 
 class SequencesInputFormWithAllSettings(SequencesInputForm):
     input_search_parameters_file = forms.FileField(required=False)
+    # Output options.
+    SHOW = forms.BooleanField(required=False)
+    DSCLEN = forms.IntegerField(required=False)
+    DSCWIDTH = forms.IntegerField(
+        required=False, min_value=40, max_value=10000
+        )
+    ALNWIDTH = forms.IntegerField(
+        required=False, min_value=20, max_value=10000
+        )
+    # Profile construction options.
+    X_UNINF = forms.BooleanField(required=False)
+    IDENTITY = forms.IntegerField(required=False, min_value=1, max_value=100)
+    SHOWCMD = forms.BooleanField(required=False)
+    # Advanced options.
+    PCFWEIGHT = forms.FloatField(required=False)
+    MINALNFRN = forms.IntegerField(required=False, min_value=1, max_value=100)
+    MINALNPOS = forms.IntegerField(required=False)
+    matrices = ('Blosum80', 'Blosum62', 'Blosum45', 'Pscores', 'Gonnet')
+    SUBMAT = forms.ChoiceField(required=False, choices=zip(matrices, matrices))
+    # Position=specific distance distribution options.
+    DSTSEGM = forms.IntegerField(required=False, min_value=1, max_value=20)
+    DSTPOS = forms.IntegerField(required=False, min_value=1, max_value=20)
+    DSTSEP6 = forms.IntegerField(required=False, min_value=1, max_value=64)
+    DSTGAPL = forms.IntegerField(required=False, min_value=1, max_value=255)
+    DSTFREE = forms.IntegerField(required=False, min_value=1, max_value=20)
+    # Cluster data usage options.
+    score_adjustments = ('hdpctx', 'hdpsco', 'no')
+    SCOADJ = forms.ChoiceField(
+        required=False,
+        choices=zip(score_adjustments, score_adjustments)
+        )
+    SUPCLT = forms.IntegerField(required=False, min_value=-1)
+    cADJWGT = forms.FloatField(required=False, min_value=0, max_value=1)
+    # Distance distribution match scores.
+    DDMSWGT = forms.FloatField(required=False, min_value=0, max_value=1)
+    # SEG options.
+    HCFILTER = forms.BooleanField(required=False)
+    HCWINDOW = forms.IntegerField(required=False)
+    HCLOWENT = forms.FloatField(required=False)
+    HCHIGHENT = forms.FloatField(required=False)
+    INVLCFILTER = forms.BooleanField(required=False)
+    LCWINDOW = forms.IntegerField(required=False)
+    LCLOWENT = forms.FloatField(required=False)
+    LCHIGHENT = forms.FloatField(required=False)
+    DISTANCE = forms.FloatField(required=False)
 

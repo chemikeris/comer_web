@@ -92,6 +92,16 @@ class ApiResultsView(View):
             result_response = JsonResponse(result)
         return result_response
 
+    def start_output_for_successful_result(self, job):
+        result = {}
+        result['success'] = True
+        finished, removed, status_msg, errors, refresh = job.status_info()
+        result['job_id'] = job.name
+        result['status'] = status_msg
+        result['search_method'] = 'COTHER' if job.is_cother_search else 'COMER'
+        result['error_log'] = '' if errors is None else errors
+        return result
+
     def format_output(self, *args, **kwargs):
         raise NotImplementedError
 
@@ -99,10 +109,8 @@ class ApiResultsView(View):
 class ApiJobStatus(ApiResultsView):
     "API view showing job status"
     def format_output(self, job):
-        result = {}
-        result['success'] = True
-        finished, removed, status_msg, errors, refresh = job.status_info()
-        result['status'] = status_msg
+        result = self.start_output_for_successful_result(job)
+        del result['error_log']
         result['log'] = job.calculation_log
         return JsonResponse(result)
 
@@ -138,11 +146,7 @@ def results(request, job_id):
 class ApiResultsJson(ApiResultsView):
     "API view showing results in JSON format"
     def format_output(self, job):
-        result = {}
-        result['success'] = True
-        finished, removed, status_msg, errors, refresh = job.status_info()
-        result['status'] = status_msg
-        result['error_log'] = '' if errors is None else errors
+        result = self.start_output_for_successful_result(job)
         result['number_of_input_sequences'] = job.number_of_input_sequences
         result['number_of_successful_sequences'] = \
             job.number_of_successful_sequences or 0

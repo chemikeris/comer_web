@@ -195,7 +195,10 @@ class ComerWebServerJob(models.Model):
             refresh = True
         elif self.status == self.FAILED:
             status_msg = 'failed'
-            errors = self.read_error_log()
+            try:
+                errors = self.read_error_log()
+            except FileNotFoundError:
+                errors = 'Error log not found for a failed job!'
         elif self.status == self.FINISHED:
             status_msg = 'finished'
             finished = True

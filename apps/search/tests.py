@@ -2,6 +2,7 @@ import copy
 import os
 import tempfile
 import json
+import shutil
 
 from django.test import TestCase, Client
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -10,6 +11,7 @@ from . import forms
 from . import default
 from . import models
 from comer_web import settings
+from comer_web.calculation_server import read_config_file
 
 class TestInputValidation(TestCase):
     def setUp(self):
@@ -184,6 +186,11 @@ class TestApi(TestCase):
     def setUp(self):
         self.client = Client()
 
+    def tearDown(self):
+        if hasattr(self, 'job'):
+            directory_to_remove = self.job.get_directory()
+            shutil.rmtree(directory_to_remove)
+
     def test_empty_input(self):
         "Test empty query, it should fail"
         response = self.client.post('/search/api/submit', {})
@@ -197,7 +204,20 @@ class TestApi(TestCase):
             '/search/api/submit', {'sequence': sequence}
             )
         response_json = json.loads(response.content)
+        self.job = models.Job.objects.get(name=response_json['job_id'])
         self.assertTrue(response_json['success'])
+
+    def test_input_sequence_and_change_SHOW(self):
+        "Query with sequence only should be successful"
+        sequence = 'SEQUENCE'
+        response = self.client.post(
+            '/search/api/submit', {'sequence': sequence, 'SHOW': False}
+            )
+        response_json = json.loads(response.content)
+        self.job = models.Job.objects.get(name=response_json['job_id'])
+        self.assertTrue(response_json['success'])
+        job_options = read_config_file(self.job.get_input_file('options'))
+        self.assertFalse(job_options.getboolean('OPTIONS', 'SHOW'))
 
 
 class TestFunctions(TestCase):

@@ -1,19 +1,55 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
+<script>nice_json = function(obj, div_id) {e = document.getElementById(div_id); e.innerHTML = JSON.stringify(obj, undefined, 4);}</script>
 <h1>COMER web server API description</h1>
-<p>The COMER web server can be used from a command line API.</p>
+<h2>Submitting a search job</h2>
+<p>The COMER web server search functionality can be accessed from a command line API.</p>
 <p>Submit a job using single sequence and default settings:</p>
-<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR</code>
-<p>After job is submitted, the server returns job identifier (jobID) that can be used to query job status:</p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR</code></p>
+<p>The page returns a JSON string, that indicates if submission was successful, and JobID (in case of success):</p>
+<pre id='submit_json_success'></pre>
+<p>or form errors (in case of failure):</p>
+<pre id='submit_json_failure'></pre>
+<script>
+    nice_json({"success": true, "job_id": "JobID"}, 'submit_json_success');
+    nice_json({"success": false, "form_errors": {"__all__": ["Please provide query sequence or file with queries!"]}}, 'submit_json_failure');
+</script>
+<p>Submit a COTHER job:</p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F use_cother=true</code></p>
+<p>All settings that are available in the <a href="{% static 'demo/job.options' %}">COMER settings file</a> may be set to a user-specified value when submitting a query.
+For example, here we change the method for multiple sequence alignment generation (use HMMER instead of HHblits) and a lower the E-value threshold:</p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F EVAL=0.0001 -F hmmer_in_use=true -F hhsuite_in_use=false</code></p>
+<p>We can also choose different databases or even several databases for COMER search:</p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F comer_db={{ db.COMER.0.0 }} -F comer_db={{ db.COMER|last|first }}</code></p>
+<p>Currently available databases are: </p>
+<ul>
+{% for program, databases in db.items %}
+    <li>For {{ program }}:
+    {% for computer_name, human_name in databases %}
+        {{ human_name }} ({{ computer_name }})
+    {% endfor %}
+    </li>
+{% endfor %}</p>
+</ul>
+<p>A job can be also submitted using text files with query sequence(s) and/or search options:</p>
+<p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_submit' %} -F input_query_file=@/home/comerws/target.fasta -F input_search_parameters_file=@/home/comerws/job.options</code></p>
+<h2>Querying job status and results</h2>
+<p>After job is submitted, the server returns job identifier (JobID) that can be further used to query job status:</p>
 <p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_job_status' job_id='JobID' %}</code></p>
+<pre id="job_status"></pre>
+<script>nice_json({"success": true, "job_id": "JobID", "status": "queued", "search_method": "COMER", "log": "Submitting...\nQueued.\nRunning...\n"}, 'job_status');</script>
 <p>When job finishes, its results can be retrieved in JSON format:</p>
 <p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_results_json' job_id='JobID' %}</code></p>
+<p>While job runs, the results are empty and number of successful sequences is 0 in the JSON output.
+Number of successful sequences is modified after job finishes, and standart COMER JSONs are then added to the results JSON:</p>
+<pre id="results_json_empty"></pre>
+<script>nice_json({"success": true, "job_id": "JobID", "status": "queued", "search_method": "COMER", "error_log": "", "number_of_input_sequences": 5, "number_of_successful_sequences": 0, "results": [], "web_url": "/search/results/JobID"}, 'results_json_empty');</script>
 <p>The full results of a finished job can be also retrieved as a zip file:</p>
 <p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_results_zip' job_id='JobID' %}</code></p>
 <p>If necessary, job input data, search options or error log can be queried as well:</p>
 <p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_job_input' job_id='JobID' %}</code></p>
 <p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_job_options' job_id='JobID' %}</code></p>
 <p><code>curl {{ request.scheme }}://{{ request.get_host }}{% url 'api_job_error' job_id='JobID' %}</code></p>
-<p>A demo Python script that submits a job and waits for its results using this COMER is <a href="{% static 'api_demo.py' %}">available</a>.</p>
+<p>A demo Python script that submits a job and waits for its results using this COMER is <a href="{% static 'demo/api_demo.py' %}">available</a>.</p>
 {% endblock %}
