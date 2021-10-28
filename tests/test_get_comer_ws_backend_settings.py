@@ -22,25 +22,26 @@ class Test_parse_comer_ws_backend_config(unittest.TestCase):
         self.assertIn('hmmer', databases)
         self.assertIn('hhsuite', databases)
 
-        self.assertIn(
-            ('uniref50.fasta', 'UniRef50 (latest)'), databases['hmmer']
+        self.assertEqual(
+            databases['hmmer']['uniref50.fasta'], 'UniRef50_latest'
             )
-        self.assertIn(
-            ('UniRef30_2020_03', 'UniRef30 (2020_03)'), databases['hhsuite']
+        self.assertEqual(
+            databases['hhsuite']['UniRef30_2020_03'], 'UniRef30_2020_03'
             )
-        self.assertIn(
-            ('pdb70_201216', 'Protein Data Bank (201216)'), databases['comer']
+        self.assertEqual(
+            databases['comer']['pdb70_201216'], 'PDB70_201216'
             )
-        self.assertIn(('scop70_1.75', 'SCOP (1.75)'), databases['comer'])
-        self.assertIn(('pfamA_33.1', 'PFAM (33.1)'), databases['comer'])
+        self.assertEqual(databases['comer']['scop70_1.75'], 'SCOPe_1.75')
+        self.assertEqual(databases['comer']['pfamA_33.1'], 'PFAM_33.1')
 
     def test_nice_db_name(self):
-        self.assertEqual('Protein Data Bank', s.nice_db_name('blabla_PDB_name'))
+        self.assertEqual('PDB70', s.nice_db_name('blabla_PDB_name'))
         self.assertEqual('UniRef', s.nice_db_name('blabla_uniref_name'))
         self.assertEqual('UniClust', s.nice_db_name('blabla_UniClust_name'))
         self.assertEqual('PFAM', s.nice_db_name('blabla_pfam_name'))
-        self.assertEqual('SCOP', s.nice_db_name('blabla_scop_name'))
-
+        self.assertEqual('SCOPe', s.nice_db_name('blabla_scop_name'))
+        self.assertEqual('MGnify_clusters', s.nice_db_name('blabla_mgy_name'))
+        self.assertEqual('SwissProt90', s.nice_db_name('blabla_SwissProt_name'))
 
 
 if __name__ == '__main__':

@@ -11,11 +11,11 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import configparser
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    )
+current_dir = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(current_dir))
 
 
 # Quick-start development settings - unsuitable for production
@@ -142,10 +142,18 @@ STATICFILES_DIRS = [
 
 # COMER server settings
 
+search_db_config_file = os.path.join(current_dir, 'search_databases.ini')
+search_db_config = configparser.ConfigParser()
+search_db_config.optionxform = str
 try:
-    from comer_web.settings.comer_ws_backend import *
-except ModuleNotFoundError as err:
-    raise ModuleNotFoundError(
+    file_found = search_db_config.read_file(open(search_db_config_file))
+except FileNotFoundError as err:
+    raise FileNotFoundError(
         str(err) + ', create it with scripts/get_comer_ws_backend_settings.py.'
         )
+else:
+    COMER_DATABASES = list(search_db_config['comer'].items())
+    COTHER_DATABASES = list(search_db_config['cother'].items())
+    HHSUITE_DATABASES = list(search_db_config['hhsuite'].items())
+    SEQUENCE_DATABASES = list(search_db_config['hmmer'].items())
 

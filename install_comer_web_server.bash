@@ -17,7 +17,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 echo 'Getting comer-ws-backend settings.'
-su comerws sh -c 'python scripts/get_comer_ws_backend_settings.py > comer_web/settings/comer_ws_backend.py'
+su comerws sh -c 'python scripts/get_comer_ws_backend_settings.py > comer_web/settings/search_databases.ini'
 
 echo 'Creating necessary Django configuration.'
 echo "DEBUG = False" > comer_web/settings/debug.py

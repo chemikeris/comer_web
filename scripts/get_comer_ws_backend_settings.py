@@ -15,17 +15,24 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from comer_web import calculation_server
 
 
-def nice_db_name(conf_name):
+def nice_db_name(conf_name, suffix=None):
     "Convert DB name to nice representation"
     name = conf_name.split('_')[1]
     nice_names = {
-        'pdb': 'Protein Data Bank',
+        'pdb': 'PDB70',
         'uniref': 'UniRef',
         'uniclust': 'UniClust',
-        'scop': 'SCOP',
+        'scop': 'SCOPe',
         'pfam': 'PFAM',
+        'mgy': 'MGnify_clusters',
+        'swissprot': 'SwissProt90',
         }
     nice_name = nice_names[name.lower()]
+    if suffix:
+        if name.lower() == 'mgy':
+            pass
+        else:
+            nice_name += suffix
     return nice_name
 
 
@@ -38,33 +45,26 @@ def parse_comer_ws_backend_config(backend_config):
     "Parse comer-ws-backend settings file and retrieve available databases"
     c = configparser.ConfigParser()
     c.read_string('[values]\n' + backend_config)
-    databases = {}
-    databases['comer'] = []
-    databases['cother'] = []
-    databases['hmmer'] = []
-    databases['hhsuite'] = []
+    databases = configparser.ConfigParser()
+    databases.optionxform = str
+    databases['comer'] = {}
+    databases['cother'] = {}
+    databases['hmmer'] = {}
+    databases['hhsuite'] = {}
     for setting, value in c['values'].items():
         s, v = setting, value
         if s.startswith('seqdb'):
             logging.info('%s = %s', setting, value)
-            databases['hmmer'].append(
-                (v, '%s50 (%s)' % (nice_db_name(s), 'latest'))
-                )
+            databases['hmmer'][v] = nice_db_name(s, '50_latest')
         elif s.startswith('hhsdb'):
             logging.info('%s = %s', setting, v)
-            databases['hhsuite'].append(
-                (v, '%s30 (%s)' % (nice_db_name(s), db_version(v)))
-                )
+            databases['hhsuite'][v] = nice_db_name(s, '30_'+db_version(v))
         elif s.startswith('cprodb'):
             logging.info('%s = %s', setting, v)
-            databases['comer'].append(
-                (v, '%s (%s)' % (nice_db_name(s), db_version(v)))
-                )
+            databases['comer'][v] = '%s_%s' % (nice_db_name(s), db_version(v))
         elif s.startswith('cotherprodb'):
             logging.info('%s = %s', setting, v)
-            databases['cother'].append(
-                (v, '%s (%s)' % (nice_db_name(s), db_version(v)))
-                )
+            databases['cother'][v] = '%s_%s' % (nice_db_name(s), db_version(v))
         else:
             continue
     return databases
@@ -97,11 +97,7 @@ def main(arguments):
     backend_config_fd.close()
 
     databases = parse_comer_ws_backend_config(backend_config)
-
-    print('COMER_DATABASES = %s' % databases['comer'])
-    print('COTHER_DATABASES = %s' % databases['cother'])
-    print('SEQUENCE_DATABASES = %s' % databases['hmmer'])
-    print('HHSUITE_DATABASES = %s' % databases['hhsuite'])
+    databases.write(sys.stdout)
 
 
 if __name__ == '__main__':

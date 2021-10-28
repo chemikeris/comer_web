@@ -123,6 +123,9 @@ function createLink(result_id) {
     else if ((result_id[0] == 'd') || (result_id[0] == 'g')) {
         link = createSCOPeLink(result_id);
     }
+    else if (result_id.startsWith('sp|')) {
+        link = createUniProtLink(result_id);
+    }
     else {
         link = createRCSBLink(result_id);
     }
@@ -133,6 +136,10 @@ function createSCOPeLink(scop_id) {
 }
 function createPfamLink(pfam_id) {
     return 'https://pfam.xfam.org/family/' + pfam_id;
+}
+function createUniProtLink(swissprot_id) {
+    uniprot_ac = swissprot_id.split('|')[1];
+    return 'https://www.uniprot.org/uniprot/' + uniprot_ac;
 }
 function createRCSBLink(pdb_chain_id) {
     pdb_id = pdb_chain_id.substr(0,4)
