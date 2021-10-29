@@ -92,12 +92,12 @@ class Job(ComerWebServerJob):
             return
 
 
-def process_input_data(input_data, input_files):
+def process_input_data(input_data, input_files, example=False):
     "Process input sequences and settings"
     sequences_data = input_data.pop('sequence')
     input_query_f, input_parameters_f = search_input_files_exist(input_files)
     use_cother = input_data.pop('use_cother')
-    job_name = generate_job_name()
+    job_name = 'example' if example else generate_job_name()
     email = input_data.pop('email')
     number_of_results = input_data.pop('number_of_results')
     input_data['NOHITS'] = number_of_results

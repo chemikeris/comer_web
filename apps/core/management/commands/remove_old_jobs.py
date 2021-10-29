@@ -22,6 +22,9 @@ class Command(BaseCommand):
             print('Removing job: %s (%s, %s).' % (j.job_id, j.name, j.date))
             StructureModelingJob.objects.filter(search_job_id=j.job_id).delete()
             MSAJob.objects.filter(search_job_id=j.job_id).delete()
+            if j.name == 'example':
+                print('Keeping example job, only subjobs are deleted.')
+                continue
             job_directory_to_remove = j.get_directory()
             try:
                 print(job_directory_to_remove)

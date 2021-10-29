@@ -37,6 +37,9 @@ python manage.py makemigrations msa
 python manage.py migrate
 python manage.py collectstatic --noinput
 
+echo 'Creating example job, if necessary.'
+su comerws sh -c 'python manage.py create_example_job'
+
 echo 'Deactivating virtual environment.'
 deactivate
 
