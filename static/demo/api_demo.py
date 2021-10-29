@@ -5,6 +5,7 @@ import sys
 import os
 import urllib.request, urllib.error, urllib.parse
 import json
+import argparse
 import time
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -30,9 +31,8 @@ def connect_to_server(url, data=None, raw=False):
     return data
 
 
-def format_comer_url(what_for):
+def format_comer_url(what_for, comer_ws_url):
     "Format COMER web server API url"
-    comer_ws_url = 'http://localhost:8000'
     if what_for == 'submit':
         url = f'{comer_ws_url}/search/api/submit'
     elif what_for == 'job_status':
@@ -44,16 +44,25 @@ def format_comer_url(what_for):
     return url
 
 
-def main(arguments):
+def main():
     demo_sequence = 'TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR'
-    submit_url = format_comer_url('submit')
-    job_status_url = format_comer_url('job_status')
-    results_url = format_comer_url('results')
+
+    arguments_parser = argparse.ArgumentParser(description=__doc__)
+    arguments_parser.add_argument('-s', '--sequence', default=demo_sequence)
+    arguments_parser.add_argument(
+        '--url', default='https://bioinformatics.lt/comer',
+        help='COMER web server URL'
+        )
+    args = arguments_parser.parse_args()
+
+    submit_url = format_comer_url('submit', args.url)
+    job_status_url = format_comer_url('job_status', args.url)
+    results_url = format_comer_url('results', args.url)
 
     logging.info('Submitting data to %s', submit_url)
     submit_data = connect_to_server(
         submit_url,
-        f'sequence={demo_sequence}'.encode()
+        f'sequence={args.sequence}'.encode()
         )
     if submit_data['success']:
         job_id = submit_data['job_id']
@@ -88,5 +97,5 @@ def main(arguments):
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    sys.exit(main())
 
