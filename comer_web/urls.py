@@ -19,11 +19,13 @@ from django.urls import path, include
 import comer_web.views
 
 urlpatterns = [
-    path('', comer_web.views.index),
+    path('', comer_web.views.index, name='index'),
     path('search/', include('apps.search.urls')),
     path('model_structure/', include('apps.model_structure.urls')),
     #path('admin/', admin.site.urls),
-    path('help/', comer_web.views.help),
-    path('api_help/', comer_web.views.api_help),
+    path('help/', comer_web.views.help, name='help'),
+    path('api_help/', comer_web.views.api_help, name='api_help'),
+    path('references/', comer_web.views.references, name='references'),
+    path('availability/', comer_web.views.availability, name='availability'),
     path('msa/', include('apps.msa.urls')),
 ]

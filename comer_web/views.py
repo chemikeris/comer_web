@@ -24,3 +24,9 @@ def api_help(request):
     context['db'] = available_databases
     return render(request, 'site/api_help.html', context)
 
+def availability(request):
+    return render(request, 'site/availability.html')
+
+def references(request):
+    return render(request, 'site/references.html')
+

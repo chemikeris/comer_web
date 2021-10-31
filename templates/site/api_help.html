@@ -2,15 +2,15 @@
 {% block content %}
 {% load static %}
 <script>nice_json = function(obj, div_id) {e = document.getElementById(div_id); e.innerHTML = JSON.stringify(obj, undefined, 4);}</script>
-<h1>COMER web server API description</h1>
+<h1>Search API description</h1>
 <h2>Submitting a search job</h2>
 <p>The COMER web server search functionality can be accessed from a command line API.</p>
 <p>Submit a job using single sequence and default settings:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR</code></p>
 <p>The page returns a JSON string, that indicates if submission was successful, and JobID (in case of success):</p>
-<pre id='submit_json_success'></pre>
+<code><pre id='submit_json_success'></pre></code>
 <p>or form errors (in case of failure):</p>
-<pre id='submit_json_failure'></pre>
+<code><pre id='submit_json_failure'></pre></code>
 <script>
     nice_json({"success": true, "job_id": "JobID"}, 'submit_json_success');
     nice_json({"success": false, "form_errors": {"__all__": ["Please provide query sequence or file with queries!"]}}, 'submit_json_failure');
@@ -35,13 +35,13 @@ For example, here we change the method for multiple sequence alignment generatio
 <h2>Querying job status and results</h2>
 <p>After job is submitted, the server returns job identifier (JobID) that can be further used to query job status:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_job_status' job_id='JobID' %}</code></p>
-<pre id="job_status"></pre>
+<code><pre id="job_status"></pre></code>
 <script>nice_json({"success": true, "job_id": "JobID", "status": "queued", "search_method": "COMER", "log": "Submitting...\nQueued.\nRunning...\n"}, 'job_status');</script>
 <p>When job finishes, its results can be retrieved in JSON format:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_results_json' job_id='JobID' %}</code></p>
 <p>While job runs, the results are empty and number of successful sequences is 0 in the JSON output.
 Number of successful sequences is modified after job finishes, and standart COMER JSONs are then added to the results JSON:</p>
-<pre id="results_json_empty"></pre>
+<code><pre id="results_json_empty"></pre></code>
 <script>nice_json({"success": true, "job_id": "JobID", "status": "queued", "search_method": "COMER", "error_log": "", "number_of_input_sequences": 5, "number_of_successful_sequences": 0, "results": [], "web_url": "/search/results/JobID"}, 'results_json_empty');</script>
 <p>The full results of a finished job can be also retrieved as a zip file:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_results_zip' job_id='JobID' %}</code></p>

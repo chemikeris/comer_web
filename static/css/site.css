@@ -30,3 +30,10 @@
     color: red;
     border: 1px solid red;
 }
+noscript {
+    font-weight: bold;
+    background-color: yellow;
+    border: 1px solid black;
+    display: block;
+    padding: 3px;
+}

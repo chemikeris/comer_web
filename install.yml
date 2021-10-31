@@ -76,6 +76,14 @@
           remote_src: yes
           src: '/opt/comer_web/dependencies/ngl/dist/ngl.js'
           dest: '/opt/comer_web/static'
+    - name: Get Bootstrap CSS
+      get_url:
+          url: 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css'
+          dest: '/opt/comer_web/static'
+    - name: Get Bootstrap JavaScript
+      get_url:
+          url: 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js'
+          dest: '/opt/comer_web/static'
 - name: Install COMER web server
   hosts: all
   become: true

@@ -13,4 +13,5 @@ search_databases.ini
 migrations
 comer_web/settings/comer_ws_backend.py
 static/*.js
+static/bootstrap*
 !static/msa.min.js
