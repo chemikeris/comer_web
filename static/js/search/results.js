@@ -8,8 +8,12 @@ function showResults(results) {
     var search_method = Object.keys(results)[0];
     var search_summary = results[search_method].search_summary;
     var search_hits = results[search_method].search_hits;
-    
+    var number_of_hits = search_hits.length
+
     var results_table = document.createElement('table');
+    results_table.classList.add('table');
+    results_table.classList.add('table-striped');
+    results_table.classList.add('table-sm');
     var results_table_columns = ['', 'No.', 'ID', 'Description', 'Pvalue', 'Evalue', 'Score (bits)', 'Length'];
     var results_table_head = createTableHeader(results_table_columns);
     results_table.appendChild(results_table_head);
@@ -20,15 +24,17 @@ function showResults(results) {
     query_summary_element.style.background = 'grey';
     query_summary_element.innerHTML = '<a>Query</a>';
     summary_div.appendChild(query_summary_element);
-    for (var i = 0; i < search_hits.length; i++) {
+    for (var i = 0; i < number_of_hits; i++) {
         var hit_record = search_hits[i].hit_record;
         // Parsing sequence summaries for summary display.
         var sequence_summary = formatSummary(search_summary[i].summary_entry, i);
         addStyleForSummary(sequence_summary, hit_record.query_length, hit_record.alignment.query_from, hit_record.alignment.query_to, hit_record.alignment.pvalue);
         summary_div.appendChild(sequence_summary);
-    
+
         // Parsing detailed information on search hits and adding info to table and formatting alignments for display.
         var row = document.createElement('tr');
+        row.classList.add('results_table_row');
+        row.classList.add('results_table_row_part_'+resultsPartNo(i));
 
         // 0th column is a checkbox
         row.appendChild(createTableData('<input type="checkbox" id="table' + i + '" value="' + i + '" name="process">'));
@@ -59,12 +65,40 @@ function showResults(results) {
     results_table.appendChild(results_table_head);
     results_table.appendChild(results_table_body);
     table_div.appendChild(results_table);
+    // Creating initial pagination.
+    number_of_parts =  numberOfParts(number_of_hits)
+    summary_div.appendChild(createPaginationNav('summary', number_of_parts));
+    showPage('summary', 0);
+    table_div.appendChild(createPaginationNav('results_table_row', number_of_parts));
+    showPage('results_table_row', 0);
+}
+function resultsPartNo(result_no) {
+    var results_in_page = 25;
+    return Math.floor(result_no/results_in_page);
+}
+function numberOfParts(number_of_hits) {
+    var results_in_page = 25;
+    if (number_of_hits % results_in_page == 0) {
+        return resultsPartNo(number_of_hits);
+    }
+    else {
+        return resultsPartNo(number_of_hits) + 1;
+    }
 }
 function shortDescription(description) {
-    return description.split(' ')[0];
+    if (description.startsWith('sp|'))
+    {
+        return description.split('|')[1];
+    }
+    else
+    {
+        return description.split(' ')[0];
+    }
 }
 function formatSummary(summary, result_no) {
     var summary_element = document.createElement('div');
+    summary_element.classList.add('summary');
+    summary_element.classList.add('summary_part_'+resultsPartNo(result_no));
     var short_description = shortDescription(summary.description);
     var long_description = 'Score=' + summary.score + ', Evalue=' + summary.evalue + ' ' + summary.description;
 
@@ -81,19 +115,16 @@ function addStyleForSummary(summary_element, query_length, query_starts, query_e
     summary_element.style.marginRight = right_margin + '%';
     // Coloring according to p value. Linear scheme is used between log10(p)<-10 (red) and log10(p)>-0.3 (p~0.5) (blue).
     // Different color schemes can be also implemented.
-    log_p = Math.log10(p)
-    if (log_p <= -10) {
+    if (p > 0.1) {
+        color_value = 220;
+    }
+    else if (Math.log10(p) <= -10) {
         color_value = 0;
     }
-    else if (log_p > -0.3)
-    {
-        color_value = 250;
+    else {
+        // Using logistic function to have midpoint at p=0.025
+        color_value = 220 / (1 + Math.exp(-120 * (p - 0.025)));
     }
-    else
-    {
-        color_value = (26 * log_p) + 260;
-    }
-    console.log(p, log_p, color_value);
     summary_element.style.background = 'hsl(' + color_value + ', 100%, 40%)';
 }
 function createTableHeader(column_names) {
@@ -106,8 +137,7 @@ function createTableHeader(column_names) {
     return table_head;
 }
 function createTableData(text) {
-    var td = document.createElement('td');
-    td.innerHTML = text;
+    var td = document.createElement('td'); td.innerHTML = text;
     return td;
 }
 function createLinkToAlignment(result_no, description) {
@@ -147,6 +177,8 @@ function createRCSBLink(pdb_chain_id) {
 }
 function formatAlignment(result_no, hit_record) {
     var alignment_div = document.createElement('div');
+    alignment_div.classList.add('alignment');
+    alignment_div.classList.add('alignment_part_'+resultsPartNo(result_no));
     // Alignment header.
     var header = document.createElement('h3');
     header.innerHTML = (result_no+1).toString();
@@ -177,12 +209,14 @@ function formatAlignment(result_no, hit_record) {
     var sequence_alignment_div = document.createElement('div');
     sequence_alignment_div.classList.add('sequence_alignment');
 
-    var spacer = ' '.repeat(10);
-    var query_sec_str_prefix = 'Query_SS'.padEnd(10, ' ');
-    var query_prefix = 'Query'.padEnd(10, ' ');
-    var middle_prefix = spacer;
-    var result_prefix = shortDescription(hit_record.target_description).padEnd(10, ' ');
-    var target_sec_str_prefix = 'Target_SS'.padEnd(10, ' ');
+    var spacer_size = 6;
+    var prefix_size = 15;
+    var spacer = ' '.repeat(spacer_size);
+    var query_sec_str_prefix = 'Query_SS'.padEnd(prefix_size, ' ');
+    var query_prefix = 'Query'.padEnd(prefix_size, ' ');
+    var middle_prefix = ' '.repeat(prefix_size);
+    var result_prefix = shortDescription(hit_record.target_description).padEnd(prefix_size, ' ');
+    var target_sec_str_prefix = (shortDescription(hit_record.target_description)+'_SS').padEnd(prefix_size, ' ');
 
     var alignment_str = '';
     var query_starts = hit_record.alignment.query_from;
@@ -198,9 +232,9 @@ function formatAlignment(result_no, hit_record) {
         target_ends = Math.min(hit_record.alignment.target_to, target_starts+ALIGNMENT_LENGTH-1-countGaps(aligned_target));
 
         alignment_str += query_sec_str_prefix + spacer + query_ss.padEnd(ALIGNMENT_LENGTH, ' ') + '\n';
-        alignment_str += query_prefix + query_starts.toString().padEnd(10, ' ') + aligned_query.padEnd(ALIGNMENT_LENGTH, ' ') + query_ends.toString().padStart(10, ' ') + '\n';
+        alignment_str += query_prefix + query_starts.toString().padEnd(spacer_size, ' ') + aligned_query.padEnd(ALIGNMENT_LENGTH, ' ') + query_ends.toString().padStart(spacer_size, ' ') + '\n';
         alignment_str += middle_prefix + spacer + middle.padEnd(ALIGNMENT_LENGTH, ' ') + '\n';
-        alignment_str += result_prefix + target_starts.toString().padEnd(10, ' ' ) + aligned_target.padEnd(ALIGNMENT_LENGTH, ' ') + target_ends.toString().padStart(10, ' ') + '\n';
+        alignment_str += result_prefix + target_starts.toString().padEnd(spacer_size, ' ' ) + aligned_target.padEnd(ALIGNMENT_LENGTH, ' ') + target_ends.toString().padStart(spacer_size, ' ') + '\n';
         alignment_str += target_sec_str_prefix + spacer + target_ss.padEnd(ALIGNMENT_LENGTH, ' ') + '\n';
         alignment_str += '\n';
 
@@ -243,6 +277,83 @@ function percentageDisplay(a, b) {
 }
 function countGaps(sequence) {
     return sequence.length - sequence.replace(/-/g, '').length;
+}
+function createPaginationNav(element_class, num_pages) {
+    var nav = document.createElement('nav');
+    var nav_ul = document.createElement('ul');
+    nav_ul.classList.add('pagination');
+    nav_ul.classList.add('justify-content-center');
+    nav_ul.classList.add('flex-wrap');
+    nav_ul.id = navId(element_class);
+    // Creating Previous link
+    nav_ul.innerHTML += '<li class="page-item"><a class="page-link" onclick=navPrevious("'+element_class+'") aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
+    for (var i = 0; i < num_pages; i++) {
+        var nav_li = document.createElement('li');
+        nav_li.id = nav_ul.id + '_' + i;
+        nav_li.classList.add('page-item');
+        var nav_a = document.createElement('a');
+        nav_a.classList.add('page-link');
+        nav_a.innerHTML = i + 1;
+        nav_a.setAttribute('onclick', 'showPage("'+element_class+'",'+i+');');
+        nav_li.appendChild(nav_a);
+        nav_ul.appendChild(nav_li);
+    }
+    nav_ul.innerHTML += '<li class="page-item"><a class="page-link" onclick=navNext("'+element_class+'",'+num_pages+') aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
+    nav.appendChild(nav_ul);
+    return nav;
+}
+function navId(element_class) {
+    return 'nav_' + element_class;
+}
+function showPage(element_class, part_no) {
+    var part_to_show = element_class + '_part_' + part_no;
+    var all_divs = document.getElementsByClassName(element_class);
+    var display_divs = document.getElementsByClassName(part_to_show);
+    changeDisplay(all_divs, 'none');
+    changeDisplay(display_divs, null);
+    // Setting active nav element.
+    var nav_ul = document.getElementById(navId(element_class));
+    var nav_lis = nav_ul.childNodes;
+    for (i = 1; i < (nav_lis.length-1); i++) {
+        if (i == (part_no+1)) {
+            nav_lis[i].classList.add('active');
+        }
+        else {
+            nav_lis[i].classList.remove('active');
+        }
+    }
+}
+function changeDisplay(elements, display) {
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = display;
+    }
+}
+function activeLi(element_class) {
+    var nav_lis = document.getElementById(navId(element_class)).childNodes;
+    for (i = 1; i < (nav_lis.length-1); i++) {
+        if (nav_lis[i].classList.contains('active')) {
+            return i-1;
+        }
+    }
+}
+function navNext(element_class, max_no) {
+    var active_li_no = activeLi(element_class);
+    console.log(active_li_no, max_no);
+    if (active_li_no >= (max_no-1)) {
+        return;
+    }
+    else {
+        showPage(element_class, active_li_no+1);
+    }
+}
+function navPrevious(element_class) {
+    var active_li_no = activeLi(element_class);
+    if (active_li_no == 0) {
+        return;
+    }
+    else {
+        showPage(element_class, active_li_no-1);
+    }
 }
 
 showResults(results);

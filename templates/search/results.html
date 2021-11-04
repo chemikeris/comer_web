@@ -10,12 +10,14 @@
 <h2>Results summary</h2>
 <div id="schematic_sequences"></div>
 <h2>Results table</h2>
-<input type="hidden" name="job_id" value="{{ job.name }}">
-<label for="id_modeller_key">MODELLER key:</label><input type="text" name="modeller_key" id="id_modeller_key">
-<input type="hidden" name="sequence_no" value="{{ sequence_no }}">
-<input type="submit" formaction="{% url 'submit_single_template_structure_model' %}" name="model" value="Model structure (single-template)">
-<input type="submit" formaction="{% url 'submit_multiple_templates_structure_model' %}" name="model" value="Model structure (multi-template)">
-<input type="submit" formaction="{% url 'submit_msa' %}" name="msa" value="Create MSA">
+<p>
+    <input type="hidden" name="job_id" value="{{ job.name }}">
+    <label for="id_modeller_key">MODELLER key:</label><input type="text" name="modeller_key" id="id_modeller_key">
+    <input type="hidden" name="sequence_no" value="{{ sequence_no }}">
+    <input type="submit" formaction="{% url 'submit_single_template_structure_model' %}" name="model" value="Model structure (single-template)">
+    <input type="submit" formaction="{% url 'submit_multiple_templates_structure_model' %}" name="model" value="Model structure (multi-template)">
+    <input type="submit" formaction="{% url 'submit_msa' %}" name="msa" value="Create MSA">
+</p>
 <div id="results_table"></div>
 <h2>Alignments</h2>
 <div id="alignments"></div>
