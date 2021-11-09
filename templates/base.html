@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="{% static 'css/site.css' %}">
 <script src="{% static 'js/site.js' %}"></script>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <noscript>COMER web server requires JavaScript, which is disabled in your browser.</noscript>
 <header>
     <nav class="navbar navbar-light navbar-expand-md bg-light">
@@ -31,7 +31,7 @@
 	{% block content %}
 	{% endblock %}
     </div>
-<footer class="text-center bg-light">
+<footer class="mt-auto text-center bg-light">
 	<a href="http://www.bioinformatics.lt">bioinformatics.lt</a>
 </footer>
 <button onclick="goToTop()" id="top_button" title="Go to top"><img src="{%  static 'img/icons/arrow-up-circle.svg' %}" width="100%"></button> 

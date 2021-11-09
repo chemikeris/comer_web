@@ -17,11 +17,12 @@
 </script>
 <p>Submit a COTHER job:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F use_cother=true</code></p>
+<h2>Submitting a search job using custom settings</h2>
 <p>All settings that are available in the <a href="{% static 'demo/job.options' %}">COMER settings file</a> may be set to a user-specified value when submitting a query.
 For example, here we change the method for multiple sequence alignment generation (use HMMER instead of HHblits) and a lower the E-value threshold:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F EVAL=0.0001 -F hmmer_in_use=true -F hhsuite_in_use=false</code></p>
 <p>We can also choose different databases or even several databases for COMER search:</p>
-<p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F comer_db={{ db.COMER.0.0 }} -F comer_db={{ db.COMER|last|first }}</code></p>
+<p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F comer_db={{ short_db_names.COMER.0 }} -F comer_db={{ short_db_names.COMER|last }}</code></p>
 <p>Currently available databases are: </p>
 <ul>
 {% for program, databases in db.items %}
@@ -43,6 +44,7 @@ For example, here we change the method for multiple sequence alignment generatio
 Number of successful sequences is modified after job finishes, and standart COMER JSONs are then added to the results JSON:</p>
 <code><pre id="results_json_empty"></pre></code>
 <script>nice_json({"success": true, "job_id": "JobID", "status": "queued", "search_method": "COMER", "error_log": "", "number_of_input_sequences": 5, "number_of_successful_sequences": 0, "results": [], "web_url": "/search/results/JobID"}, 'results_json_empty');</script>
+<h2>Retrieving job files</h2>
 <p>The full results of a finished job can be also retrieved as a zip file:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_results_zip' job_id='JobID' %}</code></p>
 <p>If necessary, job input data, search options or error log can be queried as well:</p>
