@@ -7,6 +7,7 @@
 <script src="{% static 'bootstrap.bundle.min.js' %}"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="{% static 'css/site.css' %}">
+<script src="{% static 'js/site.js' %}"></script>
 </head>
 <body>
 <noscript>COMER web server requires JavaScript, which is disabled in your browser.</noscript>
@@ -33,5 +34,6 @@
 <footer class="text-center bg-light">
 	<a href="http://www.bioinformatics.lt">bioinformatics.lt</a>
 </footer>
+<button onclick="goToTop()" id="top_button" title="Go to top"><img src="{%  static 'img/icons/arrow-up-circle.svg' %}" width="100%"></button> 
 </body>
 </html>
