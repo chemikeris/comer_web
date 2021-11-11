@@ -91,6 +91,15 @@ class Job(ComerWebServerJob):
                 traceback.print_exc()
             return
 
+    def sequence_headers(self):
+        sequences = []
+        results_files = self.read_results_lst()
+        for rf in results_files:
+            input_file = self.results_file_path(rf['input'])
+            input_name, i_f, i_d = read_input_name_and_type(input_file)
+            sequences.append(input_name)
+        return sequences
+
 
 def process_input_data(input_data, input_files, example=False):
     "Process input sequences and settings"

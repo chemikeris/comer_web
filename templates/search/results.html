@@ -1,5 +1,5 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'base_results.html' %}
+{% block results %}
 {% load static %}
 <h1>{% if job.is_cother_search %}COTHER{% else %}COMER{% endif %} results</h1>
 {{ results|json_script:"raw_results" }}

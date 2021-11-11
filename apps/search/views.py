@@ -124,16 +124,14 @@ def results(request, job_id):
             print('Single-sequence job, redirecting.')
             return redirect('detailed', job_id=job_id, sequence_no=0)
 
-        sequences = []
-        results_files = job.read_results_lst()
-        for rf in results_files:
-            input_file = job.results_file_path(rf['input'])
-            input_name, i_f, i_d = models.read_input_name_and_type(input_file)
-            sequences.append(input_name)
-        return render(
-                request, 'search/results_all.html',
-                {'job': job, 'sequences': sequences, 'errors': errors}
-                )
+        sequences = job.sequence_headers()
+        context = {
+            'job': job,
+            'sequences': sequences,
+            'sequence_no': None,
+            'errors': errors
+            }
+        return render(request, 'search/results_all.html', context)
     else:
         return render(
                 request, 'jobs/not_finished_or_removed.html',
@@ -206,7 +204,9 @@ def detailed(request, job_id, sequence_no):
     input_name, input_format, input_description = \
         models.read_input_name_and_type(input_file)
     context = {
-        'job': job, 'sequence_no': sequence_no,
+        'job': job,
+        'sequence_no': sequence_no,
+        'sequences': job.sequence_headers(),
         'results': results, 'input_name': input_name,
         'input_description': input_description,
         'input_format': '' if input_format is None else f' ({input_format})'

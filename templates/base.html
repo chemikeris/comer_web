@@ -9,8 +9,10 @@
 <link rel="stylesheet" href="{% static 'css/site.css' %}">
 <script src="{% static 'js/site.js' %}"></script>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body>
 <noscript>COMER web server requires JavaScript, which is disabled in your browser.</noscript>
+<div class="d-flex flex-column min-vh-100">
+<div>
 <header>
     <nav class="navbar navbar-light navbar-expand-md bg-light">
     <div class="container-fluid">
@@ -25,15 +27,17 @@
             <li class="nav-item"><a class="nav-link" href="{% url 'references' %}">Cite us</a></li>
         </div></ul>
     </div>
-    </nav>
+    </nav
 </header>
-    <div class="container">
+<div class="container-fluid">
 	{% block content %}
 	{% endblock %}
     </div>
+</div>
 <footer class="mt-auto text-center bg-light">
 	<a href="http://www.bioinformatics.lt">bioinformatics.lt</a>
 </footer>
 <button onclick="goToTop()" id="top_button" title="Go to top"><img src="{%  static 'img/icons/arrow-up-circle.svg' %}" width="100%"></button> 
+</div>
 </body>
 </html>
