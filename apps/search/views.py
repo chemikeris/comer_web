@@ -80,11 +80,11 @@ def submit(request):
 
 class ApiResultsView(View):
     "Parent class for API views"
-    def get(self, request, job_id):
+    def get(self, request, job_id, sequence_no=None):
         job_exists = models.Job.objects.filter(name=job_id)
         if job_exists:
             job = job_exists[0]
-            result_response = self.format_output(job)
+            result_response = self.format_output(job, sequence_no)
         else:
             result = {}
             result['success'] = False
@@ -108,7 +108,7 @@ class ApiResultsView(View):
 
 class ApiJobStatus(ApiResultsView):
     "API view showing job status"
-    def format_output(self, job):
+    def format_output(self, job, sequence_no=None):
         result = self.start_output_for_successful_result(job)
         del result['error_log']
         result['log'] = job.calculation_log
@@ -143,7 +143,7 @@ def results(request, job_id):
 
 class ApiResultsJson(ApiResultsView):
     "API view showing results in JSON format"
-    def format_output(self, job):
+    def format_output(self, job, sequence_no=None):
         result = self.start_output_for_successful_result(job)
         result['number_of_input_sequences'] = job.number_of_input_sequences
         result['number_of_successful_sequences'] = \
@@ -161,8 +161,8 @@ class ApiResultsJson(ApiResultsView):
 
 class ApiResultsDownloadFile(ApiResultsView):
     "Base API view for retrieving results files"
-    def format_output(self, job):
-        rf = job.results_file_path(self.fname(job))
+    def format_output(self, job, sequence_no=None):
+        rf = job.results_file_path(self.fname(job, sequence_no))
         if os.path.isfile(rf):
             return FileResponse(open(rf, 'rb'))
         else:
@@ -171,23 +171,47 @@ class ApiResultsDownloadFile(ApiResultsView):
 
 
 class ApiResultsZip(ApiResultsDownloadFile):
-    def fname(self, job):
+    def fname(self, job, sequence_no=None):
         return job.get_output_name()+'.tar.gz'
 
 
 class ApiJobOptions(ApiResultsDownloadFile):
-    def fname(self, job):
+    def fname(self, job, sequence_no=None):
         return job.results_file_path(job.name+'.options')
 
 
 class ApiJobInput(ApiResultsDownloadFile):
-    def fname(self, job):
+    def fname(self, job, sequence_no=None):
         return job.results_file_path(job.name+'.in')
 
 
 class ApiJobError(ApiResultsDownloadFile):
-    def fname(self, job):
+    def fname(self, job, sequence_no=None):
         return job.results_file_path(job.name+'.err')
+
+
+class ApiDetailedDownloadInput(ApiResultsDownloadFile):
+    def fname(self, job, sequence_no):
+        results_file = job.results_file(sequence_no, 'input')
+        return results_file
+
+
+class ApiDetailedDownloadProfile(ApiResultsDownloadFile):
+    def fname(self, job, sequence_no):
+        results_file = job.results_file(sequence_no, 'profile')
+        return results_file
+
+
+class ApiDetailedDownloadMSA(ApiResultsDownloadFile):
+    def fname(self, job, sequence_no):
+        results_file = job.results_file(sequence_no, 'msa')
+        return results_file
+
+
+class ApiDetailedDownloadJSON(ApiResultsDownloadFile):
+    def fname(self, job, sequence_no):
+        results_file = job.results_file(sequence_no, 'results_json')
+        return results_file
 
 
 def detailed(request, job_id, sequence_no):
@@ -209,7 +233,8 @@ def detailed(request, job_id, sequence_no):
         'sequences': job.sequence_headers(),
         'results': results, 'input_name': input_name,
         'input_description': input_description,
-        'input_format': '' if input_format is None else f' ({input_format})'
+        'input_format': '' if input_format is None else f' ({input_format})',
+        'has_msa': results_files[sequence_no]['msa'],
         }
     return render(request, 'search/results.html', context)
 

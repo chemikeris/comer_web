@@ -1,7 +1,7 @@
 {% extends 'base_results.html' %}
 {% block results %}
 {% load static %}
-<h1>{% if job.is_cother_search %}COTHER{% else %}COMER{% endif %} results</h1>
+<h1>{{ job.method|upper }} results</h1>
 {{ results|json_script:"raw_results" }}
 <script>const results = JSON.parse(document.getElementById('raw_results').textContent);</script>
 <p>Results for {{ input_name }}, input was a <a href="{% url 'detailed_show_input' job_id=job.name sequence_no=sequence_no %}">{{ input_description }}{{ input_format }}</a>.</p>

@@ -34,7 +34,11 @@ def show_modeling_job(request, search_job_id, modeling_job_id):
         errors = job.read_error_log()
         context = {
             'templates': [r['template_ids'] for r in results_files],
-            'job': job, 'errors': errors
+            'modeling_job': job,
+            'errors': errors,
+            'job': job.search_job,
+            'sequence_no': job.sequence_no,
+            'sequences': job.search_job.sequence_headers(),
             }
         return render(
                 request, 'model_structure/modeling_job.html', context

@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+{% extends 'base_results.html' %}
 {% load static %}
-{% block content %}
+{% block results %}
 <h1>COMER Multiple Sequence Alignment</h1>
 <p><a href="{% url 'download_msa' msa_job_id=msa_job_id %}">Download</a></p>
 <div id="display_msa"></div>

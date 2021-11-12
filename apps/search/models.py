@@ -62,7 +62,9 @@ class Job(ComerWebServerJob):
         "Reading results lst line for Comer search job"
         rf = {}
         rf['results_json'] = files_line[0]
-        rf['input'] = files_line[-1]
+        rf['profile'] = files_line[1]
+        rf['msa'] = files_line[2]
+        rf['input'] = files_line[3]
         return rf
 
     def uri(self):
@@ -99,6 +101,13 @@ class Job(ComerWebServerJob):
             input_name, i_f, i_d = read_input_name_and_type(input_file)
             sequences.append(input_name)
         return sequences
+
+    def results_file(self, sequence_no, what_file):
+        results_files = self.read_results_lst()
+        results_file = self.results_file_path(
+            results_files[sequence_no][what_file]
+            )
+        return results_file
 
 
 def process_input_data(input_data, input_files, example=False):

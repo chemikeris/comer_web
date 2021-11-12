@@ -13,9 +13,16 @@ def show(request, msa_job_id):
     job = get_object_or_404(models.Job, name=msa_job_id)
     finished, removed, status_msg, errors, refresh = job.status_info()
     if finished and not removed:
+        context = {
+            'msa_job_id': msa_job_id,
+            'errors': errors,
+            'job': job.search_job,
+            'sequence_no': job.sequence_no,
+            'sequences': job.search_job.sequence_headers(),
+            }
         return render(
                 request, 'msa/multiple_sequence_alignment.html',
-                {'msa_job_id': msa_job_id, 'errors': errors}
+                context
                 )
     else:
         return render(
