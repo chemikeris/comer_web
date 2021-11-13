@@ -11,7 +11,7 @@ html {
 }
 .sequence_scheme a {
     display: block;
-    color: white;
+    color: lightgrey;
     font-weight: bold;
     text-decoration: none;
 }
@@ -20,6 +20,27 @@ html {
     white-space: pre;
     margin-top: 0;
     margin-bottom: 0;
+}
+.resK, .resR {
+    color: blue;
+}
+.resD, .resE {
+    color: red;
+}
+.resN, .resQ, .resH {
+    color: magenta;
+}
+.resC, .resV, .resI, .resL, .resP, .resF, .resY, .resM, .resW {
+    color: green;
+}
+.resG, .resA, .resS, .resT {
+    color: orange;
+}
+.ssH {
+    color: red;
+}
+.ssE {
+    color: blue;
 }
 .structure_viewer {
     width: 400px;

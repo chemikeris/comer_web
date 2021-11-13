@@ -231,17 +231,17 @@ function formatAlignment(result_no, hit_record) {
         query_ends = Math.min(hit_record.alignment.query_to, query_starts+ALIGNMENT_LENGTH-1-countGaps(aligned_query));
         target_ends = Math.min(hit_record.alignment.target_to, target_starts+ALIGNMENT_LENGTH-1-countGaps(aligned_target));
 
-        alignment_str += query_sec_str_prefix + spacer + query_ss.padEnd(ALIGNMENT_LENGTH, ' ') + '\n';
-        alignment_str += query_prefix + query_starts.toString().padEnd(spacer_size, ' ') + aligned_query.padEnd(ALIGNMENT_LENGTH, ' ') + query_ends.toString().padStart(spacer_size, ' ') + '\n';
-        alignment_str += middle_prefix + spacer + middle.padEnd(ALIGNMENT_LENGTH, ' ') + '\n';
-        alignment_str += result_prefix + target_starts.toString().padEnd(spacer_size, ' ' ) + aligned_target.padEnd(ALIGNMENT_LENGTH, ' ') + target_ends.toString().padStart(spacer_size, ' ') + '\n';
-        alignment_str += target_sec_str_prefix + spacer + target_ss.padEnd(ALIGNMENT_LENGTH, ' ') + '\n';
+        if (query_ss) alignment_str += query_sec_str_prefix + spacer + colorSS(query_ss).padEnd(ALIGNMENT_LENGTH, ' ') + '\n';
+        alignment_str += query_prefix + query_starts.toString().padEnd(spacer_size, ' ') + colorResidues(aligned_query).padEnd(ALIGNMENT_LENGTH, ' ') + query_ends.toString().padStart(spacer_size, ' ') + '\n';
+        alignment_str += middle_prefix + spacer + colorResidues(middle).padEnd(ALIGNMENT_LENGTH, ' ') + '\n';
+        alignment_str += result_prefix + target_starts.toString().padEnd(spacer_size, ' ' ) + colorResidues(aligned_target).padEnd(ALIGNMENT_LENGTH, ' ') + target_ends.toString().padStart(spacer_size, ' ') + '\n';
+        if (target_ss) alignment_str += target_sec_str_prefix + spacer + colorSS(target_ss).padEnd(ALIGNMENT_LENGTH, ' ') + '\n';
         alignment_str += '\n';
 
         query_starts = query_ends + 1;
         target_starts = target_ends + 1;
     }
-    sequence_alignment_div.innerText = alignment_str;
+    sequence_alignment_div.innerHTML = alignment_str;
 
     alignment_div.appendChild(sequence_alignment_div);
 
@@ -268,6 +268,32 @@ function formatAlignment(result_no, hit_record) {
     alignment_div.appendChild(footer);
 
     return alignment_div;
+}
+function colorResidues(sequence) {
+    var colored_sequence = '';
+    for (var i = 0; i < sequence.length; i++) {
+        var residue = sequence[i];
+        if (residue == '-' || residue == '+') {
+            var colored_residue = residue;
+        }
+        else {
+            var colored_residue = '<span class="res' + residue + '">' + residue + '</span>';
+        }
+        colored_sequence += colored_residue;
+    }
+    return colored_sequence;
+}
+function colorSS(ss) {
+    var colored_ss = '';
+    for (i = 0; i < ss.length; i++) {
+        if (ss[i] != ' ') {
+            colored_ss += '<span class="ss' + ss[i].toUpperCase() + '">' + ss[i] + '</span>'
+        }
+        else {
+            colored_ss += ss[i];
+        }
+    }
+    return colored_ss;
 }
 function percentageDisplay(a, b) {
     percentage_display = '';
