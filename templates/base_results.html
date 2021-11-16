@@ -6,14 +6,15 @@
 	<button class="btn dropdown-toggle navbar-toggler" data-bs-toggle="collapse" data-bs-target="#current_job_menu">Job: {{ job.name }}</button>
 	<div id="current_job_menu" class="navbar-collapse collapse show">
 	<ul class="nav-pills list-unstyled" id="current_job_results_menu">
-		<li class="nav-item"><a  class="{% if sequence_no != None %}link-dark {% endif %}nav-link dropdown-item" href="{% url 'results' job_id=job.name %}">Summary</a></li>
+        <li class="nav-item"><a  class="{% if sequence_no != None %}link-dark {% endif %}nav-link dropdown-item{% if active == 'summary' %} active bg-secondary{% endif %}" href="{% url 'results' job_id=job.name %}">Summary</a></li>
         <li class="nav-item"><a class="nav-link link-dark" href="{% url 'api_results_zip' job_id=job.name %}">Download</a></li>
+        <br>
 		{% for s in sequences %}
 			{% if forloop.counter0 == sequence_no %}
 				<li class="nav-item"><a class="nav-link dropdown-toggle text-truncate" href="#">{{ s }}</a>
 					<ul class="nav nav-pills small" data-bs-parent="current_job_results_menu">
-						<li class="nav-item dropdown-item"><a class="nav-link" href="{% url 'detailed' job_id=job.name sequence_no=forloop.counter0 %}">Results</a></li>
-						<li class="nav-item dropdown-item"><a class="nav-link" href="#">Summary</a></li>
+                        <li class="nav-item dropdown-item"><a class="nav-link {% if active == 'detailed' %} active{% endif %}" href="{% url 'detailed' job_id=job.name sequence_no=forloop.counter0 %}">Results</a></li>
+						<li class="nav-item dropdown-item"><a class="nav-link {% if active == 'query_summary' %} active{% endif %}" href="#">Summary</a></li>
                         <li class="nav-item dropdown-item"><a href="#" class="nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#sequence{{ sequence_no }}_downloads">Download</a>
                             <ul id="sequence{{ sequence_no }}_downloads" class="collapse">
                             <li class="nav-item dropdown-item"><a class="nav-link" href="{% url 'api_detailed_input' job_id=job.name sequence_no=sequence_no %}">Input {{ input_description }}</a></li>
@@ -25,7 +26,7 @@
 					</ul>
 				</li>
 			{% else %}
-				<li class="nav-item"><a class="link-dark nav-link dropdown-toggle" href="{% url 'detailed' job_id=job.name sequence_no=forloop.counter0 %}">{{ s }}</a></li>
+				<li class="nav-item"><a class="link-dark nav-link dropdown-toggle text-truncate" href="{% url 'detailed' job_id=job.name sequence_no=forloop.counter0 %}">{{ s }}</a></li>
 			{% endif %}
 		{% endfor %}
 	</ul>

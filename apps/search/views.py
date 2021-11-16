@@ -129,7 +129,8 @@ def results(request, job_id):
             'job': job,
             'sequences': sequences,
             'sequence_no': None,
-            'errors': errors
+            'errors': errors,
+            'active': 'summary',
             }
         return render(request, 'search/results_all.html', context)
     else:
@@ -235,6 +236,7 @@ def detailed(request, job_id, sequence_no):
         'input_description': input_description,
         'input_format': '' if input_format is None else f' ({input_format})',
         'has_msa': results_files[sequence_no]['msa'],
+        'active': 'detailed',
         }
     return render(request, 'search/results.html', context)
 
