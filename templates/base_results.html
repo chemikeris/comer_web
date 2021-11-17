@@ -15,7 +15,7 @@
 					<ul class="nav nav-pills small" data-bs-parent="current_job_results_menu">
                         <li class="nav-item dropdown-item"><a class="nav-link {% if active == 'detailed' %} active{% endif %}" href="{% url 'detailed' job_id=job.name sequence_no=forloop.counter0 %}">Results</a></li>
 						<li class="nav-item dropdown-item"><a class="nav-link {% if active == 'query_summary' %} active{% endif %}" href="#">Summary</a></li>
-                        <li class="nav-item dropdown-item"><a href="#" class="nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#sequence{{ sequence_no }}_downloads">Download</a>
+                        <li class="nav-item dropdown-item bg-transparent"><a href="#" class="nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#sequence{{ sequence_no }}_downloads">Download</a>
                             <ul id="sequence{{ sequence_no }}_downloads" class="collapse">
                             <li class="nav-item dropdown-item"><a class="nav-link" href="{% url 'api_detailed_input' job_id=job.name sequence_no=sequence_no %}">Input {{ input_description }}</a></li>
                             {% if has_msa %}<li class="nav-item dropdown-item"><a class="nav-link" href="{% url 'api_detailed_msa' job_id=job.name sequence_no=sequence_no %}">MSA</a></li>{% endif %}
