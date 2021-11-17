@@ -238,5 +238,5 @@ class TestFunctions(TestCase):
         name, input_format, desc = models.read_input_name_and_type(fname)
         self.assertEqual(name, 'CBS domain')
         self.assertEqual(input_format, 'Stockholm')
-        self.assertEqual(desc, 'multiple sequence alignment')
+        self.assertEqual(desc, 'MSA')
 

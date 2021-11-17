@@ -167,10 +167,10 @@ def read_input_name_and_type(input_file):
         if input_ext == '.fa':
             input_description = 'sequence'
         else:
-            input_description = 'multiple sequence alignment'
+            input_description = 'MSA'
     elif input_ext == '.a3m':
         input_format = 'A3M'
-        input_description = 'multiple sequence alignment'
+        input_description = 'MSA'
         with open(input_file) as f:
             line = f.readline().strip()
             description_found = False
@@ -182,7 +182,7 @@ def read_input_name_and_type(input_file):
                     line = f.readline().strip()
     elif input_ext == '.sto':
         input_format = 'Stockholm'
-        input_description = 'multiple sequence alignment'
+        input_description = 'MSA'
         input_name = 'Query' + input_fname.rsplit('__', 1)[-1]
         with open(input_file) as f:
             for line in f:
