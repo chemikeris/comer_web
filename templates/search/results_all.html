@@ -22,7 +22,7 @@
 <tr>
 <td><a href="{% url 'detailed' job_id=job.name sequence_no=forloop.counter0 %}">{{ r.input_name }}</a></td>
 <td>{{ r.input_length }}</td>
-<td>{{ r.input_description }} ({{ r.input_format }})</td>
+<td>{{ r.input_description }}{{ r.input_format }}</td>
 <td>{% if r.number_of_sequences_in_msa %}N={{ r.number_of_sequences_in_msa }}{% if r.msa_neff %}, Neff={{ r.msa_neff }}{% endif %}{% endif %}</td>
 <td>{{ r.number_of_results }}</td>
 </tr>

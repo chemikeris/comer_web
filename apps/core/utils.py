@@ -12,7 +12,7 @@ def read_json_file(fname, filter_key=None):
             json_error = error
         else:
             json_error = None
-    if filter_key is None:
+    if filter_key is None or json_error:
         return contents, json_error
     else:
         return contents[filter_key], json_error

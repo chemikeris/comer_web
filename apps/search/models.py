@@ -111,32 +111,7 @@ class Job(ComerWebServerJob):
         summary = []
         results_files = self.read_results_lst()
         for rf in results_files:
-            r = {}
-            input_file = self.results_file_path(rf['input'])
-            i_name, i_format, i_desc = read_input_name_and_type(input_file)
-            r['input_name'] = i_name
-            r['input_format'] = i_format
-            r['input_description'] = i_desc
-            results_json_file = self.results_file_path(rf['results_json'])
-            results_json, err = read_json_file(results_json_file, 'comer_search')
-            r['number_of_results'] = len(results_json['search_hits'])
-            r['input_length'] = results_json['query']['length']
-            if rf['msa']:
-                if rf['neff']:
-                    n, neff, identity = sequences.read_neff_file(
-                        self.results_file_path(rf['neff'])
-                        )
-                    r['number_of_sequences_in_msa'] = n
-                    r['msa_neff'] = neff
-                else:
-                    r['number_of_sequences_in_msa'] = sequences.summarize_msa(
-                        self.results_file_path(rf['msa'])
-                        )
-                    r['msa_neff'] = None
-            else:
-                rf['number_of_sequences_in_msa'] = None
-                rf['msa_neff'] = None
-            summary.append(r)
+            summary.append(SearchResultsSummary(self, rf))
         return summary
 
     def results_file(self, sequence_no, what_file):
@@ -145,6 +120,40 @@ class Job(ComerWebServerJob):
             results_files[sequence_no][what_file]
             )
         return results_file
+
+
+class SearchResultsSummary:
+    "Search result summary info"
+    def __init__(self, job, result_files):
+        rf = result_files
+        input_file = job.results_file_path(rf['input'])
+        i_name, i_format, i_desc = read_input_name_and_type(input_file)
+        self.input_name = i_name
+        self.input_format = '' if i_format is None else f' ({i_format})'
+        self.input_description = i_desc
+        results_json_file = job.results_file_path(rf['results_json'])
+        results_json, err = read_json_file(
+            results_json_file, '%s_search' % job.method()
+            )
+        self.results_json = results_json
+        self.json_err = err
+        self.number_of_results = len(results_json['search_hits'])
+        self.input_length = results_json['query']['length']
+        if rf['msa']:
+            if rf['neff']:
+                n, neff, identity = sequences.read_neff_file(
+                    job.results_file_path(rf['neff'])
+                    )
+                self.number_of_sequences_in_msa = n
+                self.msa_neff = neff
+            else:
+                self.number_of_sequences_in_msa = sequences.summarize_msa(
+                    job.results_file_path(rf['msa'])
+                    )
+                self.msa_neff = None
+        else:
+            self.number_of_sequences_in_msa = None
+            self.msa_neff = None
 
 
 def process_input_data(input_data, input_files, example=False):
@@ -226,7 +235,7 @@ def read_input_name_and_type(input_file):
                 if line.startswith('#=GF DE'):
                     input_name = line.split(maxsplit=2)[-1].rstrip()
     elif input_ext in ('.pro', '.tpro'):
-        input_format = 'profile'
+        input_format = None
         with open(input_file) as f:
             input_description = f.readline().strip()
             for line in f:

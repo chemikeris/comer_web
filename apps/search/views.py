@@ -125,7 +125,7 @@ def results(request, job_id, redirect_to_first=False):
             return redirect('detailed', job_id=job_id, sequence_no=0)
 
         summary = job.results_summary()
-        sequences = [r['input_name'] for r in summary]
+        sequences = [r.input_name for r in summary]
         context = {
             'job': job,
             'sequences': sequences,
@@ -228,7 +228,7 @@ def detailed(request, job_id, sequence_no):
         )
     results, json_error = utils.read_json_file(results_file)
     if results is None:
-        return render(request, 'search/error.html', {'json_error': results})
+        return render(request, 'search/error.html', {'json_error': json_error})
     input_file = job.results_file_path(results_files[sequence_no]['input'])
     input_name, input_format, input_description = \
         models.read_input_name_and_type(input_file)
@@ -244,6 +244,26 @@ def detailed(request, job_id, sequence_no):
         'active': 'detailed',
         }
     return render(request, 'search/results.html', context)
+
+
+def detailed_summary(request, job_id, sequence_no):
+    job = get_object_or_404(models.Job, name=job_id)
+    results_files = job.read_results_lst()
+    result_summary = models.SearchResultsSummary(job, results_files[sequence_no])
+    if result_summary.results_json is None:
+        return render(
+            request, 'search/error.html',
+            {'json_error': result_summary.json_error}
+            )
+    context = {
+        'job': job,
+        'sequence_no': sequence_no,
+        'sequences': job.sequence_headers(),
+        'active': 'query_summary',
+        'has_msa': results_files[sequence_no]['msa'],
+        'r': result_summary,
+        }
+    return render(request, 'search/query_summary.html', context)
 
 
 def show_input(request, job_id, sequence_no=None):

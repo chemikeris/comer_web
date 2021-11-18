@@ -26,6 +26,11 @@ urlpatterns = [
         name='detailed'
         ),
     path(
+        'detailed_summary/<slug:job_id>/<int:sequence_no>',
+        views.detailed_summary,
+        name='detailed_summary'
+        ),
+    path(
         'detailed/input/<slug:job_id>/<int:sequence_no>',
         views.show_input,
         name='detailed_show_input'

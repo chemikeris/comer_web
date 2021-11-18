@@ -1,0 +1,33 @@
+{% extends 'base_results.html' %}
+{% block results %}
+{% load static %}
+<h1>{{ job.method|upper }} search results summary</h1>
+<table class="table table-striped w-auto">
+<tbody>
+	<tr><td>Query</td><td>{{ r.input_name }}</td></tr>
+	<tr><td>Query length</td><td>{{ r.input_length }}</td></tr>
+	<tr><td>Input type</td><td>{{ r.input_description}}{{ r.input_format }}</td></tr>
+	{% if r.number_of_sequences_in_msa %}<tr><td>Input MSA</td><td>N={{ r.number_of_sequences_in_msa }}{% if r.msa_neff %}, Neff={{ r.msa_neff }}{% endif %}</td></tr>{% endif %}
+	<tr><td>Number of results</td><td>{{ r.number_of_results }}</td></tr>
+	<tr><td>Databases</td><td>{{ r.results_json.database.names|join:', ' }}</td></tr>
+	<tr><td>Number of profiles</td><td>{{ r.results_json.database.number_of_profiles }}</td></tr>
+	<tr><td>Number of positions</td><td>{{ r.results_json.database.number_of_positions }}</td></tr>
+	<tr><td>Program</td><td>{{ r.results_json.program }} {{ r.results_json.version }}</td></tr>
+</tbody>
+</table>
+<h2>Search statistics</h2>
+<table class="table table-striped w-auto">
+<tbody>
+	<tr><td>Reference K ungapped</td><td>{{ r.results_json.search_statistics.reference_K_ungapped }}</td></tr>
+	<tr><td>Reference &lambda;</td><td>{{ r.results_json.search_statistics.reference_lambda_ungapped }}</td></tr>
+	<tr><td>Reference K gapped</td><td>{{ r.results_json.search_statistics.reference_K_gapped }}</td></tr>
+	<tr><td>Reference &lambda; gapped</td><td>{{ r.results_json.search_statistics.reference_lambda_gapped }}</td></tr>
+	<tr><td>Query lenght</td><td>{{ r.results_json.search_statistics.query_length }}</td></tr>
+	<tr><td>Database size</td><td>{{ r.results_json.search_statistics.database_size }}</td></tr>
+	<tr><td>Effective query length</td><td>{{ r.results_json.search_statistics.effective_query_length }}</td></tr>
+	<tr><td>Effective database size</td><td>{{ r.results_json.search_statistics.effective_database_size }}</td></tr>
+	<tr><td>Effective search space</td><td>{{ r.results_json.search_statistics.effective_search_space }}</td></tr>
+</tbody>
+</table>
+<h2>Search log</h2><pre>{{ job.calculation_log }}</pre>
+{% endblock %}
