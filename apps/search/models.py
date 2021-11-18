@@ -13,7 +13,8 @@ from . import default
 from comer_web import calculation_server
 from comer_web.settings import BASE_URL
 from apps.core.models import ComerWebServerJob, generate_job_name
-from apps.core.utils import search_input_files_exist
+from apps.core.utils import search_input_files_exist, read_json_file
+from apps.core import sequences
 
 
 class Job(ComerWebServerJob):
@@ -65,6 +66,10 @@ class Job(ComerWebServerJob):
         rf['profile'] = files_line[1]
         rf['msa'] = files_line[2]
         rf['input'] = files_line[3]
+        try:
+            rf['neff'] = files_line[4]
+        except IndexError:
+            rf['neff'] = None
         return rf
 
     def uri(self):
@@ -101,6 +106,38 @@ class Job(ComerWebServerJob):
             input_name, i_f, i_d = read_input_name_and_type(input_file)
             sequences.append(input_name)
         return sequences
+
+    def results_summary(self):
+        summary = []
+        results_files = self.read_results_lst()
+        for rf in results_files:
+            r = {}
+            input_file = self.results_file_path(rf['input'])
+            i_name, i_format, i_desc = read_input_name_and_type(input_file)
+            r['input_name'] = i_name
+            r['input_format'] = i_format
+            r['input_description'] = i_desc
+            results_json_file = self.results_file_path(rf['results_json'])
+            results_json, err = read_json_file(results_json_file, 'comer_search')
+            r['number_of_results'] = len(results_json['search_hits'])
+            r['input_length'] = results_json['query']['length']
+            if rf['msa']:
+                if rf['neff']:
+                    n, neff, identity = sequences.read_neff_file(
+                        self.results_file_path(rf['neff'])
+                        )
+                    r['number_of_sequences_in_msa'] = n
+                    r['msa_neff'] = neff
+                else:
+                    r['number_of_sequences_in_msa'] = sequences.summarize_msa(
+                        self.results_file_path(rf['msa'])
+                        )
+                    r['msa_neff'] = None
+            else:
+                rf['number_of_sequences_in_msa'] = None
+                rf['msa_neff'] = None
+            summary.append(r)
+        return summary
 
     def results_file(self, sequence_no, what_file):
         results_files = self.read_results_lst()
@@ -161,7 +198,7 @@ def read_input_name_and_type(input_file):
     "Read input name from input file"
     input_fname, input_ext = os.path.splitext(input_file)
     if input_ext in ('.fa', '.afa'):
-        input_format = 'Fasta'
+        input_format = 'fasta'
         with open(input_file) as f:
             input_name = f.readline().rstrip()[1:]
         if input_ext == '.fa':
@@ -189,7 +226,7 @@ def read_input_name_and_type(input_file):
                 if line.startswith('#=GF DE'):
                     input_name = line.split(maxsplit=2)[-1].rstrip()
     elif input_ext in ('.pro', '.tpro'):
-        input_format = None
+        input_format = 'profile'
         with open(input_file) as f:
             input_description = f.readline().strip()
             for line in f:

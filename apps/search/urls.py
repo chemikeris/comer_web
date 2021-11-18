@@ -5,7 +5,17 @@ from . import views
 urlpatterns = [
     path('', views.input, name='input'),
     path('input/', views.input, name='input'),
-    path('results/<slug:job_id>', views.results, name='results'),
+    path(
+        'results/<slug:job_id>',
+        views.results,
+        {'redirect_to_first': True},
+        name='results'
+        ),
+    path(
+        'results/summary/<slug:job_id>',
+        views.results,
+        name='results_summary'
+        ),
     path(
         'results/input/<slug:job_id>/',
         views.show_input,

@@ -247,8 +247,8 @@ function formatAlignment(result_no, hit_record) {
 
     // Footer.
     var footer = document.createElement('div');
-    footer.classList.add('f');
     var parameters_table = document.createElement('table');
+    parameters_table.classList.add('table', 'w-auto');
     var parameters_table_header = createTableHeader(['', 'K', 'Lambda']);
     var parameters_table_tbody = document.createElement('tbody');
     var r1 = document.createElement('tr');

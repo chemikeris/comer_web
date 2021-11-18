@@ -115,22 +115,26 @@ class ApiJobStatus(ApiResultsView):
         return JsonResponse(result)
 
 
-def results(request, job_id):
+def results(request, job_id, redirect_to_first=False):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
     finished, removed, status_msg, errors, refresh = job.status_info()
     if finished and not removed:
-        if job.number_of_input_sequences == 1:
+        if job.number_of_input_sequences == 1 and redirect_to_first:
             print('Single-sequence job, redirecting.')
             return redirect('detailed', job_id=job_id, sequence_no=0)
 
-        sequences = job.sequence_headers()
+        summary = job.results_summary()
+        sequences = [r['input_name'] for r in summary]
         context = {
             'job': job,
             'sequences': sequences,
             'sequence_no': None,
             'errors': errors,
             'active': 'summary',
+            'results_summary': summary,
+            'job_input': job.read_input_file('in'),
+            'job_options': job.read_input_file('options'),
             }
         return render(request, 'search/results_all.html', context)
     else:
@@ -232,7 +236,8 @@ def detailed(request, job_id, sequence_no):
         'job': job,
         'sequence_no': sequence_no,
         'sequences': job.sequence_headers(),
-        'results': results, 'input_name': input_name,
+        'results': results,
+        'input_name': input_name,
         'input_description': input_description,
         'input_format': '' if input_format is None else f' ({input_format})',
         'has_msa': results_files[sequence_no]['msa'],

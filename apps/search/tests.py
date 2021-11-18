@@ -227,7 +227,7 @@ class TestFunctions(TestCase):
         fname = os.path.join(settings.BASE_DIR, 'tests', 'files', 'fasta.fa')
         name, input_format, desc = models.read_input_name_and_type(fname)
         self.assertEqual(name, '3VHS_1')
-        self.assertEqual(input_format, 'Fasta')
+        self.assertEqual(input_format, 'fasta')
         self.assertEqual(desc, 'sequence')
 
     def test_read_input_name_from_stockholm(self):

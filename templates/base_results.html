@@ -6,7 +6,7 @@
 	<button class="btn dropdown-toggle navbar-toggler" data-bs-toggle="collapse" data-bs-target="#current_job_menu">Job: {{ job.name }}</button>
 	<div id="current_job_menu" class="navbar-collapse collapse show">
 	<ul class="nav-pills list-unstyled" id="current_job_results_menu">
-        <li class="nav-item"><a  class="{% if sequence_no != None %}link-dark {% endif %}nav-link dropdown-item{% if active == 'summary' %} active bg-secondary{% endif %}" href="{% url 'results' job_id=job.name %}">Summary</a></li>
+        <li class="nav-item"><a  class="{% if sequence_no != None %}link-dark {% endif %}nav-link dropdown-item{% if active == 'summary' %} active bg-secondary{% endif %}" href="{% url 'results_summary' job_id=job.name %}">Summary</a></li>
         <li class="nav-item"><a class="nav-link link-dark" href="{% url 'api_results_zip' job_id=job.name %}">Download</a></li>
         <br>
 		{% for s in sequences %}

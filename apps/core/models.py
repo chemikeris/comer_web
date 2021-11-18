@@ -172,6 +172,10 @@ class ComerWebServerJob(models.Model):
         fname = os.path.join(self.directory, '%s.%s' % (self.name, what_file))
         return fname
 
+    def read_input_file(self, what_file):
+        with open(self.get_input_file(what_file)) as f:
+            return f.read()
+
     def send_confirmation_email(self, *args, **kwargs):
         pass
 
@@ -210,6 +214,9 @@ class ComerWebServerJob(models.Model):
         else:
             print('Unknown job status!')
         return finished, removed, status_msg, errors, refresh
+
+    def results_summary(self):
+        raise NotImplementedError
 
 
 class SearchSubJob:

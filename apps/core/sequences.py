@@ -1,4 +1,5 @@
 import logging
+import os
 
 
 def format(input_str):
@@ -18,8 +19,12 @@ def format(input_str):
     return seq_format
 
 
+def split_fasta_str(fasta_str):
+    return fasta_str[1:].split('\n>')
+
+
 def split_fasta(fasta_str):
-    sequences_data = fasta_str[1:].split('\n>')
+    sequences_data = split_fasta_str(fasta_str)
     sequences = []
     problematic_sequences = []
     for s in sequences_data:
@@ -84,4 +89,53 @@ def comer_json_hit_record_to_alignment(query_description, hit_record_json):
         aligned_target
         )
     return '%s\n%s' % (query_fasta, target_fasta)
+
+
+def summarize_msa(msa_file):
+    "Summarize a multiple sequence alignment file"
+    msa_f_basename, extension = os.path.splitext(msa_file)
+    if extension == '.sto':
+        return summarize_stockholm(msa_file)
+    else:
+        return summarize_fasta(msa_file)
+
+
+def summarize_stockholm(sto_file):
+    "Summarize a multiple sequence alignment file in Stockholm format"
+    number_of_sequences = 0
+    with open(sto_file) as f:
+        for line in f:
+            if line.startswith('#'):
+                continue
+            elif line.startswith('/'):
+                continue
+            elif line.strip() == '':
+                continue
+            else:
+                number_of_sequences += 1
+    return number_of_sequences
+
+
+def summarize_fasta(fasta_file):
+    "Summarize a multiple sequence alignment file in fasta format"
+    number_of_sequences = 0
+    with open(fasta_file) as f:
+        number_of_sequences = len(split_fasta_str(f.read()))
+    return number_of_sequences
+
+
+def read_neff_file(neff_fname):
+    "Read neff fname from comer-ws-backend"
+    n = None
+    neff = None
+    identity = None
+    with open(neff_fname) as f:
+        for line in f:
+            if line.startswith('Total_number_of_sequences='):
+                n = int(line.split()[1])
+            if line.startswith('Neff='):
+                parts = line.split()
+                neff = float(parts[1])
+                identity = float(parts[3])
+    return n, neff, identity
 

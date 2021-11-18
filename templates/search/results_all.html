@@ -1,14 +1,35 @@
 {% extends 'base_results.html' %}
 {% block results %}
-<h1>Results</h1>
+<h1>{{ job.method|upper }} results</h1>
 <p>{{ job.number_of_successful_sequences }} / {{ job.number_of_input_sequences }} queries were successful.</p>
-<p>Click to see results for input sequences.</p>
-{% for s in sequences %}
-<p>Results for <a href="{% url 'detailed' job_id=job.name sequence_no=forloop.counter0 %}">{{ s }}</a>.</p>
+<p>
+    <a class="btn btn-secondary" data-bs-toggle="collapse" href="#" data-bs-target="#job_input">Input</a>
+    <a class="btn btn-secondary" data-bs-toggle="collapse" href="#" data-bs-target="#job_settings">Search settings</a>
+</p>
+<div id="job_settings" class="collapse"><pre>{{ job_options }}</pre></div>
+<div id="job_input" class="collapse"><pre>{{ job_input }}</pre></div>
+<table class='table table-striped'>
+<thead>
+    <tr>
+        <td>Input name</td>
+        <td>Length</td>
+        <td>Input type</td>
+        <td>MSA</td>
+        <td>Number of results</td>
+    </tr>
+</thead>
+{% for r in results_summary %}
+<tr>
+<td><a href="{% url 'detailed' job_id=job.name sequence_no=forloop.counter0 %}">{{ r.input_name }}</a></td>
+<td>{{ r.input_length }}</td>
+<td>{{ r.input_description }} ({{ r.input_format }})</td>
+<td>{% if r.number_of_sequences_in_msa %}N={{ r.number_of_sequences_in_msa }}{% if r.msa_neff %}, Neff={{ r.msa_neff }}{% endif %}{% endif %}</td>
+<td>{{ r.number_of_results }}</td>
+</tr>
 {% endfor %}
+</table>
 {% if errors %}
 <h2>Error log:</h2>
 <pre>{{ errors }} </pre>
-<p><a href="{% url 'results_show_input' job_id=job.name %}">See input.<a></p>
 {% endif %}
 {% endblock %}
