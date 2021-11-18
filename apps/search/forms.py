@@ -38,7 +38,7 @@ class SequencesInputForm(forms.Form):
     # Input sequence.
     sequence = SequenceField(
         widget=forms.Textarea, strip=True, max_length=MAX_SEQUENCE_INPUT,
-        required=False
+        required=False, label='Query'
         )
     input_query_file = forms.FileField(required=False)
     multi_sequence_fasta = forms.BooleanField(
