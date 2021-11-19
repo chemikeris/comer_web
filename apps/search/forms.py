@@ -127,6 +127,11 @@ class SequencesInputForm(forms.Form):
     MINPP = forms.FloatField(
         min_value=0, max_value=1, label='Posterior probability threshold'
         )
+    # Distance distribution match scores (for COTHER).
+    DDMSWGT = forms.FloatField(
+        required=False, min_value=0, max_value=1,
+        label='Weight of distance distribution match scores'
+        )
 
     def validate_plain_sequence(self, sequence_str, description):
         "Making valid sequence from input"
@@ -325,8 +330,6 @@ class SequencesInputFormWithAllSettings(SequencesInputForm):
         )
     SUPCLT = forms.IntegerField(required=False, min_value=-1)
     cADJWGT = forms.FloatField(required=False, min_value=0, max_value=1)
-    # Distance distribution match scores.
-    DDMSWGT = forms.FloatField(required=False, min_value=0, max_value=1)
     # SEG options.
     HCFILTER = forms.BooleanField(required=False)
     HCWINDOW = forms.IntegerField(required=False)

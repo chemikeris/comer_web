@@ -2,10 +2,65 @@
 {% block content %}
 {% load static %}
 <script src="{% static 'js/search/input.js' %}"></script>
-<h1>Input queries</h1>
-<form class=form-floating" action="." method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
-{{ form.as_p }}
+<h2>Input queries</h2>
+<form action="." method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+<div>{{ form.non_field_errors }}</div>
+<div>{{ form.sequence.errors }}{{ form.sequence }}</div>
+<div class="row align-items-center" id="query_file_input">
+    <div class="col-12">{{ form.input_query_file.errors }}</div>
+    <div class="col-sm-2">{{ form.input_query_file.label_tag }}</div><div class="col-sm-10">{{ form.input_query_file }}</div>
+</div>
+<div class="my-2">{{ form.multi_sequence_fasta.errors }}{{ form.multi_sequence_fasta.label_tag }} {{ form.multi_sequence_fasta }}</div>
+<div>{{ form.use_cother.errors }}{{ form.use_cother.label_tag }} {{ form.use_cother }}</div>
+<div class="row g-2 bg-light pb-2">
+    <div class="col-sm-4">{{ form.comer_db.errors }}{{ form.comer_db.label_tag }}{{ form.comer_db }}</div>
+    <div class="col-sm-4">{{ form.cother_db.errors }}{{ form.cother_db.label_tag }}{{ form.cother_db }}</div>
+    <div class="col-sm-4">{{ form.EVAL.errors }}{{ form.EVAL.label_tag }}{{ form.EVAL }}</div>
+    <div class="col-sm-4">{{ form.number_of_results.errors }}{{ form.number_of_results.label_tag }}{{ form.number_of_results }}</div>
+</div>
+<div class="row my-2 align-items-center">
+    <div class="col-12">{{ form.email.errors }}</div>
+    <div class="col-sm-2 col-form-label">{{ form.email.label_tag }}</div><div class="col-sm-10">{{ form.email }}</div>
+</div>
+<div class="dropdown-divider"></div>
+<h2 class="dropdown-toggle link-dark" data-bs-toggle="collapse" data-bs-target="#sequence_search_options">Sequence search options</h2>
+<div id="sequence_search_options" class="collapse">
+    <div id="hhsuite_form" class="row g-2 align-items-end mb-2">
+        <div class="col-sm-3">{{ form.hhsuite_in_use.errors }}{{ form.hhsuite_in_use.label_tag }} {{ form.hhsuite_in_use }}</div>
+        <div class="col-sm-3">{{ form.hhsuite_db.errors }}{{ form.hhsuite_db.label_tag }}{{ form.hhsuite_db }}</div>
+        <div class="col-sm-3">{{ form.hhsuite_opt_niterations.errors }}{{ form.hhsuite_opt_niterations.label_tag }}{{ form.hhsuite_opt_niterations }}</div>
+        <div class="col-sm-3">{{ form.hhsuite_opt_evalue.errors }}{{ form.hhsuite_opt_evalue.label_tag }}{{ form.hhsuite_opt_evalue }}</div>
+    </div>
+    <div id="hmmer_form" class="row g-2 align-items-end my-2 bg-light pb-2">
+        <div class="col-sm-3">{{ form.hmmer_in_use.errors }}{{ form.hmmer_in_use.label_tag }} {{ form.hmmer_in_use }}</div>
+        <div class="col-sm-3">{{ form.sequence_db.errors }}{{ form.sequence_db.label_tag }}{{ form.sequence_db }}</div>
+        <div class="col-sm-3">{{ form.hmmer_opt_niterations.errors }}{{ form.hmmer_opt_niterations.label_tag }}{{ form.hmmer_opt_niterations }}</div>
+        <div class="col-sm-3">{{ form.hmmer_opt_evalue.errors }}{{ form.hmmer_opt_evalue.label_tag }}{{ form.hmmer_opt_evalue }}</div>
+    </div>
+</div>
+<h2 class="dropdown-toggle link-dark" data-bs-toggle="collapse" data-bs-target="#advanced_options">Advanced options</h2>
+<div id="advanced_options" class="collapse">
+    <div>{{ form.LCFILTEREACH.errors }}{{ form.LCFILTEREACH.label_tag }} {{ form.LCFILTEREACH }}</div>
+    <div class="row g-2 align-items-end bg-light pb-2">
+        <div class="col-sm-4">{{ form.ADJWGT.errors }}{{ form.ADJWGT.label_tag }}{{ form.ADJWGT }}</div>
+        <div class="col-sm-4">{{ form.CVSWGT.errors }}{{ form.CVSWGT.label_tag }}{{ form.CVSWGT }}</div>
+        <div class="col-sm-4">{{ form.SSSWGT.errors }}{{ form.SSSWGT.label_tag }}{{ form.SSSWGT }}</div>
+    </div>
+    <div class="row g-2 align-items-center">
+        <div class="col-12">{{ form.SSEMODEL.errors }}</div>
+        <div class="col-sm-2 col-form-label">{{ form.SSEMODEL.label_tag }}</div><div class="col-sm-10">{{ form.SSEMODEL }}</div>
+    </div>
+    <div class="row g-2 align-items-center bg-light pb-2">
+        <div class="col-sm-6">{{ form.MAPALN.errors }}{{ form.MAPALN.label_tag }} {{ form.MAPALN }}</div>
+        <div class="col-sm-6">{{ form.MINPP.errors }}{{ form.MINPP.label_tag }}{{ form.MINPP }}</div>
+    </div>
+    <div id="cother_specific_advanced_options" class="row g-2 align-items-center my-2">
+        <div class="col-12">{{ form.DDMSWGT.errors }}</div>
+        <div class="col-sm-4">{{ form.DDMSWGT.label_tag }}</div><div class="col-sm-8">{{ form.DDMSWGT }}</div>
+    </div>
+</div>
+<div class="dropdown-divider"></div>
 <input class="btn btn-secondary" type="submit" value="Submit">
 </form>
-<script>show_db_fields();add_toggle_databases();add_example_button();add_bootstrap_for_form()</script>
+<script>show_cother_fields();add_toggle_databases();add_example_button();add_bootstrap_for_form()</script>
 {% endblock %}
