@@ -8,6 +8,7 @@ from apps.core.utils import search_input_files_exist
 
 MAX_SEQUENCE_INPUT = 1048576
 MAX_NUMBER_OF_SEQUENCES = 100
+MAX_NUMBER_OF_SEQUENCES_FOR_COTHER = 10
 
 class SequenceField(forms.CharField):
     "Sequence input field"
@@ -16,7 +17,7 @@ class SequenceField(forms.CharField):
         input_size = len(input_str)
         if input_size >= MAX_SEQUENCE_INPUT:
             raise ValidationError(
-                'Sequence input is too large (%s characters)!' % input_size
+                'Sequence input is too large (%s characters).' % input_size
                 )
         elif input_size == 0:
             sequences_data = []
@@ -63,6 +64,7 @@ class SequencesInputForm(forms.Form):
     # Custom job name field to be introduced in the future.
     # Output options.
     EVAL = forms.FloatField(min_value=0, max_value=10, label='E-value')
+    EVAL.widget.attrs.update({'step': 0.1})
     # Number of results that will be converted to number of hits and number of
     # alignments.
     number_of_results = forms.IntegerField(
@@ -83,6 +85,7 @@ class SequencesInputForm(forms.Form):
     hhsuite_opt_evalue = forms.FloatField(
         label='HHblits E-value threshold', required=False
         )
+    hhsuite_opt_evalue.widget.attrs.update({'step': 0.001})
     # HMMer
     hmmer_in_use = forms.BooleanField(
         label='Use hmmer for sequence search', required=False,
@@ -96,6 +99,7 @@ class SequencesInputForm(forms.Form):
     hmmer_opt_evalue = forms.FloatField(
         label='hmmer E-value threshold', required=False
         )
+    hmmer_opt_evalue.widget.attrs.update({'step': 0.001})
 
     # Low complexity filtering.
     LCFILTEREACH = forms.BooleanField(
@@ -107,13 +111,16 @@ class SequencesInputForm(forms.Form):
     ADJWGT = forms.FloatField(
         min_value=0, max_value=1, label='Weight of adjusted scores'
         )
+    ADJWGT.widget.attrs.update({'step': 0.01})
     CVSWGT = forms.FloatField(
         min_value=0, max_value=1, label='Weight of vector scores'
         )
+    CVSWGT.widget.attrs.update({'step': 0.01})
     SSSWGT = forms.FloatField(
         min_value=0, max_value=1, label='Weight of SS scores'
         )
     # Statistical significance estimation.
+    SSSWGT.widget.attrs.update({'step': 0.01})
     SSEMODEL = forms.ChoiceField(
         label='Statistical significance estimation',
         choices=(
@@ -127,11 +134,13 @@ class SequencesInputForm(forms.Form):
     MINPP = forms.FloatField(
         min_value=0, max_value=1, label='Posterior probability threshold'
         )
+    MINPP.widget.attrs.update({'step': 0.01})
     # Distance distribution match scores (for COTHER).
     DDMSWGT = forms.FloatField(
         required=False, min_value=0, max_value=1,
         label='Weight of distance distribution match scores'
         )
+    DDMSWGT.widget.attrs.update({'step': 0.01})
 
     def validate_plain_sequence(self, sequence_str, description):
         "Making valid sequence from input"
@@ -143,10 +152,10 @@ class SequencesInputForm(forms.Form):
             return sequence_str
         else:
             if description:
-                msg = 'Sequence "%(desc)s" contains illegal characters!'
+                msg = 'Sequence "%(desc)s" contains illegal characters.'
                 params = {'desc': description}
             else:
-                msg = 'Sequence contains illegal characters!'
+                msg = 'Sequence contains illegal characters.'
                 params = {}
             self.add_error('sequence', ValidationError(msg, params=params))
             return None
@@ -188,32 +197,51 @@ class SequencesInputForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         # If HHsuite or HMMer is used, it's settings have to be defined.
-        if cleaned_data['hhsuite_in_use']:
-            if not cleaned_data['hhsuite_opt_niterations']:
-                self.add_error(
-                    'hhsuite_opt_niterations',
-                    ValidationError(
-                        'Number of HHblits iterations is required!'
+        def validate_sequence_search(cd, method, program):
+            method_in_use_field = f'{method}_in_use'
+            n_iterations_field = f'{method}_opt_niterations'
+            evalue_field = f'{method}_opt_evalue'
+            if cd[method_in_use_field]:
+                try:
+                    n_iterations = cd[n_iterations_field]
+                except KeyError:
+                    n_iterations = None
+                if n_iterations:
+                    if not (0 < int(n_iterations) < 5):
+                        self.add_error(
+                            n_iterations_field,
+                            ValidationError(
+                                f'Number of {program} iterations shoud be'
+                                ' between 0 and 4.'
+                                )
+                            )
+                else:
+                    self.add_error(
+                        n_iterations_field,
+                        ValidationError(
+                            f'Number of {program} iterations is required.'
+                            )
                         )
-                    )
-            if not cleaned_data['hhsuite_opt_evalue']:
-                self.add_error(
-                    'hhsuite_opt_evalue',
-                    'HHsuite E-value is required!'
-                    )
-        if cleaned_data['hmmer_in_use']:
-            if not cleaned_data['hmmer_opt_niterations']:
-                self.add_error(
-                    'hmmer_opt_niterations',
-                    ValidationError(
-                        'Number of hmmer iterations is required!'
+                evalue = cd[evalue_field]
+                if evalue:
+                    if not (0 <= evalue <= 1):
+                        self.add_error(
+                            evalue_field,
+                            ValidationError(
+                                f'Sequence search Evalue threshold should be'
+                                ' between 0 and 1.'
+                                )
+                            )
+
+                else:
+                    self.add_error(
+                        evalue_field,
+                        ValidationError(
+                            f'{program} E-value is required.'
+                            )
                         )
-                    )
-            if not cleaned_data['hmmer_opt_evalue']:
-                self.add_error(
-                    'hmmer_opt_evalue',
-                    'hmmer E-value is required!'
-                    )
+        validate_sequence_search(cleaned_data, 'hhsuite', 'HHblits')
+        validate_sequence_search(cleaned_data, 'hmmer', 'HMMER')
         # Using file input or text input?
         query_file, parameters_file = search_input_files_exist(self.files)
         sequences_data = []
@@ -225,7 +253,7 @@ class SequencesInputForm(forms.Form):
                 )
         if not sequences_data:
             raise ValidationError(
-                'Please provide query sequence or file with queries!'
+                'Please provide query sequence or file with queries.'
                 )
 
         # Clean sequence input (if no file was present)
@@ -254,11 +282,16 @@ class SequencesInputForm(forms.Form):
                         new_sequences_data.append(sequences.fasta_format(desc, seq))
                     sequences_data = new_sequences_data
 
-        if len(sequences_data) > MAX_NUMBER_OF_SEQUENCES:
+        cother_job = cleaned_data['use_cother']
+        if cother_job:
+            max_no_of_sequences = MAX_NUMBER_OF_SEQUENCES_FOR_COTHER
+        else:
+            max_no_of_sequences = MAX_NUMBER_OF_SEQUENCES
+        if len(sequences_data) > max_no_of_sequences:
             raise ValidationError(
                 'Number of input sequences is too big, '\
-                    'maximum %(max)s is allowed!',
-                params={'max': MAX_NUMBER_OF_SEQUENCES}
+                    'maximum %(max)s is allowed.',
+                params={'max': max_no_of_sequences}
                 )
         cleaned_sequences_data = []
         problematic_comer_profiles = []
@@ -289,7 +322,7 @@ class SequencesInputForm(forms.Form):
                 if cleaned_sequence:
                     cleaned_sequences_data.append(cleaned_sequence)
             else:
-                raise ValidationError('Unknown input format!')
+                raise ValidationError('Unknown input format.')
         self.add_comer_profile_errors(problematic_comer_profiles)
         self.add_cother_profile_errors(problematic_cother_profiles)
         cleaned_data['sequence'] = cleaned_sequences_data

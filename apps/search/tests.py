@@ -44,6 +44,16 @@ class TestInputValidation(TestCase):
         self.form_data['hhsuite_opt_evalue'] = 1e-3
         form = forms.SequencesInputForm(self.form_data)
         self.assertTrue(form.is_valid())
+        # Testing wrong number of iterations.
+        for wrong_no_of_iterations in (-2, 0, 0.03, 5):
+            self.form_data['hhsuite_opt_niterations'] = wrong_no_of_iterations
+            form = forms.SequencesInputForm(self.form_data)
+            self.assertFalse(form.is_valid())
+        # Testing wrong E-value.
+        for wrong_evalue in (-1, 1.3):
+            self.form_data['hhsuite_opt_evalue'] = wrong_evalue
+            form = forms.SequencesInputForm(self.form_data)
+            self.assertFalse(form.is_valid())
 
     def test_hmmer_settings(self):
         self.form_data['hmmer_in_use'] = True
@@ -62,6 +72,16 @@ class TestInputValidation(TestCase):
         self.form_data['hmmer_opt_evalue'] = 1e-3
         form = forms.SequencesInputForm(self.form_data)
         self.assertTrue(form.is_valid())
+        # Testing wrong number of iterations.
+        for wrong_no_of_iterations in (-2, 0, 0.03, 5):
+            self.form_data['hmmer_opt_niterations'] = wrong_no_of_iterations
+            form = forms.SequencesInputForm(self.form_data)
+            self.assertFalse(form.is_valid())
+        # Testing wrong E-value.
+        for wrong_evalue in (-1, 1.3):
+            self.form_data['hmmer_opt_evalue'] = wrong_evalue
+            form = forms.SequencesInputForm(self.form_data)
+            self.assertFalse(form.is_valid())
 
     def test_fail_with_empty_sequence_input_and_no_file(self):
         "Test no input failure"
@@ -179,6 +199,26 @@ class TestInputValidation(TestCase):
             form.cleaned_data['sequence'],
             [self.form_data['sequence'], s]
             )
+
+    def test_max_number_of_sequences_for_comer_job(self):
+        self.form_data['use_cother'] = False
+        max_no_of_sequences = forms.MAX_NUMBER_OF_SEQUENCES
+        s = self.form_data['sequence']
+        self.form_data['sequence'] = '\n//\n'.join(
+            (max_no_of_sequences + 1) * [s]
+            )
+        form = forms.SequencesInputForm(self.form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_max_number_of_sequences_for_cother_job(self):
+        self.form_data['use_cother'] = True
+        max_no_of_sequences = forms.MAX_NUMBER_OF_SEQUENCES_FOR_COTHER
+        s = self.form_data['sequence']
+        self.form_data['sequence'] = '\n//\n'.join(
+            (max_no_of_sequences + 1) * [s]
+            )
+        form = forms.SequencesInputForm(self.form_data)
+        self.assertFalse(form.is_valid())
 
 
 class TestApi(TestCase):
