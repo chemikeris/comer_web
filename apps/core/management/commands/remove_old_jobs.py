@@ -20,8 +20,14 @@ class Command(BaseCommand):
             )
         for j in old_jobs:
             print('Removing job: %s (%s, %s).' % (j.job_id, j.name, j.date))
-            StructureModelingJob.objects.filter(search_job_id=j.job_id).delete()
-            MSAJob.objects.filter(search_job_id=j.job_id).delete()
+            StructureModelingJob.objects\
+                .filter(search_job_id=j.job_id)\
+                .exclude(name__startswith='example_model')\
+                .delete()
+            MSAJob.objects\
+                .filter(search_job_id=j.job_id)\
+                .exclude(name='example_msa')\
+                .delete()
             if j.name == 'example':
                 print('Keeping example job, only subjobs are deleted.')
                 continue

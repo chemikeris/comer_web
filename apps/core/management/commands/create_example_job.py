@@ -71,7 +71,7 @@ class Command(BaseCommand):
                     simulated_post_data, False, 'example_model_1'
                     )
             sj, modeling_example_2 = save_structure_modeling_job(
-                    simulated_post_data, False, 'example_model_2'
+                    simulated_post_data, True, 'example_model_2'
                     )
             print('Structure modeling examples have been created.')
         print('Creating MSA job example.')
