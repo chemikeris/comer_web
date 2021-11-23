@@ -7,7 +7,7 @@
 	<div id="current_job_menu" class="navbar-collapse collapse show">
 	<ul class="nav-pills list-unstyled" id="current_job_results_menu">
         <li class="nav-item"><a  class="{% if sequence_no != None %}link-dark {% endif %}nav-link dropdown-item{% if active == 'summary' %} active bg-secondary{% endif %}" href="{% url 'results_summary' job_id=job.name %}">Summary</a></li>
-        <li class="nav-item"><a class="nav-link link-dark" href="{% url 'api_results_zip' job_id=job.name %}">Download</a></li>
+        <li class="nav-item"><a class="nav-link link-dark{% if active == 'not_finished' %} disabled{% endif %}" href="{% url 'api_results_zip' job_id=job.name %}">Download</a></li>
         <br>
 		{% for s in sequences %}
 			{% if forloop.counter0 == sequence_no %}
@@ -17,7 +17,7 @@
 						<li class="nav-item dropdown-item"><a class="nav-link {% if active == 'query_summary' %} active{% endif %}" href="{% url 'detailed_summary' job_id=job.name sequence_no=forloop.counter0 %}">Summary</a></li>
                         {% if structure_models %}
                         <li class="nav-item dropdown-item bg-transparent"><a href="#" class="nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#sequence{{sequence_no}}_models">Structure modeling</a>
-                            <ul id="sequence{{sequence_no}}_models" class="collapse {% if active == 'structure_model' %} show{% endif %}">
+                            <ul id="sequence{{sequence_no}}_models" class="collapse{% if active == 'structure_model' %} show{% endif %}">
                             {% for structure_model in structure_models %}
                             <li class="nav-item dropdown-item"><a class="nav-link{% if structure_model.name == modeling_job.name %} active{% endif %}" href="{% url 'show_modeling_job' search_job_id=job.name modeling_job_id=structure_model.name %}">{{ structure_model.name }}</a></li>
                             {% endfor %}

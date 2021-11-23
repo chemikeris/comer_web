@@ -29,33 +29,28 @@ def show_modeling_job(request, search_job_id, modeling_job_id):
     job = get_object_or_404(models.Job, name=modeling_job_id)
     uri = request.build_absolute_uri()
     finished, removed, status_msg, errors, refresh = job.status_info()
-    if finished and not removed:
-        errors = job.read_error_log()
-        context = {
-            'modeling_job': job,
-            'errors': errors,
-            'job': job.search_job,
-            'sequence_no': job.sequence_no,
-            'sequences': job.search_job.sequence_headers(),
-            'structure_models': \
-                job.search_job.get_structure_models(modeling_job_id).get(
-                    job.sequence_no, []
-                    ),
-            'generated_msas': job.search_job.get_generated_msas().get(
+    context = {
+        'modeling_job': job,
+        'errors': errors,
+        'job': job.search_job,
+        'sequence_no': job.sequence_no,
+        'sequences': job.search_job.sequence_headers(),
+        'structure_models': \
+            job.search_job.get_structure_models(modeling_job_id).get(
                 job.sequence_no, []
                 ),
-            'active': 'structure_model',
-            }
-        return render(
-                request, 'model_structure/modeling_job.html', context
-                )
+        'generated_msas': job.search_job.get_generated_msas().get(
+            job.sequence_no, []
+            ),
+        'active': 'structure_model',
+        'log': job.calculation_log,
+        }
+    if finished and not removed:
+        return render(request, 'model_structure/modeling_job.html', context)
     else:
-        return render(
-                request, 'jobs/not_finished_or_removed.html',
-                {'status_msg': status_msg, 'reload': refresh,
-                    'log': job.calculation_log, 'errors': errors
-                    }
-                )
+        not_finished_context = {'status_msg': status_msg, 'reload': refresh}
+        context.update(not_finished_context)
+        return render(request, 'jobs/not_finished_or_removed.html', context)
 
 
 def download_model(request, modeling_job_id, model_no):

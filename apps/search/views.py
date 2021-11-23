@@ -140,12 +140,18 @@ def results(request, job_id, redirect_to_first=False):
             }
         return render(request, 'search/results_all.html', context)
     else:
-        return render(
-                request, 'jobs/not_finished_or_removed.html',
-                {'status_msg': status_msg, 'reload': refresh,
-                    'log': job.calculation_log, 'errors': errors
-                    }
-                )
+        context = {
+            'status_msg': status_msg,
+            'job': job,
+            'structure_models': [],
+            'generated_msas': [],
+            'sequences': [],
+            'reload': refresh,
+            'log': job.calculation_log,
+            'errors': errors,
+            'active': 'not_finished',
+            }
+        return render(request, 'jobs/not_finished_or_removed.html', context)
 
 
 class ApiResultsJson(ApiResultsView):

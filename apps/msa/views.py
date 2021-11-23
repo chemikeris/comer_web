@@ -12,31 +12,26 @@ def submit(request):
 def show(request, msa_job_id):
     job = get_object_or_404(models.Job, name=msa_job_id)
     finished, removed, status_msg, errors, refresh = job.status_info()
+    context = {
+        'msa_job_id': msa_job_id,
+        'errors': errors,
+        'job': job.search_job,
+        'sequence_no': job.sequence_no,
+        'sequences': job.search_job.sequence_headers(),
+        'structure_models': job.search_job.get_structure_models().get(
+            job.sequence_no, []
+            ),
+        'generated_msas': job.search_job.get_generated_msas(msa_job_id).\
+                get(job.sequence_no, []),
+        'active': 'msa',
+        'log': job.calculation_log,
+        }
     if finished and not removed:
-        context = {
-            'msa_job_id': msa_job_id,
-            'errors': errors,
-            'job': job.search_job,
-            'sequence_no': job.sequence_no,
-            'sequences': job.search_job.sequence_headers(),
-            'structure_models': job.search_job.get_structure_models().get(
-                job.sequence_no, []
-                ),
-            'generated_msas': job.search_job.get_generated_msas(msa_job_id).\
-                    get(job.sequence_no, []),
-            'active': 'msa',
-            }
-        return render(
-                request, 'msa/multiple_sequence_alignment.html',
-                context
-                )
+        return render(request, 'msa/multiple_sequence_alignment.html', context)
     else:
-        return render(
-                request, 'jobs/not_finished_or_removed.html',
-                {'status_msg': status_msg, 'reload': refresh,
-                    'log': job.calculation_log, 'errors': errors
-                    }
-                )
+        not_finished_context = {'status_msg': status_msg, 'reload': refresh}
+        context.update(not_finished_context)
+        return render(request, 'jobs/not_finished_or_removed.html', context)
 
 
 def download(request, msa_job_id):
