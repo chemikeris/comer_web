@@ -41,9 +41,9 @@ class Job(SearchSubJob, ComerWebServerJob):
         return self.get_output_name()+'.afa'
 
 
-def save_msa_job(post_data):
+def save_msa_job(post_data, example=False):
     search_job = SearchJob.objects.get(name=post_data['job_id'])
-    job_name = generate_job_name()
+    job_name = 'example_msa' if example else generate_job_name()
     sequence_no = int(post_data['sequence_no'])
     results_to_align = sorted([int(t) for t in post_data.getlist('process')])
     msa_job = Job.objects.create(

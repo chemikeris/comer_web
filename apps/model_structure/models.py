@@ -90,10 +90,15 @@ class StructureModel(models.Model):
     templates = models.ManyToManyField(Template)
 
 
-def save_structure_modeling_job(post_data, use_multiple_templates):
+def save_structure_modeling_job(
+        post_data, use_multiple_templates, example_name=None
+        ):
     "Save data for structure modeling job"
     search_job = SearchJob.objects.get(name=post_data['job_id'])
-    job_name = generate_job_name()
+    if example_name:
+        job_name = example_name
+    else:
+        job_name = generate_job_name()
     sequence_no = int(post_data['sequence_no'])
     templates = sorted([int(t) for t in post_data.getlist('process')])
     modeller_key = post_data['modeller_key']
