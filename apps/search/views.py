@@ -128,8 +128,8 @@ def results(request, job_id, redirect_to_first=False):
         sequences = [r.input_name for r in summary]
         context = {
             'job': job,
-            'structure_models': job.get_structure_models(),
-            'generated_msas': job.get_generated_msas(),
+            'structure_models': [],
+            'generated_msas': [],
             'sequences': sequences,
             'sequence_no': None,
             'errors': errors,
@@ -236,8 +236,8 @@ def detailed(request, job_id, sequence_no):
         models.read_input_name_and_type(input_file)
     context = {
         'job': job,
-        'structure_models': job.get_structure_models(),
-        'generated_msas': job.get_generated_msas(),
+        'structure_models': job.get_structure_models().get(sequence_no, []),
+        'generated_msas': job.get_generated_msas().get(sequence_no, []),
         'sequence_no': sequence_no,
         'sequences': job.sequence_headers(),
         'results': results,
@@ -261,8 +261,8 @@ def detailed_summary(request, job_id, sequence_no):
             )
     context = {
         'job': job,
-        'structure_models': job.get_structure_models(),
-        'generated_msas': job.get_generated_msas(),
+        'structure_models': job.get_structure_models().get(sequence_no, []),
+        'generated_msas': job.get_generated_msas().get(sequence_no, []),
         'sequence_no': sequence_no,
         'sequences': job.sequence_headers(),
         'active': 'query_summary',

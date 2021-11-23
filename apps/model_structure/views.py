@@ -38,8 +38,12 @@ def show_modeling_job(request, search_job_id, modeling_job_id):
             'sequence_no': job.sequence_no,
             'sequences': job.search_job.sequence_headers(),
             'structure_models': \
-                job.search_job.get_structure_models(modeling_job_id),
-            'generated_msas': job.search_job.get_generated_msas(),
+                job.search_job.get_structure_models(modeling_job_id).get(
+                    job.sequence_no, []
+                    ),
+            'generated_msas': job.search_job.get_generated_msas().get(
+                job.sequence_no, []
+                ),
             'active': 'structure_model',
             }
         return render(

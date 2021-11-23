@@ -129,7 +129,13 @@ class Job(ComerWebServerJob):
             modelings = self.modeling_job.filter(name__in=example_jobs)
         else:
             modelings = self.modeling_job.all()
-        return modelings
+        grouped_modelings = {}
+        for m in modelings:
+            try:
+                grouped_modelings[m.sequence_no].append(m)
+            except KeyError:
+                grouped_modelings[m.sequence_no] = [m]
+        return grouped_modelings
 
     def get_generated_msas(self, filter_jobs_for_example=None):
         if self.name == 'example':
@@ -141,7 +147,13 @@ class Job(ComerWebServerJob):
             msa_results = self.msa_job.filter(name__in=example_jobs)
         else:
             msa_results = self.msa_job.all()
-        return msa_results
+        grouped_msas = {}
+        for m in msa_results:
+            try:
+                grouped_msas[m.sequence_no].append(m)
+            except KeyError:
+                grouped_msas[m.sequence_no] = [m]
+        return grouped_msas
 
 
 class SearchResultsSummary:
