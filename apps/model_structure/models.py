@@ -61,6 +61,10 @@ class Job(SearchSubJob, ComerWebServerJob):
         rf['template_ids'] = files_line[-1]
         return rf
 
+    def templates(self):
+        results_files = self.read_results_lst()
+        return [r['template_ids'] for r in results_files]
+
 
 class Template(models.Model):
     search_job = models.ForeignKey(SearchJob, on_delete=models.CASCADE)

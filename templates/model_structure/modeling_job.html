@@ -5,7 +5,7 @@
 <script src="{% static 'js/model_structure/show_structure.js' %}"></script>
 <h1>Structure modeling results</h1>
 <p>Generated structural models:<p>
-{% for t in templates %}
+{% for t in modeling_job.templates %}
     {% url 'model_structure_download_model' modeling_job_id=modeling_job.name model_no=forloop.counter0 as m_url %}
     <p>Model using {{ t }} (<a href="{{ m_url }}">download</a>).</p>
     <div id="model_{{ t }}" class="structure_viewer"></div>

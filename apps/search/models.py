@@ -121,6 +121,28 @@ class Job(ComerWebServerJob):
             )
         return results_file
 
+    def get_structure_models(self, filter_jobs_for_example=None):
+        if self.name == 'example':
+            example_jobs = ['example_model_1', 'example_model_2']
+            if not filter_jobs_for_example is None:
+                example_jobs.append(filter_jobs_for_example)
+            modelings = self.modeling_job.filter(name__in=example_jobs)
+        else:
+            modelings = self.modeling_job.all()
+        return modelings
+
+    def get_generated_msas(self, filter_jobs_for_example=None):
+        if self.name == 'example':
+            example_msa_job = 'example_msa'
+            if filter_jobs_for_example is None:
+                example_jobs = [example_msa_job]
+            else:
+                example_jobs = [example_msa_job, filter_jobs_for_example]
+            msa_results = self.msa_job.filter(name__in=example_jobs)
+        else:
+            msa_results = self.msa_job.all()
+        return msa_results
+
 
 class SearchResultsSummary:
     "Search result summary info"

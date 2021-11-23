@@ -30,15 +30,17 @@ def show_modeling_job(request, search_job_id, modeling_job_id):
     uri = request.build_absolute_uri()
     finished, removed, status_msg, errors, refresh = job.status_info()
     if finished and not removed:
-        results_files = job.read_results_lst()
         errors = job.read_error_log()
         context = {
-            'templates': [r['template_ids'] for r in results_files],
             'modeling_job': job,
             'errors': errors,
             'job': job.search_job,
             'sequence_no': job.sequence_no,
             'sequences': job.search_job.sequence_headers(),
+            'structure_models': \
+                job.search_job.get_structure_models(modeling_job_id),
+            'generated_msas': job.search_job.get_generated_msas(),
+            'active': 'structure_model',
             }
         return render(
                 request, 'model_structure/modeling_job.html', context

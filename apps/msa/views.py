@@ -19,6 +19,9 @@ def show(request, msa_job_id):
             'job': job.search_job,
             'sequence_no': job.sequence_no,
             'sequences': job.search_job.sequence_headers(),
+            'structure_models': job.search_job.get_structure_models(),
+            'generated_msas': job.search_job.get_generated_msas(msa_job_id),
+            'active': 'msa',
             }
         return render(
                 request, 'msa/multiple_sequence_alignment.html',
@@ -42,3 +45,4 @@ def download(request, msa_job_id):
         return response
     else:
         raise Http404
+
