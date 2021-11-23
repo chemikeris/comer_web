@@ -384,3 +384,22 @@ function navPrevious(element_class) {
 
 showResults(results);
 
+var submit_buttons = document.getElementsByClassName('results_button');
+for (var i = 0; i < submit_buttons.length; i++) {
+    submit_buttons[i].addEventListener(
+        'click',
+        function(event) {
+            var inputs = document.getElementsByTagName('input');
+            var num_checked_checkboxes = 0;
+            for (i = 0; i < inputs.length; i++) {
+                if (inputs[i].type == 'checkbox') {
+                    if (inputs[i].checked) {
+                        num_checked_checkboxes += 1;
+                    }
+                }
+            }
+            console.log(num_checked_checkboxes);
+            if (num_checked_checkboxes == 0) event.preventDefault();
+        }
+    );
+}
