@@ -63,7 +63,10 @@ def track_status(job, connection):
         # Checking job status.
         job.calculation_log = job.check_calculation_status(connection)
         if job.calculation_log:
-            job.status = job.RUNNING
+            if job.calculation_log.strip().endswith('Queued.'):
+                pass
+            else:
+                job.status = job.RUNNING
         job.save()
         refresh = True
     elif job.status == job.RUNNING:
