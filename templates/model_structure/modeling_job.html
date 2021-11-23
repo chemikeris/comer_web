@@ -4,13 +4,18 @@
 <script src="{% static 'ngl.js' %}"></script>
 <script src="{% static 'js/model_structure/show_structure.js' %}"></script>
 <h1>Structure modeling results</h1>
-<p>Generated structural models:<p>
+<p><a class="btn btn-secondary" data-bs-toggle="collapse" href="#" data-bs-target="#search_log">Modeling log</a></p>
+<div id="search_log" class="collapse"><pre>{{ job.calculation_log }}</pre></div>
+<div class="row g-3">
 {% for t in modeling_job.templates %}
     {% url 'model_structure_download_model' modeling_job_id=modeling_job.name model_no=forloop.counter0 as m_url %}
-    <p>Model using {{ t }} (<a href="{{ m_url }}">download</a>).</p>
-    <div id="model_{{ t }}" class="structure_viewer"></div>
-    <script>show_structure("{{ m_url }}", "model_{{ t }}");</script>
+    <div class="col-auto">
+        <p>Model using {{ t }} (<a href="{{ m_url }}">download</a>).</p>
+        <div id="model_{{ t }}" class="structure_viewer"></div>
+        <script>show_structure("{{ m_url }}", "model_{{ t }}");</script>
+    </div>
 {% endfor %}
+</div>
 {% if errors %}
 <h2>Error log:</h2>
 <pre>{{ errors }} </pre>
