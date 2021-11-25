@@ -7,6 +7,7 @@
 <script src="{% static 'bootstrap.bundle.min.js' %}"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="{% static 'css/site.css' %}">
+<link rel="icon" type="image/png" href="{% static 'img/comer_server.png' %}">
 <script src="{% static 'js/site.js' %}"></script>
 </head>
 <body>
@@ -15,7 +16,7 @@
 <header>
     <nav class="navbar navbar-light navbar-expand-md bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'index' %}">COMER web server</a>
+        <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'img/comer_server.png' %}" alt="C" height="30">COMER web server</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleMainMenu"><span class="navbar-toggler-icon"></span></button>
         <div id="collapsibleMainMenu" class="collapse navbar-collapse"><ul class="navbar-nav">
             <li class="nav-item"><a class="nav-link" href="{% url 'input' %}">Input query</a></li>
