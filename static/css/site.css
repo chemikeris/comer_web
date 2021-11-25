@@ -21,6 +21,9 @@ html {
     margin-top: 0;
     margin-bottom: 0;
 }
+#id_min_evalue, #id_max_evalue {
+    width: 5em!important;
+}
 .resK, .resR {
     color: blue;
 }

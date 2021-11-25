@@ -5,9 +5,9 @@ function showResults(results) {
     const table_div = document.getElementById('results_table');
     const alignments_div = document.getElementById('alignments');
 
-    var search_method = Object.keys(results)[0];
-    var search_summary = results[search_method].search_summary;
-    var search_hits = results[search_method].search_hits;
+    var results_parts = resultsParts(results);
+    var search_summary = results_parts[0];
+    var search_hits = results_parts[1];
     var number_of_hits = search_hits.length
 
     var results_table = document.createElement('table');
@@ -71,6 +71,12 @@ function showResults(results) {
     showPage('summary', 0);
     table_div.appendChild(createPaginationNav('results_table_row', number_of_parts));
     showPage('results_table_row', 0);
+}
+function resultsParts(results) {
+    var search_method = Object.keys(results)[0];
+    var search_summary = results[search_method].search_summary;
+    var search_hits = results[search_method].search_hits;
+    return [search_summary, search_hits];
 }
 function resultsPartNo(result_no) {
     var results_in_page = 25;
@@ -398,7 +404,6 @@ for (var i = 0; i < submit_buttons.length; i++) {
                     }
                 }
             }
-            console.log(num_checked_checkboxes);
             if (num_checked_checkboxes == 0) event.preventDefault();
         }
     );
@@ -407,4 +412,25 @@ for (var i = 0; i < submit_buttons.length; i++) {
 function select_all_results(on) {
     table_checkboxes = document.getElementsByClassName('table_checkbox');
     for (i = 0; i < table_checkboxes.length; i++) table_checkboxes[i].checked = on;
+}
+function select_by_Evalue() {
+    select_all_results(false);
+    var min_evalue = document.getElementById("id_min_evalue").value;
+    var max_evalue = document.getElementById("id_max_evalue").value;
+    if (min_evalue || max_evalue) {
+        min_evalue = min_evalue == '' ? -1 : parseFloat(min_evalue);
+        max_evalue = max_evalue == '' ? Infinity : parseFloat(max_evalue);
+    }
+    else {
+        return;
+    }
+    var search_hits = resultsParts(results)[1];
+    var selectable_checkboxes = [];
+    for (i = 0; i < search_hits.length; i++) {
+        var hit_evalue = parseFloat(search_hits[i].hit_record.alignment.evalue)
+        if (hit_evalue > min_evalue && hit_evalue < max_evalue) selectable_checkboxes.push('table_row'+i);
+    }
+    for (i = 0; i < selectable_checkboxes.length; i++) {
+        document.getElementById(selectable_checkboxes[i]).checked = true;
+    }
 }

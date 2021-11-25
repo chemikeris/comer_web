@@ -13,10 +13,13 @@
 <p>
     <button class="btn btn-secondary" onclick="select_all_results(true)" type="button">Select all</button>
     <button class="btn btn-secondary" onclick="select_all_results(false)" type="button">Deselect all</button>
+    <button class="btn btn-secondary" onclick="select_by_Evalue()" type="button">Select by E-value</button>
+    <label for="id_min_evalue">Minimum E-value:</label> <input type="text" id="id_min_evalue" class="form-control d-inline">
+    <label for="id_max_evalue">Maximum E-value:</label> <input type="text" id="id_max_evalue" class="form-control d-inline">
 </p>
 <p>
     <input type="hidden" name="job_id" value="{{ job.name }}">
-    <label for="id_modeller_key">MODELLER key:</label> <input type="text" name="modeller_key" id="id_modeller_key">
+    <label for="id_modeller_key">MODELLER key:</label> <input type="text" name="modeller_key" id="id_modeller_key" class="form-control w-auto d-inline">
     <input type="hidden" name="sequence_no" value="{{ sequence_no }}">
     <input type="submit" formaction="{% url 'submit_single_template_structure_model' %}" name="model" value="Model structure (single-template)" id="submit_single_template" class="results_button btn btn-secondary">
     <input type="submit" formaction="{% url 'submit_multiple_templates_structure_model' %}" name="model" value="Model structure (multi-template)" id="submit_multi_template" class="results_button btn btn-secondary">
