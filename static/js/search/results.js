@@ -37,7 +37,7 @@ function showResults(results) {
         row.classList.add('results_table_row_part_'+resultsPartNo(i));
 
         // 0th column is a checkbox
-        row.appendChild(createTableData('<input type="checkbox" id="table' + i + '" value="' + i + '" name="process">'));
+        row.appendChild(createTableData('<input type="checkbox" id="table_row' + i + '" value="' + i + '" name="process" class="table_checkbox form-check-input">'));
         // First column contains a link, thus it is different.
         // No.
         var number_column = createTableData('');
@@ -402,4 +402,9 @@ for (var i = 0; i < submit_buttons.length; i++) {
             if (num_checked_checkboxes == 0) event.preventDefault();
         }
     );
+}
+
+function select_all_results(on) {
+    table_checkboxes = document.getElementsByClassName('table_checkbox');
+    for (i = 0; i < table_checkboxes.length; i++) table_checkboxes[i].checked = on;
 }
