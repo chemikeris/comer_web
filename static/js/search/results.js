@@ -37,7 +37,7 @@ function showResults(results) {
         row.classList.add('results_table_row_part_'+resultsPartNo(i));
 
         // 0th column is a checkbox
-        row.appendChild(createTableData('<input type="checkbox" id="table_row' + i + '" value="' + i + '" name="process" class="table_checkbox form-check-input">'));
+        row.appendChild(createTableData('<input type="checkbox" id="table_row_checkbox' + i + '" value="' + i + '" name="process" class="table_checkbox form-check-input">'));
         // First column contains a link, thus it is different.
         // No.
         var number_column = createTableData('');
@@ -187,7 +187,8 @@ function formatAlignment(result_no, hit_record) {
     alignment_div.classList.add('alignment_part_'+resultsPartNo(result_no));
     // Alignment header.
     var header = document.createElement('h3');
-    header.innerHTML = (result_no+1).toString();
+    header.innerHTML = '<input type="checkbox" id="alignment_checkbox' + result_no + '" class="alignment_checkbox form-check-input h5"> ';
+    header.innerHTML += (result_no+1).toString();
     var [short_description, ...other_description] = hit_record.target_description.split(" ");
     header.innerHTML += ' ';
     header.innerHTML += createLink(short_description);
@@ -291,7 +292,7 @@ function colorResidues(sequence) {
 }
 function colorSS(ss) {
     var colored_ss = '';
-    for (i = 0; i < ss.length; i++) {
+    for (var i = 0; i < ss.length; i++) {
         if (ss[i] != ' ') {
             colored_ss += '<span class="ss' + ss[i].toUpperCase() + '">' + ss[i] + '</span>'
         }
@@ -395,9 +396,9 @@ for (var i = 0; i < submit_buttons.length; i++) {
     submit_buttons[i].addEventListener(
         'click',
         function(event) {
-            var inputs = document.getElementsByTagName('input');
+            var inputs = document.getElementsByClassName('table_checkbox');
             var num_checked_checkboxes = 0;
-            for (i = 0; i < inputs.length; i++) {
+            for (var i = 0; i < inputs.length; i++) {
                 if (inputs[i].type == 'checkbox') {
                     if (inputs[i].checked) {
                         num_checked_checkboxes += 1;
@@ -408,10 +409,32 @@ for (var i = 0; i < submit_buttons.length; i++) {
         }
     );
 }
+function syncCheckboxes(cb, id1, id2) {
+    var other_cb_id = cb.id.replace(id1, id2);
+    var other_cb = document.getElementById(other_cb_id);
+    other_cb.checked = cb.checked;
+}
+var table_checkboxes = document.getElementsByClassName('table_checkbox');
+for (var i = 0; i < table_checkboxes.length; i++) {
+    table_checkboxes[i].addEventListener(
+        'change',
+        function(event) {syncCheckboxes(this, 'table_row_checkbox', 'alignment_checkbox');}
+    )
+}
+var alignment_checkboxes = document.getElementsByClassName('alignment_checkbox');
+for (var i = 0; i < alignment_checkboxes.length; i++) {
+    alignment_checkboxes[i].addEventListener(
+        'change',
+        function(event) {syncCheckboxes(this, 'alignment_checkbox', 'table_row_checkbox');}
+    )
+}
 
 function select_all_results(on) {
     table_checkboxes = document.getElementsByClassName('table_checkbox');
-    for (i = 0; i < table_checkboxes.length; i++) table_checkboxes[i].checked = on;
+    for (var i = 0; i < table_checkboxes.length; i++) {
+        table_checkboxes[i].checked = on;
+        syncCheckboxes(table_checkboxes[i], 'table_row_checkbox', 'alignment_checkbox');
+    }
 }
 function select_by_Evalue() {
     select_all_results(false);
@@ -426,11 +449,14 @@ function select_by_Evalue() {
     }
     var search_hits = resultsParts(results)[1];
     var selectable_checkboxes = [];
-    for (i = 0; i < search_hits.length; i++) {
+    for (var i = 0; i < search_hits.length; i++) {
         var hit_evalue = parseFloat(search_hits[i].hit_record.alignment.evalue)
-        if (hit_evalue > min_evalue && hit_evalue < max_evalue) selectable_checkboxes.push('table_row'+i);
+        if (hit_evalue > min_evalue && hit_evalue < max_evalue) {
+            selectable_checkboxes.push('table_row_checkbox'+i);
+            selectable_checkboxes.push('alignment_checkbox'+i);
+        }
     }
-    for (i = 0; i < selectable_checkboxes.length; i++) {
+    for (var i = 0; i < selectable_checkboxes.length; i++) {
         document.getElementById(selectable_checkboxes[i]).checked = true;
     }
 }
