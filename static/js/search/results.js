@@ -62,6 +62,11 @@ function showResults(results) {
         // Formatting sequence alignments.
         alignments_div.appendChild(formatAlignment(i, hit_record));
     }
+    if (number_of_hits == 0) {
+        summary_div.innerHTML += '<p>No hits found.</p>';
+        results_table_body.innerHTML = '<td colspan="8">No hits found.</td>';
+        alignments_div.innerHTML += '<p>No hits found.</p>';
+    }
     results_table.appendChild(results_table_head);
     results_table.appendChild(results_table_body);
     table_div.appendChild(results_table);
@@ -371,7 +376,6 @@ function activeLi(element_class) {
 }
 function navNext(element_class, max_no) {
     var active_li_no = activeLi(element_class);
-    console.log(active_li_no, max_no);
     if (active_li_no >= (max_no-1)) {
         return;
     }
