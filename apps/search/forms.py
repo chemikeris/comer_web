@@ -9,6 +9,7 @@ from apps.core.utils import search_input_files_exist
 MAX_SEQUENCE_INPUT = 1048576
 MAX_NUMBER_OF_SEQUENCES = 100
 MAX_NUMBER_OF_SEQUENCES_FOR_COTHER = 10
+MAX_FILE_SIZE_MB = 50
 
 class SequenceField(forms.CharField):
     "Sequence input field"
@@ -41,7 +42,10 @@ class SequencesInputForm(forms.Form):
         widget=forms.Textarea, strip=True, max_length=MAX_SEQUENCE_INPUT,
         required=False, label='Query'
         )
-    input_query_file = forms.FileField(required=False)
+    input_query_file = forms.FileField(
+        required=False,
+        label='Input file with queries'
+        )
     multi_sequence_fasta = forms.BooleanField(
         label='In case of single FASTA query, treat each sequence as a separate query',
         required=False
@@ -68,7 +72,7 @@ class SequencesInputForm(forms.Form):
     # Number of results that will be converted to number of hits and number of
     # alignments.
     number_of_results = forms.IntegerField(
-        label='Number of results',  min_value=1,
+        label='Number of hits',  min_value=1,
         initial=default.number_of_results
         )
     # Profile generation options.
@@ -88,41 +92,44 @@ class SequencesInputForm(forms.Form):
     hhsuite_opt_evalue.widget.attrs.update({'step': 0.001})
     # HMMer
     hmmer_in_use = forms.BooleanField(
-        label='Use hmmer for sequence search', required=False,
+        label='Use HMMER for sequence search', required=False,
         )
     sequence_db = forms.ChoiceField(
-        choices = settings.SEQUENCE_DATABASES, label='hmmer database'
+        choices = settings.SEQUENCE_DATABASES, label='HMMER database'
         )
     hmmer_opt_niterations = forms.IntegerField(
-        label='Number of hmmer iterations', required=False
+        label='Number of HMMER iterations', required=False
         )
     hmmer_opt_evalue = forms.FloatField(
-        label='hmmer E-value threshold', required=False
+        label='HMMER E-value threshold', required=False
         )
     hmmer_opt_evalue.widget.attrs.update({'step': 0.001})
 
     # Low complexity filtering.
     LCFILTEREACH = forms.BooleanField(
-        label='Invoke low-complexity filtering for each sequence in alignment',
+        label='Invoke low-complexity filtering',
         required=False,
         initial=True
         )
     # Profile construction options.
     ADJWGT = forms.FloatField(
-        min_value=0, max_value=1, label='Weight of adjusted scores'
+        min_value=0, max_value=1,
+        label='Weight for the scoring term from Bayesian modeling'
         )
     ADJWGT.widget.attrs.update({'step': 0.01})
     CVSWGT = forms.FloatField(
-        min_value=0, max_value=1, label='Weight of vector scores'
+        min_value=0, max_value=1,
+        label='Weight of the term for scoring context vectors'
         )
     CVSWGT.widget.attrs.update({'step': 0.01})
     SSSWGT = forms.FloatField(
-        min_value=0, max_value=1, label='Weight of SS scores'
+        min_value=0, max_value=1,
+        label='Weight for scoring secondary structure similarity'
         )
     # Statistical significance estimation.
     SSSWGT.widget.attrs.update({'step': 0.01})
     SSEMODEL = forms.ChoiceField(
-        label='Statistical significance estimation',
+        label='Statistical significance estimation method',
         choices=(
             ('0', 'depends on profile lengths'),
             ('1', 'depends on profile attributes and compositional similarity'),
@@ -132,7 +139,8 @@ class SequencesInputForm(forms.Form):
     # Alignment options.
     MAPALN = forms.BooleanField(label='Realign by a maximum a posteriori algorithm')
     MINPP = forms.FloatField(
-        min_value=0, max_value=1, label='Posterior probability threshold'
+        min_value=0, max_value=1,
+        label='Posterior probability threshold for realignment'
         )
     MINPP.widget.attrs.update({'step': 0.01})
     # Distance distribution match scores (for COTHER).
@@ -141,6 +149,16 @@ class SequencesInputForm(forms.Form):
         label='Weight of distance distribution match scores'
         )
     DDMSWGT.widget.attrs.update({'step': 0.01})
+
+    def clean_input_query_file(self):
+        input_file = self.cleaned_data.get('input_query_file', False)
+        if input_file:
+            if input_file.size > MAX_FILE_SIZE_MB * 1024 * 1024:
+                raise ValidationError(
+                    'Input file cannot be larger than %(mb)s MB.',
+                    params={'mb': MAX_FILE_SIZE_MB}
+                    )
+            return input_file
 
     def validate_plain_sequence(self, sequence_str, description):
         "Making valid sequence from input"
@@ -152,10 +170,10 @@ class SequencesInputForm(forms.Form):
             return sequence_str
         else:
             if description:
-                msg = 'Sequence "%(desc)s" contains illegal characters.'
+                msg = 'Query "%(desc)s" contains illegal characters.'
                 params = {'desc': description}
             else:
-                msg = 'Sequence contains illegal characters.'
+                msg = 'Query contains illegal characters.'
                 params = {}
             self.add_error('sequence', ValidationError(msg, params=params))
             return None
@@ -253,7 +271,7 @@ class SequencesInputForm(forms.Form):
                 )
         if not sequences_data:
             raise ValidationError(
-                'Please provide query sequence or file with queries.'
+                'Please provide query in the text field or file with queries.'
                 )
 
         # Clean sequence input (if no file was present)
@@ -289,14 +307,13 @@ class SequencesInputForm(forms.Form):
             max_no_of_sequences = MAX_NUMBER_OF_SEQUENCES
         if len(sequences_data) > max_no_of_sequences:
             raise ValidationError(
-                'Number of input sequences is too big, '\
-                    'maximum %(max)s is allowed.',
+                'Number of queries is too big, maximum %(max)s is allowed.',
                 params={'max': max_no_of_sequences}
                 )
         cleaned_sequences_data = []
         problematic_comer_profiles = []
         problematic_cother_profiles = []
-        for s in sequences_data:
+        for i, s in enumerate(sequences_data):
             seq_format = sequences.format(s)
             if seq_format in ('stockholm', 'a3m'):
                 # These formats are not validated in web server.
@@ -317,7 +334,7 @@ class SequencesInputForm(forms.Form):
                 cleaned_sequences_data.append(self.validate_fasta(s))
             elif seq_format == 'plain':
                 cleaned_sequence = self.validate_plain_sequence(
-                    s, 'plain text query'
+                    s, 'sequence%s' % i
                     )
                 if cleaned_sequence:
                     cleaned_sequences_data.append(cleaned_sequence)

@@ -7,8 +7,8 @@
 	<tr><td>Query</td><td>{{ r.input_name }}</td></tr>
 	<tr><td>Query length</td><td>{{ r.input_length }}</td></tr>
 	<tr><td>Input type</td><td>{{ r.input_description}}{{ r.input_format }}</td></tr>
-	{% if r.number_of_sequences_in_msa %}<tr><td>Input MSA</td><td>N={{ r.number_of_sequences_in_msa }}{% if r.msa_neff %}, Neff={{ r.msa_neff }}{% endif %}</td></tr>{% endif %}
-	<tr><td>Number of results</td><td>{{ r.number_of_results }}</td></tr>
+	{% if r.number_of_sequences_in_msa %}<tr><td>Resulting MSA</td><td>N={{ r.number_of_sequences_in_msa }}{% if r.msa_neff %}, Neff={{ r.msa_neff }}{% endif %}</td></tr>{% endif %}
+	<tr><td>Number of hits</td><td>{{ r.number_of_results }}</td></tr>
 	<tr><td>Databases</td><td>{{ r.results_json.database.names|join:', ' }}</td></tr>
 	<tr><td>Number of profiles</td><td>{{ r.results_json.database.number_of_profiles }}</td></tr>
 	<tr><td>Number of positions</td><td>{{ r.results_json.database.number_of_positions }}</td></tr>

@@ -1,62 +1,150 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
+{% load input_form %}
 <script src="{% static 'js/search/input.js' %}"></script>
-<h2>Input queries</h2>
+<h2>COMER web server for protein analysis by homology</h2>
+    <ol class="bg-light">
+        <li>Enter your sequence, MSA, and/or profile queries below (use line with "//" to separate individual queries). {{ 'query_formats_help'|help_tooltip_questionmark }}
+            {{ 'query_formats_help'|help_tooltip:'Query can represent a sequence, plain or in FASTA format, an MSA in aligned FASTA, STOCKHOLM, or A3M format, or a COMER2 or COTHER profile.' }}
+        </li>
+        <li>Select target databases and a homology search method.</li>
+        <li>Tune sequence search options to build informative MSAs for the queries.</li>
+        <li>Click "Submit".</li>
+    </ol>
 <form action="." method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
 <div>{{ form.non_field_errors }}</div>
 <div>{{ form.sequence.errors }}{{ form.sequence }}</div>
 <div class="row align-items-center" id="query_file_input">
     <div class="col-12">{{ form.input_query_file.errors }}</div>
-    <div class="col-sm-2">{{ form.input_query_file.label_tag }}</div><div class="col-sm-10">{{ form.input_query_file }}</div>
+    <div class="col-sm-2">{{ form.input_query_file.label_tag }}{{ 'input_file_help'|help_tooltip_questionmark }}</div>
+    <div class="col-sm-10">{{ form.input_query_file }}</div>
+    {{ 'input_file_help'|help_tooltip:'Upload queries as an input text file (max 50 MB).' }}
 </div>
-<div class="my-2">{{ form.multi_sequence_fasta.errors }}{{ form.multi_sequence_fasta.label_tag }} {{ form.multi_sequence_fasta }}</div>
-<div>{{ form.use_cother.errors }}{{ form.use_cother.label_tag }} {{ form.use_cother }}</div>
+<div class="mt-2">
+    {{ form.multi_sequence_fasta.errors }}
+    {{ form.multi_sequence_fasta.label_tag }} {{ 'split_fasta_help'|help_tooltip_questionmark }} {{ form.multi_sequence_fasta }}
+    {{ 'split_fasta_help'|help_tooltip:'When the input is a set of sequences in FASTA or aligned FASTA format, instruct the server to consider each sequence (gaps ignored) as a separate single sequence query (as if they were separated by "//").' }}
+</div>
+<div>
+    {{ form.use_cother.errors }}
+    {{ form.use_cother.label_tag }} {{ 'cother_search_help'|help_tooltip_questionmark }} {{ form.use_cother }}
+    {{ 'cother_search_help'|help_tooltip:'Use the COTHER method to search profile database(s) selected below with the input queries.' }}
+</div>
 <div class="row g-2 bg-light pb-2">
-    <div class="col-sm-4">{{ form.comer_db.errors }}{{ form.comer_db.label_tag }}{{ form.comer_db }}</div>
-    <div class="col-sm-4">{{ form.cother_db.errors }}{{ form.cother_db.label_tag }}{{ form.cother_db }}</div>
-    <div class="col-sm-4">{{ form.EVAL.errors }}{{ form.EVAL.label_tag }}{{ form.EVAL }}</div>
-    <div class="col-sm-4">{{ form.number_of_results.errors }}{{ form.number_of_results.label_tag }}{{ form.number_of_results }}</div>
+    <div class="col-sm-4">
+        {{ form.comer_db.errors }}{{ form.comer_db.label_tag }} {{ 'comer_db_help'|help_tooltip_questionmark }} {{ form.comer_db }}
+        {{ 'comer_db_help'|help_tooltip:'Select one or more profile databases to search using COMER2 (multiple selection: Ctrl key + Mouse\'s left-click).' }}
+    </div>
+    <div class="col-sm-4">
+        {{ form.cother_db.errors }}{{ form.cother_db.label_tag }} {{ 'cother_db_help'|help_tooltip_questionmark }} {{ form.cother_db }}
+        {{ 'cother_db_help'|help_tooltip:'Select one or more profile databases to search using COTHER (multiple selection: Ctrl key + Mouse\'s left-click).' }}
+    </div>
+    <div class="col-sm-4">
+        {{ form.EVAL.errors }}{{ form.EVAL.label_tag }} {{ 'EVAL_help'|help_tooltip_questionmark }} {{ form.EVAL }}
+        {{ 'EVAL_help'|help_tooltip:'Specify a statistical significance threshold. Hits with an E-value greater than this value will not be displayed. (Possible real values: [0,100]).' }}
+    </div>
+    <div class="col-sm-4">
+        {{ form.number_of_results.errors }}{{ form.number_of_results.label_tag }} {{ 'num_results_help'|help_tooltip_questionmark }} {{ form.number_of_results }}
+        {{ 'num_results_help'|help_tooltip:'Specify a maximum number of hits to display on output (max 2000).' }}
+    </div>
 </div>
 <div class="row my-2 align-items-center">
     <div class="col-12">{{ form.email.errors }}</div>
-    <div class="col-sm-2 col-form-label">{{ form.email.label_tag }}</div><div class="col-sm-10">{{ form.email }}</div>
+    <div class="col-sm-2 col-form-label">{{ form.email.label_tag }} {{ 'email_help'|help_tooltip_questionmark }} </div><div class="col-sm-10">{{ form.email }}</div>
+    {{ 'email_help'|help_tooltip:'Optionally, provide an e-mail address which will then be used to send a notification upon job completion.' }}
 </div>
 <div class="dropdown-divider"></div>
 <h2 class="dropdown-toggle link-dark" data-bs-toggle="collapse" data-bs-target="#sequence_search_options">Sequence search options</h2>
 <div id="sequence_search_options" class="collapse">
     <div id="hhsuite_form" class="row g-2 align-items-end mb-2">
-        <div class="col-sm-3">{{ form.hhsuite_in_use.errors }}{{ form.hhsuite_in_use.label_tag }} {{ form.hhsuite_in_use }}</div>
-        <div class="col-sm-3">{{ form.hhsuite_db.errors }}{{ form.hhsuite_db.label_tag }}{{ form.hhsuite_db }}</div>
-        <div class="col-sm-3">{{ form.hhsuite_opt_niterations.errors }}{{ form.hhsuite_opt_niterations.label_tag }}{{ form.hhsuite_opt_niterations }}</div>
-        <div class="col-sm-3">{{ form.hhsuite_opt_evalue.errors }}{{ form.hhsuite_opt_evalue.label_tag }}{{ form.hhsuite_opt_evalue }}</div>
+        <div class="col-sm-3">
+            {{ form.hhsuite_in_use.errors }}
+            {{ form.hhsuite_in_use.label_tag }} {{ 'use_hhsuite_help'|help_tooltip_questionmark }} {{ form.hhsuite_in_use }}
+            {{ 'use_hhsuite_help'|help_tooltip:'Perform additional sequence search with the sequence and MSA queries using HHblits to build informative MSAs.' }}
+        </div>
+        <div class="col-sm-3">
+            {{ form.hhsuite_db.errors }}
+            {{ form.hhsuite_db.label_tag }} {{ 'hhsuite_db_help'|help_tooltip_questionmark }}{{ form.hhsuite_db }}
+            {{ 'hhsuite_db_help'|help_tooltip:'Select an HHsuite database to search using HHblits.' }}
+        </div>
+        <div class="col-sm-3">
+            {{ form.hhsuite_opt_niterations.errors }}
+            {{ form.hhsuite_opt_niterations.label_tag }} {{ 'hhsuite_iterations_help'|help_tooltip_questionmark }}{{ form.hhsuite_opt_niterations }}
+            {{ 'hhsuite_iterations_help'|help_tooltip:'Specify a number of HHblits iterations (max 4).' }}
+        </div>
+        <div class="col-sm-3">
+            {{ form.hhsuite_opt_evalue.errors }}
+            {{ form.hhsuite_opt_evalue.label_tag }} {{ 'hhsuite_evalue_help'|help_tooltip_questionmark }}{{ form.hhsuite_opt_evalue }}
+            {{ 'hhsuite_evalue_help'|help_tooltip:'Specify a statistical significance threshold for matches found by HHblits. Sequences identified with an E-value greater than this value will be ignored. (Possible real values: [0,1]).' }}
+        </div>
     </div>
     <div id="hmmer_form" class="row g-2 align-items-end my-2 bg-light pb-2">
-        <div class="col-sm-3">{{ form.hmmer_in_use.errors }}{{ form.hmmer_in_use.label_tag }} {{ form.hmmer_in_use }}</div>
-        <div class="col-sm-3">{{ form.sequence_db.errors }}{{ form.sequence_db.label_tag }}{{ form.sequence_db }}</div>
-        <div class="col-sm-3">{{ form.hmmer_opt_niterations.errors }}{{ form.hmmer_opt_niterations.label_tag }}{{ form.hmmer_opt_niterations }}</div>
-        <div class="col-sm-3">{{ form.hmmer_opt_evalue.errors }}{{ form.hmmer_opt_evalue.label_tag }}{{ form.hmmer_opt_evalue }}</div>
+        <div class="col-sm-3">
+            {{ form.hmmer_in_use.errors }}
+            {{ form.hmmer_in_use.label_tag }} {{ 'use_hmmer_help'|help_tooltip_questionmark }} {{ form.hmmer_in_use }}
+            {{ 'use_hmmer_help'|help_tooltip:'Perform additional sequence search with the sequence and MSA queries using HMMER to build informative MSAs (can be used along with HHblits).' }}
+        </div>
+        <div class="col-sm-3">
+            {{ form.sequence_db.errors }}
+            {{ form.sequence_db.label_tag }} {{ 'hmmer_db_help'|help_tooltip_questionmark }}{{ form.sequence_db }}
+            {{ 'hmmer_db_help'|help_tooltip:'Select a sequence database to search using HMMER.' }}
+        </div>
+        <div class="col-sm-3">
+            {{ form.hmmer_opt_niterations.errors }}
+            {{ form.hmmer_opt_niterations.label_tag }} {{ 'hmmer_iterations_help'|help_tooltip_questionmark }}{{ form.hmmer_opt_niterations }}
+            {{ 'hmmer_iterations_help'|help_tooltip:'Specify a number of HMMER iterations (max 4).' }}
+        </div>
+        <div class="col-sm-3">
+            {{ form.hmmer_opt_evalue.errors }}
+            {{ form.hmmer_opt_evalue.label_tag }} {{ 'hmmer_evalue_help'|help_tooltip_questionmark }}{{ form.hmmer_opt_evalue }}
+            {{ 'hmmer_evalue_help'|help_tooltip:'Specify a statistical significance threshold for matches found by HMMER. Sequences identified with an E-value greater than this value will be ignored. (Possible real values: [0,1]).' }}
+        </div>
     </div>
 </div>
-<h2 class="dropdown-toggle link-dark" data-bs-toggle="collapse" data-bs-target="#advanced_options">Advanced options</h2>
+<h2 class="dropdown-toggle link-dark" data-bs-toggle="collapse" data-bs-target="#advanced_options">Advanced options for COMER/COTHER</h2>
 <div id="advanced_options" class="collapse">
-    <div>{{ form.LCFILTEREACH.errors }}{{ form.LCFILTEREACH.label_tag }} {{ form.LCFILTEREACH }}</div>
+    <div>
+        {{ form.LCFILTEREACH.errors }}
+        {{ form.LCFILTEREACH.label_tag }} {{ 'LCFILTEREACH_help'|help_tooltip_questionmark }} {{ form.LCFILTEREACH }}
+        {{ 'LCFILTEREACH_help'|help_tooltip:'Apply low-complexity region filtering to the sequences of a final MSA from which a COMER2/COTHER profile is constructed. Profile construction can fail if all sequences in an MSA are low-complexity sequences.' }}
+    </div>
     <div class="row g-2 align-items-end bg-light pb-2">
-        <div class="col-sm-4">{{ form.ADJWGT.errors }}{{ form.ADJWGT.label_tag }}{{ form.ADJWGT }}</div>
-        <div class="col-sm-4">{{ form.CVSWGT.errors }}{{ form.CVSWGT.label_tag }}{{ form.CVSWGT }}</div>
-        <div class="col-sm-4">{{ form.SSSWGT.errors }}{{ form.SSSWGT.label_tag }}{{ form.SSSWGT }}</div>
+        <div class="col-sm-4">
+            {{ form.ADJWGT.errors }}
+            {{ form.ADJWGT.label_tag }} {{ 'ADJWGT_help'|help_tooltip_questionmark }}{{ form.ADJWGT }}
+            {{ 'ADJWGT_help'|help_tooltip:'Specify a weight for the scoring term from Bayesian modeling of substitution probabilities. (Possible real values: (0,1)).' }}
+        </div>
+        <div class="col-sm-4">
+            {{ form.CVSWGT.errors }}
+            {{ form.CVSWGT.label_tag }} {{ 'CVSWGT_help'|help_tooltip_questionmark }}{{ form.CVSWGT }}
+            {{ 'CVSWGT_help'|help_tooltip:'Specify a weight for the term for scoring normally distributed context vectors. (Possible real values: [0,1)).' }}
+        </div>
+        <div class="col-sm-4">
+            {{ form.SSSWGT.errors }}
+            {{ form.SSSWGT.label_tag }} {{ 'SSSWGT_help'|help_tooltip_questionmark }}{{ form.SSSWGT }}
+            {{ 'SSSWGT_help'|help_tooltip:'Specify a weight for the term for scoring the similarity of secondary structures. 0 disables secondary structure scoring. (Possible real values: [0,1)).' }}
+        </div>
     </div>
     <div class="row g-2 align-items-center">
         <div class="col-12">{{ form.SSEMODEL.errors }}</div>
-        <div class="col-sm-2 col-form-label">{{ form.SSEMODEL.label_tag }}</div><div class="col-sm-10">{{ form.SSEMODEL }}</div>
+        <div class="col-sm-3 col-form-label">{{ form.SSEMODEL.label_tag }} {{ 'SSEMODEL_help'|help_tooltip_questionmark }}</div><div class="col-sm-9">{{ form.SSEMODEL }}</div>
+        {{ 'SSEMODEL_help'|help_tooltip:'Specify a method for estimating the statistical significance of profile-profile alignments. 0, Statistical significance depends on alignment score and profile lengths; 1, Statistical significance depends on alignment score, profile attributes, and compositional similarity; 2, Same as model 1 but regards the amount of data used in simulations.' }}
     </div>
     <div class="row g-2 align-items-center bg-light pb-2">
-        <div class="col-sm-6">{{ form.MAPALN.errors }}{{ form.MAPALN.label_tag }} {{ form.MAPALN }}</div>
-        <div class="col-sm-6">{{ form.MINPP.errors }}{{ form.MINPP.label_tag }}{{ form.MINPP }}</div>
+        <div class="col-sm-6">
+            {{ form.MAPALN.errors }}{{ form.MAPALN.label_tag }}  {{ 'MAPALN_help'|help_tooltip_questionmark }}{{ form.MAPALN }}
+            {{ 'MAPALN_help'|help_tooltip:'Realign profile-profile alignments by a maximum a posteriori algorithm.' }}
+        </div>
+        <div class="col-sm-6">
+            {{ form.MINPP.errors }}{{ form.MINPP.label_tag }} {{ 'MINPP_help'|help_tooltip_questionmark }}{{ form.MINPP }}
+            {{ 'MINPP_help'|help_tooltip:'Specify a posterior probability threshold for expected alignment accuracy of realigned pair of profiles. Alignment extension stops when the expected alignment accuracy drops below this value. 0 implies semi-global alignment. Threshold values tending to 1 shorten alignments. (Possible real values: [0,1)).' }}
+        </div>
     </div>
     <div id="cother_specific_advanced_options" class="row g-2 align-items-center my-2">
         <div class="col-12">{{ form.DDMSWGT.errors }}</div>
-        <div class="col-sm-4">{{ form.DDMSWGT.label_tag }}</div><div class="col-sm-8">{{ form.DDMSWGT }}</div>
+        <div class="col-sm-4">{{ form.DDMSWGT.label_tag }} {{ 'DDMSWGT_help'|help_tooltip_questionmark }}</div><div class="col-sm-8">{{ form.DDMSWGT }}</div>
+        {{ 'DDMSWGT_help'|help_tooltip:'Specify a weight for the term for scoring distance distribution match. (Possible real values: [0,1)).' }}
     </div>
 </div>
 <div class="dropdown-divider"></div>

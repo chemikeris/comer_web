@@ -14,7 +14,7 @@ function showResults(results) {
     results_table.classList.add('table');
     results_table.classList.add('table-striped');
     results_table.classList.add('table-sm');
-    var results_table_columns = ['', 'No.', 'ID', 'Description', 'Pvalue', 'Evalue', 'Score (bits)', 'Length'];
+    var results_table_columns = ['', 'No.', 'ID', 'Description', 'P-value', 'E-value', 'Score (bits)', 'Length'];
     var results_table_head = createTableHeader(results_table_columns);
     results_table.appendChild(results_table_head);
     var results_table_body = document.createElement('tbody');
@@ -111,7 +111,7 @@ function formatSummary(summary, result_no) {
     summary_element.classList.add('summary');
     summary_element.classList.add('summary_part_'+resultsPartNo(result_no));
     var short_description = shortDescription(summary.description);
-    var long_description = 'Score=' + summary.score + ', Evalue=' + summary.evalue + ' ' + summary.description;
+    var long_description = 'Score=' + summary.score + ', E-value=' + summary.evalue + ' ' + summary.description;
 
     summary_element.title = long_description;
     summary_element.classList.add('sequence_scheme');
@@ -209,8 +209,8 @@ function formatAlignment(result_no, hit_record) {
 
     var alignment_description = document.createElement('p');
     alignment_description.innerText = '';
-    alignment_description.innerText += 'Pvalue=' + hit_record.alignment.pvalue + ', ';
-    alignment_description.innerText += 'Evalue=' + hit_record.alignment.evalue + ', ';
+    alignment_description.innerText += 'P-value=' + hit_record.alignment.pvalue + ', ';
+    alignment_description.innerText += 'E-value=' + hit_record.alignment.evalue + ', ';
     alignment_description.innerText += 'Score=' + hit_record.alignment.score + '(' + hit_record.alignment.bit_score + ' bits)' + ', ';
     alignment_description.innerText += 'Identities=' + percentageDisplay(hit_record.alignment.n_identities, hit_record.alignment.aln_length) + ', ';
     alignment_description.innerText += 'Positives=' + percentageDisplay(hit_record.alignment.n_positives, hit_record.alignment.aln_length) + ', ';

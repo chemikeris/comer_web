@@ -45,8 +45,8 @@ function add_example_button() {
     form_element = document.forms[0];
     node_after_button = document.getElementById('query_file_input');
     button_p_element = document.createElement('p');
-    button_p_element.innerHTML += '<button class="btn btn-secondary me-2 mt-2" onclick="add_example_query1()" type="button">Load single query example</button>';
-    button_p_element.innerHTML += '<button class="btn btn-secondary mt-2" onclick="add_example_query2()" type="button">Load multiple queries example</button>';
+    button_p_element.innerHTML += '<button class="btn btn-secondary me-2 mt-2" onclick="add_example_query1()" type="button">Sequence example</button>';
+    button_p_element.innerHTML += '<button class="btn btn-secondary mt-2" onclick="add_example_query2()" type="button">Multiple queries example</button>';
     form_element.insertBefore(button_p_element, node_after_button);
 }
 function add_bootstrap_for_form() {
