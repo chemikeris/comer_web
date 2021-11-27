@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import QueryDict
 
+from apps.core.sequences import read_example_queries
 from apps.search.models import Job as SearchJob
 from apps.search.models import process_input_data
 from apps.search.forms import SequencesInputForm
@@ -18,21 +19,28 @@ from apps.msa.models import save_msa_job
 class Command(BaseCommand):
     help = 'Create example job for COMER web server'
 
-    def handle(self, *args, **kwargs):
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--skip-subjobs', action='store_true',
+            help='Skip creating structure modeling and MSA jobs'
+            )
+
+    def handle(self, *args, **options):
         print('Creating example search job.')
         example_job = SearchJob.objects.filter(name='example')
         if example_job:
             print('Example job was already created previously!')
             example_job = example_job[0]
         else:
-            fasta_file = os.path.join(settings.BASE_DIR, 'doc', 'example.fasta')
-            with open(fasta_file) as f:
-                fasta_str = f.read()
+            example_str = read_example_queries()
             form_data = copy.deepcopy(default.search_settings)
-            form_data['sequence'] = fasta_str
+            form_data['sequence'] = example_str
             form_data['multi_sequence_fasta'] = True
             form_data['use_cother'] = False
-            form_data['comer_db'] = [settings.COMER_DATABASES[0][0]]
+            form_data['comer_db'] = [
+                settings.COMER_DATABASES[0][0],
+                settings.COMER_DATABASES[-1][0],
+                ]
             form_data['cother_db'] = [settings.COTHER_DATABASES[0][0]]
             form_data['hhsuite_db'] = settings.HHSUITE_DATABASES[0][0]
             form_data['sequence_db'] = settings.SEQUENCE_DATABASES[0][0]
@@ -48,14 +56,22 @@ class Command(BaseCommand):
                     for err in errors:
                         for e in err:
                             print('Field %s: %s' % (field, e))
+        if options['skip_subjobs']:
+            print('Skipping structure modeling and MSA examples.')
+            return
         print('Creating example structure modeling job.')
+        modelings = {
+            'example_model_1': [0, range(6), False],
+            'example_model_2': [0, range(6), True],
+            'example_model_3': [2, [1], False],
+            'example_model_4': [3, range(12), False],
+            'example_model_5': [3, range(2), True],
+            }
         try:
-            example_modeling_1 = example_job.modeling_job.get(
-                name='example_model_1'
-                )
-            example_modeling_2 = example_job.modeling_job.get(
-                name='example_model_2'
-                )
+            for modeling_job_name in modelings.keys():
+                example_modeling = example_job.modeling_job.get(
+                    name=modeling_job_name
+                    )
             print('Structure modeling example was already created previously!')
         except ObjectDoesNotExist:
             if not finished(example_job):
@@ -63,31 +79,39 @@ class Command(BaseCommand):
                     'Search failed, cannot create structure modeling example.'
                     )
                 return
-            simulated_post_data = QueryDict(
-                'job_id=%s&sequence_no=0&process=0&process=2&modeller_key=' % \
-                    example_job.name
-                )
-            sj, modeling_example_1 = save_structure_modeling_job(
-                    simulated_post_data, False, 'example_model_1'
-                    )
-            sj, modeling_example_2 = save_structure_modeling_job(
-                    simulated_post_data, True, 'example_model_2'
+            for modeling_example_name, example_data in modelings.items():
+                sequence_no, numbers, multi_structure = example_data
+                simulated_post_str = \
+                    'job_id=%s&sequence_no=%s&&modeller_key=' % \
+                    (example_job.name, sequence_no)
+                post_data = simulate_post_data(simulated_post_str, numbers)
+                save_structure_modeling_job(
+                    post_data, multi_structure, modeling_example_name
                     )
             print('Structure modeling examples have been created.')
         print('Creating MSA job example.')
+        msa_data = {
+            'example_msa_1': [0, range(20)],
+            'example_msa_2': [1, range(22)],
+            'example_msa_3': [2, range(10)],
+            'example_msa_4': [3, range(78)],
+            }
         try:
-            msa_example_job = example_job.msa_job.get(name='example_msa')
+            for msa_job_name in msa_data.keys():
+                msa_example_job = example_job.msa_job.get(name=msa_job_name)
             print('MSA example was already created previously!')
         except ObjectDoesNotExist:
             if not finished(example_job):
                 print('Search failed, cannot create MSA example.')
                 return
-            sequences_for_msa = range(20)
-            simulated_post_str = 'job_id=%s&sequence_no=0' % example_job.name
-            for s in sequences_for_msa:
-                simulated_post_str += '&process=%s' % s
-            simulated_post_data = QueryDict(simulated_post_str)
-            save_msa_job(simulated_post_data, example=True)
+            for example_msa_name, example_data in msa_data.items():
+                sequence_no, sequences_for_msa = example_data
+                simulated_post_str = 'job_id=%s&sequence_no=%s' % \
+                    (example_job.name, sequence_no)
+                simulated_post_data = simulate_post_data(
+                    simulated_post_str, sequences_for_msa
+                    )
+                save_msa_job(simulated_post_data, example_msa_name)
             print('Example MSA job has been created.')
 
 
@@ -95,7 +119,18 @@ def finished(job):
     if job.status == job.FAILED:
         return False
     else:
+        i = 0
         while not job.status == job.FINISHED:
+            print('Search job still running for %s s.' % (i*10))
+            i += 1
             time.sleep(10)
+            job.refresh_from_db()
         return True
+
+
+def simulate_post_data(starting_post_data, sequence_numbers):
+    post_data = starting_post_data
+    for s in sequence_numbers:
+        post_data += '&process=%s' % s
+    return QueryDict(post_data)
 

@@ -3,6 +3,7 @@
 {% load static %}
 {% load input_form %}
 <script src="{% static 'js/search/input.js' %}"></script>
+<script>const example_data={{ example_str|stringformat:"r" }};</script>
 <h2>COMER web server for protein analysis by homology</h2>
     <ol class="bg-light">
         <li>Enter your sequence, MSA, and/or profile queries below (use line with "//" to separate individual queries). {{ 'query_formats_help'|help_tooltip_questionmark }}

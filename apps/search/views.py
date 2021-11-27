@@ -8,11 +8,13 @@ from django.conf import settings
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from . import forms
 from . import default
 from . import models
 from apps.core import utils
+from apps.core.sequences import read_example_queries
 
 def input(request):
     "View to input query sequences or MSA"
@@ -29,7 +31,7 @@ def input(request):
         search_settings = copy.deepcopy(default.search_settings)
         form = InputForm(initial=search_settings)
     context = {
-        'form': form,
+        'form': form, 'example_str': mark_safe(read_example_queries()),
         }
     return render(request, 'search/input.html', context)
 

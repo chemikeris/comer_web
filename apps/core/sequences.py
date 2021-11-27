@@ -1,6 +1,8 @@
 import logging
 import os
 
+from django.conf import settings
+
 
 def format(input_str):
     "Check input format"
@@ -138,4 +140,11 @@ def read_neff_file(neff_fname):
                 neff = float(parts[1])
                 identity = float(parts[3])
     return n, neff, identity
+
+
+def read_example_queries():
+    example_file = os.path.join(settings.BASE_DIR, 'doc', 'example.txt')
+    with open(example_file) as f:
+        example_str = f.read()
+    return example_str
 

@@ -111,3 +111,8 @@ class Connection:
         job_status_log = self.retrieve_job_file_contents(job_id, 'status')
         return job_status_log
 
+    def remove_remote_job_directory(self, job_id):
+        job_directory = self.job_directory(job_id, create=False)
+        print('Removing %s' % job_directory)
+        self.connection.run('rm -rf %s' % job_directory)
+
