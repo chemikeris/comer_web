@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+{% load site_tags %}
+<h1>Tutorial for using the COMER web server</h1>
+<p>Users are encouraged to refer to the {% help_link %} to familiarize themselves with the services provided by the COMER web server.</p>
+<p>
+The main page of the COMER web server is where input data can be entered.
+Enter queries in the text field.
+The separator line “//” indicates the end of an individual query, which can represent a sequence, plain or in FASTA format, an MSA in aligned FASTA, STOCKHOLM, or A3M format, or a COMER2 or COTHER profile.
+</p>
+<p><img src="{% static 'img/tutorial/queries.png' %}" alt="Queries" class="img-fluid border border-dark"></p>
+<p>Select a target method, COMER2 or COTHER, target profile databases, sequence search methods for building more informative multiple sequence alignments (MSAs):</p>
+<p><img src="{% static 'img/tutorial/main_options.png' %}" alt="Main options" class="img-fluid border border-dark"></p>
+<p>Check advanced options:</p>
+<p><img src="{% static 'img/tutorial/advanced_options.png' %}" alt="Advanced options" class="img-fluid border border-dark"></p>
+<p>Hitting the Submit button places a job in the queue:</p>
+<p><img src="{% static 'img/tutorial/submit_button.png' %}" alt="Submit button" class="img-fluid border border-dark"></p>
+<p>The job is running. The progress of the job appears:</p>
+<p><img src="{% static 'img/tutorial/job_status_page.png' %}" alt="Job status page" class="img-fluid border border-dark"></p>
+<p>The job has finished, and the list of links to individual results pages, one for each query, appears:</p>
+<p><img src="{% static 'img/tutorial/list_of_results.png' %}" alt="List of results" class="img-fluid border border-dark"></p>
+<p>For each query, results summary and table are displayed. Clicking on the schematic alignment or table row number displays the result alignment:</p>
+<p><img src="{% static 'img/tutorial/results_summary_and_table.png' %}" alt="Query results: summary" class="img-fluid border border-dark"></p>
+<p>
+Each results page shows the profile-profile alignments between a query and the identified proteins along with predicted secondary structures, which help visually assess how well structural features align.
+Alignment statistics that accompany each alignment provide additional criteria for assessing the closeness of the aligned pair or compositional similarity (relatively low values of &lambda;):
+</p>
+<p><img src="{% static 'img/tutorial/results_alignment.png' %}" alt="Query results: alignment" class="img-fluid border border-dark"></p>
+<p>Select multiple pairwise alignments:</p>
+<p><img src="{% static 'img/tutorial/select_by_evalue.png' %}" alt="Alignment selection by E-value" class="img-fluid border border-dark"></p>
+<p>Construct an MSA based on profile-profile alignments:</p>
+<p><img src="{% static 'img/tutorial/msa_button.png' %}" alt="MSA construction button" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/tutorial/msa.png' %}" alt="Constructed MSA" class="img-fluid border border-dark"></p>
+<p>Or generate 3D structural models, one for each selection, with a click of a button:</p>
+<p><img src="{% static 'img/tutorial/single_template_model_button.png' %}" alt="Generate single-template 3D models button" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/tutorial/modeling_results.png' %}" alt="Generated single-template 3D models" class="img-fluid border border-dark"></p>
+{% endblock %}

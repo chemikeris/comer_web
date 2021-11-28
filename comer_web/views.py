@@ -30,6 +30,9 @@ def api_help(request):
     context['short_db_names'] = short_db_names
     return render(request, 'site/api_help.html', context)
 
+def tutorial(request):
+    return render(request, 'site/tutorial.html')
+
 def about(request):
     return render(request, 'site/about.html')
 
