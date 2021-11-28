@@ -14,7 +14,7 @@ def api_help(request):
         dbs = []
         for desc_tuple in desc_tuples:
             computer_db_name, human_db_name = desc_tuple
-            db_name = '%s (%s)' % (human_db_name, computer_db_name)
+            db_name = '%s (%s)' % (computer_db_name, human_db_name)
             dbs.append(db_name)
         return ', '.join(dbs)
     available_databases['COMER'] = nice_db_names(settings.COMER_DATABASES)
