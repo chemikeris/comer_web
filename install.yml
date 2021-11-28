@@ -87,16 +87,10 @@
 - name: Install COMER web server
   hosts: all
   become: true
-  vars_prompt:
-      - name: github_user
-        prompt: 'GitHub username'
-        private: no
-      - name: github_password
-        prompt: 'GitHub password'
   tasks:
       - name: Get COMER web server software
         git:
-            repo: 'https://{{ github_user }}:{{ github_password }}@github.com/chemikeris/comer_web.git'
+            repo: 'https://github.com/chemikeris/comer_web.git'
             dest: /opt/comer_web/src
         tags:
             - github
