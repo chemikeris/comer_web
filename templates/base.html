@@ -23,15 +23,20 @@
             <li class="nav-item"><a class="nav-link" href="{% url 'results' 'example' %}">Example</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'help' %}">Help</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'api_help' %}">Search API</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'availability' %}">Data and software</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'references' %}">Cite us</a></li>
+            <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">About</a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'about' %}">General information</a></li>
+                    <li><a class="dropdown-item" href="{% url 'about' %}#data_and_software">Data and software</a></li>
+                    <li><a class="dropdown-item" href="{% url 'about' %}#cite_us">Cite us</a></li>
+                </ul>
+            </li>
         </div></ul>
     </div>
     </nav>
 </header>
 <div id="content" class="container-fluid">{% block content %}{% endblock %}</div>
 <footer class="mt-auto text-center bg-light">
-	<a href="http://www.bioinformatics.lt">bioinformatics.lt</a>
+	&copy; Department of Bioinformatics, Institute of Biotechnology, Life Sciences Center, Vilnius University | <a href="http://www.bioinformatics.lt">bioinformatics.lt</a>
 </footer>
 <button onclick="goToTop()" id="top_button" title="Go to top"><img src="{%  static 'img/icons/arrow-up-circle.svg' %}" width="100%"></button> 
 </div>

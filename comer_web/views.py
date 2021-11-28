@@ -1,8 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.conf import settings
 
 def index(request):
-    return render(request, 'site/index.html')
+    return redirect('input')
 
 def help(request):
     return render(request, 'site/help.html')
@@ -30,9 +30,6 @@ def api_help(request):
     context['short_db_names'] = short_db_names
     return render(request, 'site/api_help.html', context)
 
-def availability(request):
-    return render(request, 'site/availability.html')
-
-def references(request):
-    return render(request, 'site/references.html')
+def about(request):
+    return render(request, 'site/about.html')
 

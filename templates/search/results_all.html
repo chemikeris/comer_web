@@ -1,5 +1,6 @@
 {% extends 'base_results.html' %}
 {% block results %}
+{% load input_form %}
 <h1>{{ job.method|upper }} results</h1>
 <p>{{ job.number_of_successful_sequences }} / {{ job.number_of_input_sequences }} queries were successful.</p>
 <p>
@@ -16,7 +17,7 @@
         <td>Input name</td>
         <td>Length</td>
         <td>Input type</td>
-        <td>Resulting MSA</td>
+        <td>Resulting MSA {{ 'MSA_help'|help_tooltip_questionmark }}</td>
         <td>Number of hits</td>
     </tr>
 </thead>
@@ -30,6 +31,7 @@
 </tr>
 {% endfor %}
 </table>
+{{ 'MSA_help'|help_tooltip:"N: Number of sequences in the resulting MSA; Neff: Number of effective sequences in the resulting MSA at 62% sequence identity" }}
 {% if errors %}
 <h2>Error log:</h2>
 <pre>{{ errors }} </pre>

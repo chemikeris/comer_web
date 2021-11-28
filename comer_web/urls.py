@@ -25,7 +25,6 @@ urlpatterns = [
     #path('admin/', admin.site.urls),
     path('help/', comer_web.views.help, name='help'),
     path('api_help/', comer_web.views.api_help, name='api_help'),
-    path('references/', comer_web.views.references, name='references'),
-    path('availability/', comer_web.views.availability, name='availability'),
+    path('about/', comer_web.views.about, name="about"),
     path('msa/', include('apps.msa.urls')),
 ]

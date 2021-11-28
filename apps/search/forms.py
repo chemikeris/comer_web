@@ -131,9 +131,9 @@ class SequencesInputForm(forms.Form):
     SSEMODEL = forms.ChoiceField(
         label='Statistical significance estimation method',
         choices=(
-            ('0', 'depends on profile lengths'),
-            ('1', 'depends on profile attributes and compositional similarity'),
-            ('2', 'depends on profile lengths but regards the amount of data used in simulations'),
+            ('0', 'Statistical significance depends on alignment score and profile lengths'),
+            ('1', 'Statistical significance depends on alignment score, profile attributes, and compositional similarity'),
+            ('2', 'Statistical significance depends on alignment score, profile attributes, and compositional similarity but regards the amount of data used in simulations'),
             )
         )
     # Alignment options.
@@ -146,7 +146,7 @@ class SequencesInputForm(forms.Form):
     # Distance distribution match scores (for COTHER).
     DDMSWGT = forms.FloatField(
         required=False, min_value=0, max_value=1,
-        label='Weight of distance distribution match scores'
+        label='Weight for scoring distance distribution match'
         )
     DDMSWGT.widget.attrs.update({'step': 0.01})
 
@@ -170,7 +170,7 @@ class SequencesInputForm(forms.Form):
             return sequence_str
         else:
             if description:
-                msg = 'Query "%(desc)s" contains illegal characters.'
+                msg = 'Query %(desc)s contains illegal characters.'
                 params = {'desc': description}
             else:
                 msg = 'Query contains illegal characters.'
@@ -182,8 +182,8 @@ class SequencesInputForm(forms.Form):
         all_sequences, problematic_sequences = sequences.split_fasta(
             input_fasta_str
             )
-        for description, sequence in all_sequences:
-            sequence = self.validate_plain_sequence(sequence, description)
+        for desc, sequence in all_sequences:
+            sequence = self.validate_plain_sequence(sequence, '"%s"' % desc)
         self.add_problematic_fasta_errors(problematic_sequences)
         return input_fasta_str
 
@@ -334,7 +334,7 @@ class SequencesInputForm(forms.Form):
                 cleaned_sequences_data.append(self.validate_fasta(s))
             elif seq_format == 'plain':
                 cleaned_sequence = self.validate_plain_sequence(
-                    s, 'sequence%s' % i
+                    s, 'No. %s' % i
                     )
                 if cleaned_sequence:
                     cleaned_sequences_data.append(cleaned_sequence)

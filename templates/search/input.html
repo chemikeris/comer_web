@@ -4,9 +4,9 @@
 {% load input_form %}
 <script src="{% static 'js/search/input.js' %}"></script>
 <script>const example_data={{ example_str|stringformat:"r" }};</script>
-<h2>COMER web server for protein analysis by homology</h2>
+<h1>COMER web server for protein analysis by homology</h1>
     <ol class="bg-light">
-        <li>Enter your sequence, MSA, and/or profile queries below (use line with "//" to separate individual queries). {{ 'query_formats_help'|help_tooltip_questionmark }}
+        <li>Enter your sequence, MSA, and/or profile queries below (use the line with "//" to separate individual queries). {{ 'query_formats_help'|help_tooltip_questionmark }}
             {{ 'query_formats_help'|help_tooltip:'Query can represent a sequence, plain or in FASTA format, an MSA in aligned FASTA, STOCKHOLM, or A3M format, or a COMER2 or COTHER profile.' }}
         </li>
         <li>Select target databases and a homology search method.</li>
@@ -134,18 +134,18 @@
     </div>
     <div class="row g-2 align-items-center bg-light pb-2">
         <div class="col-sm-6">
-            {{ form.MAPALN.errors }}{{ form.MAPALN.label_tag }}  {{ 'MAPALN_help'|help_tooltip_questionmark }}{{ form.MAPALN }}
+            {{ form.MAPALN.errors }}{{ form.MAPALN.label_tag }}  {{ 'MAPALN_help'|help_tooltip_questionmark }} {{ form.MAPALN }}
             {{ 'MAPALN_help'|help_tooltip:'Realign profile-profile alignments by a maximum a posteriori algorithm.' }}
         </div>
         <div class="col-sm-6">
-            {{ form.MINPP.errors }}{{ form.MINPP.label_tag }} {{ 'MINPP_help'|help_tooltip_questionmark }}{{ form.MINPP }}
+            {{ form.MINPP.errors }}{{ form.MINPP.label_tag }} {{ 'MINPP_help'|help_tooltip_questionmark }} {{ form.MINPP }}
             {{ 'MINPP_help'|help_tooltip:'Specify a posterior probability threshold for expected alignment accuracy of realigned pair of profiles. Alignment extension stops when the expected alignment accuracy drops below this value. 0 implies semi-global alignment. Threshold values tending to 1 shorten alignments. (Possible real values: [0,1)).' }}
         </div>
     </div>
     <div id="cother_specific_advanced_options" class="row g-2 align-items-center my-2">
         <div class="col-12">{{ form.DDMSWGT.errors }}</div>
         <div class="col-sm-4">{{ form.DDMSWGT.label_tag }} {{ 'DDMSWGT_help'|help_tooltip_questionmark }}</div><div class="col-sm-8">{{ form.DDMSWGT }}</div>
-        {{ 'DDMSWGT_help'|help_tooltip:'Specify a weight for the term for scoring distance distribution match. (Possible real values: [0,1)).' }}
+        {{ 'DDMSWGT_help'|help_tooltip:'Specify a weight for scoring inter-residue distance distribution match. Higher values emphasize the similarity of structural features, i.e., distance map similarity. (Possible real values: [0,1))' }}
     </div>
 </div>
 <div class="dropdown-divider"></div>
