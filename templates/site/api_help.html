@@ -3,9 +3,10 @@
 {% load static %}
 {% load site_tags %}
 <script>nice_json = function(obj, div_id) {e = document.getElementById(div_id); e.innerHTML = JSON.stringify(obj, undefined, 4);}</script>
+<div class="help_page">
 <h1>COMER web service API help page</h1>
 <h2>Command-line interface to services</h2>
-<h3>Submitting a search job</h3>
+<h3>Conducting a homology search</h3>
 <p>The simplest way to conduct a COMER2 search from the command line with a sequence query (e.g., "TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR") and default settings against the default database, which is a PDB70 profile database, is to issue the following command:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR</code></p>
 <p>The communication between the client (the user side) and the server is asynchronous.
@@ -20,7 +21,7 @@ On success, the first field ("success": true) indicates no errors, and the secon
 </script>
 <h3>Specifying options</h3>
 <p>The COMER web server API allows for specifying all options that are available in the graphical user interface.
-The syntax for specifying different options is as follows: -F option1_name=option1_value -F option2_name=option2_value ...
+The syntax for specifying different options using curl is as follows: -F option1_name=option1_value -F option2_name=option2_value ...
 The names of available options, along with their description, can be found in the <a href="{% static 'demo/job.options' %}">COMER/COTHER settings file</a>.</p>
 <p>In the following example, a COMER2 search is configured with a statistical significance threshold of E-value=0.0001, which means that hits detected with a significance greater than this value will not be displayed.
 Also, HMMER3 replaces HHblits for sequence search when building an MSA for the query (see the {% help_link %}):</p>
@@ -41,7 +42,7 @@ The following example instructs the server to search the PDB70, Pfam, and UniPro
 For example:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F use_cother=true -F cother_db=pdb70_210609</code></p>
 <h3>Uploading data files</h3>
-<p>The command-line option "-F sequence=" corresponds to the edit field "Enter queries:" in the graphical user interface and accepts queries of different types and in different formats (see the {% help_link %}).
+<p>The command-line option "-F sequence=" corresponds to the main text field (for entering queries) in the graphical user interface and accepts queries of different types and in different formats (see the {% help_link %}).
 For a larger number of queries given, it is much more convenient to provide the server with the input file instead of entering the data in the command line.</p>
 <p>Let us assume that one or more queries are stored locally in file /path/to/my/directory/queries.input, and  <a href="{% static 'demo/job.options' %}">options</a> are located in file /path/to/my/directory/job.options.
 Then, use the following command to submit a job with input data to be read from these files:</p>
@@ -49,7 +50,7 @@ Then, use the following command to submit a job with input data to be read from 
 <h3>Querying job status</h3>
 <p>Once the job is submitted, query job status asynchronously by typing:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_job_status' job_id='MyJobID' %}</code></p>
-<p>where MyJobID is the job ID returned by the submit command (see above).
+<p>where MyJobID is the job ID returned by the submit command (see Conducting a homology search).
 A typical successful response from the server is the following:</p>
 <code><pre id="job_status"></pre></code>
 <script>nice_json({"success": true, "job_id": "MyJobID", "status": "queued", "search_method": "COMER", "log": "Submitting...\nQueued.\nRunning...\n"}, 'job_status');</script>
@@ -76,4 +77,5 @@ An example Python script that conducts a COMER2 search with a sequence query and
 Jobs submitted using the command-line or programmatic interface are also valid for inspection in the graphical user environment as if they were submitted on the server's main page.</p>
 <p>Given job ID MyJobID, visit the results page at:</p>
 <p><code>https://{{ request.get_host }}{% url 'results' job_id='MyJobID' %}</code></p>
+</div>
 {% endblock %}

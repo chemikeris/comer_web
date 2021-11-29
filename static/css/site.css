@@ -81,3 +81,6 @@ noscript {
 #results {
     min-width: 83%;
 }
+.help_page {
+    max-width: 1140px;
+}

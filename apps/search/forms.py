@@ -44,10 +44,10 @@ class SequencesInputForm(forms.Form):
         )
     input_query_file = forms.FileField(
         required=False,
-        label='Input file with queries'
+        label='Input file of queries'
         )
     multi_sequence_fasta = forms.BooleanField(
-        label='In case of single FASTA query, treat each sequence as a separate query',
+        label='In case of a single FASTA query, treat each sequence as a separate query',
         required=False
         )
     email = forms.EmailField(required=False, label='E-mail (optional)')
@@ -107,7 +107,7 @@ class SequencesInputForm(forms.Form):
 
     # Low complexity filtering.
     LCFILTEREACH = forms.BooleanField(
-        label='Invoke low-complexity filtering',
+        label='Invoke low-complexity sequence filtering',
         required=False,
         initial=True
         )

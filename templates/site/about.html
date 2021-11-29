@@ -2,6 +2,7 @@
 {% block content %}
 {% load static %}
 {% load site_tags %}
+<div class="help_page">
 <h1>COMER web server</h1>
 <p>COMER web server has been developed at the <a href="https://bioinformatics.lt">Department of Bioinformatics</a> of the <a href="http://www.ibt.lt">Institute of Biotechnology</a> (<a href="https://gmc.vu.lt">Life Sciences Center</a>, <a href="https://www.vu.lt">Vilnius University</a>).</p>
 <p>This website is free and open to all users and there is no login requirement.</p>
@@ -18,23 +19,23 @@
     <tbody>
         <tr>
             <td>Linux</td>
-            <td>yes</td>
-            <td>yes</td>
+            <td>96</td>
+            <td>94</td>
             <td>n/a</td>
             <td>n/a</td>
         </tr>
         <tr>
             <td>MacOS</td>
-            <td>yes</td>
-            <td>yes</td>
+            <td>96</td>
+            <td>94</td>
             <td>n/a</td>
-            <td>yes</td>
+            <td>13</td>
         </tr>
         <tr>
             <td>Windows</td>
-            <td>yes</td>
-            <td>yes</td>
-            <td>yes</td>
+            <td>96</td>
+            <td>94</td>
+            <td>92</td>
             <td>n/a</td>
         </tr>
     </tbody>
@@ -44,16 +45,16 @@
 COMER web server is fully open source.
 The source code of the {{ 'chemikeris/comer_web'|github_link:"frontend web server" }} and the {{ 'minmarg/comer-ws-backend'|github_link:"backend computation server" }} is freely available.
 </p>
-<p>The components are also available:</p>
+<p>The component tools are open source too and available for download as stand-alone software for local use:</p>
 <ul>
-	<li>{{ "minmarg/comer2"|github_link:"COMER2" }}: remote homology search on GPUs</li>
-	<li>{{ "minmarg/cother"|github_link:"COTHER" }}: fast and accurate threading and homology search tool</li>
+	<li>{{ "minmarg/comer2"|github_link:"COMER2" }}: GPU-accelerated sensitive and specific protein remote homology search</li>
+	<li>{{ "minmarg/cother"|github_link:"COTHER" }}: GPU-accelerated protein remote homology search by threading</li>
 	<li>{{ "minmarg/ropius0"|github_link:"ROPIUS0" }}: inter-residue distance map prediction</li>
 </ul>
 <p>Links to COMER2 and COTHER profile databases are provided on their respective websites.</p>
 <h2 id="cite_us">Cite us</h2>
 <p>If COMER web server is useful for your research, please cite our articles.<p>
-<p>The remote homology search method COMER has been published in the following articles:</p>
+<p>The remote homology search method COMER was published in the following articles:</p>
 <ul>
     <li>Margelevičius M. Bayesian nonparametrics in protein remote homology search. Bioinformatics. 2016;32(18):2744-52,
         DOI: <a href="https://doi.org/10.1093/bioinformatics/btw213">10.1093/bioinformatics/btw213</a>,
@@ -64,7 +65,10 @@ The source code of the {{ 'chemikeris/comer_web'|github_link:"frontend web serve
         PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/32167522/">32167522</a>.
     </li>
 </ul>
+<h2 id="contacts">Contacts</h2>
+<p>For enquiries please email us at mindaugas.margelevicius@bti.vu.lt or justas.dapkunas@bti.vu.lt.
 <h2>Funding</h2>
 <p>This work was supported by the European Regional Development Fund [01.2.2-LMT-K-718-010028] under a grant agreement with the Research Council of Lithuania (LMTLT).</p>
 <img src="{% static 'img/about/ESFIVP-I-3.jpg' %}" alt="EU Funds">
+</div>
 {% endblock %}

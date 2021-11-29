@@ -82,7 +82,7 @@ class Job(ComerWebServerJob):
             message = ''
             message += 'COMER web server job %s has %s.\n' % (self.name, status)
             message += '\n'
-            message += 'To see results, please go to website:\n'
+            message += 'To the see results, please go to website:\n'
             message += self.uri()
             message += '\n'
             try:

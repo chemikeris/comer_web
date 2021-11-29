@@ -22,10 +22,10 @@ def nice_db_name(conf_name, suffix=None):
         'pdb': 'PDB70',
         'uniref': 'UniRef',
         'uniclust': 'UniClust',
-        'scop': 'SCOPe',
-        'pfam': 'PFAM',
+        'scop': 'SCOPe70',
+        'pfam': 'Pfam',
         'mgy': 'MGnify_clusters',
-        'swissprot': 'SwissProt90',
+        'swissprot': 'UniProtKB/SwissProt90',
         }
     nice_name = nice_names[name.lower()]
     if suffix:

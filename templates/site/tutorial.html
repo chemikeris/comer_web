@@ -2,6 +2,7 @@
 {% block content %}
 {% load static %}
 {% load site_tags %}
+<div class="help_page">
 <h1>Tutorial for using the COMER web server</h1>
 <p>Users are encouraged to refer to the {% help_link %} to familiarize themselves with the services provided by the COMER web server.</p>
 <p>
@@ -35,4 +36,5 @@ Alignment statistics that accompany each alignment provide additional criteria f
 <p>Or generate 3D structural models, one for each selection, with a click of a button:</p>
 <p><img src="{% static 'img/tutorial/single_template_model_button.png' %}" alt="Generate single-template 3D models button" class="img-fluid border border-dark"></p>
 <p><img src="{% static 'img/tutorial/modeling_results.png' %}" alt="Generated single-template 3D models" class="img-fluid border border-dark"></p>
+</div>
 {% endblock %}

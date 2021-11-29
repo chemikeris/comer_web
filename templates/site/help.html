@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
+<div class="help_page">
 <h1>COMER web server help</h1>
 <p>
 The COMER web server provides services for protein analysis by homology.
@@ -90,13 +91,13 @@ MARGSGAGGGGGGGGGGLELSV-GVGG---GGG--------A-RGG----GG-G-E-A--AAAV----ETA---AP-I--
 <p>
 The last separator in the input field is optional.
 If only one MSA in aligned FASTA format is provided, the user can activate a checkbox to instruct the server to treat each sequence in the MSA as an individual query (gaps are ignored).
-In that case, the server will process multiple query sequences, corresponding to the number of sequences in the MSA, instead of one MSA. 
+In that case, the server will process multiple query sequences, corresponding to the number of sequences in the MSA, instead of one MSA.
 </p>
 <p>For example, the following input</p>
 <pre>
 >OsSUT1, RICE LEAVES, 538 residues|
 MARGSGAGGGGGGGGGGLELSV-GVGG---GGG--------A-RGG----GG-G-E-A--AAAV----ETA---AP-I--S-LGR---L-I-L--SGM--V-A
->UniRef50_A0A444XBP0/16-506 (16-506) 
+>UniRef50_A0A444XBP0/16-506 (16-506)
 ---------------------------------------------------N-S-L-Q--LESG----SRE---QP-S--P-IWK---L-V-A--VAS--I-A
 >UniRef50_A0A251VK29/1-393 (1-393)
 --------------------------------------------------------------------------------------------M--VSA--I-A
@@ -112,11 +113,15 @@ The latter means that HHblits and HMMER are used independently, and their result
 Note that if an MSA provided as a query is to be searched for, it first undergoes (HHblits and/or HMMER) profile construction followed by a profile-to-sequence search.
 </p>
 <h2>Profile databases</h2>
-<p>
-Four profile databases are available for COMER2 search: PDB filtered to 70% sequence identity (PDB70), SCOPe70, PFAM, and UniProtKB/Swiss-Prot filtered to 90% sequence identity.
-Multiple databases can be selected (Ctrl key + Mouse's left-click) before submitting a job.
-The PDB70 database of COTHER profiles is available for COTHER search by threading.
-</p>
+<p>Four profile databases are available for COMER2 search:</p>
+<ul>
+    <li>PDB filtered to 70% sequence identity (PDB70),</li>
+    <li>SCOPe70,</li>
+    <li>Pfam,</li>
+    <li>UniProtKB/Swiss-Prot filtered to 90% sequence identity.</li>
+</ul>
+<p>Multiple databases can be selected (Ctrl key + Mouse's left-click) before submitting a job.</p>
+<p>The PDB70 database of COTHER profiles is available for COTHER search by threading.</p>
 <h2>Results and supported services</h2>
 <p>
 The format of COMER2 and COTHER results is the same.
@@ -181,8 +186,8 @@ Once the results are ready, a visualization layer is added to depict results gra
     <li>Maximum number of queries in the input field for COMER searches = 100.</li>
     <li>Maximum number of queries in the input field for COTHER = 10.</li>
     <li>Maximum query length (corresponding to the COTHER profile length) when using COTHER = 1000.</li>
-    <li>Maximum number of models when generating multiple 3D models = 15.</li>
-    <li>Maximum number of alignments when generating one 3D model = 7.</li>
+    <li>Maximum number of single-template 3D structural models for generating them simultaneously = 15.</li>
+    <li>Maximum number of structural templates for one 3D model = 7.</li>
 </ul>
 <h2>References</h2>
 <ol>
@@ -194,4 +199,5 @@ Once the results are ready, a visualization layer is added to depict results gra
     <li>Jones D. Protein secondary structure prediction based on position-specific scoring matrices. <a href="https://doi.org/10.1006/jmbi.1999.3091">J Mol Biol 1999;292(2):195–202</a>.</li>
     <li>Webb B, Sali A. Protein Structure Modeling with MODELLER. <a href="https://doi.org/10.1007/978-1-4939-7231-9_4">Methods Mol Biol. 2017;1654:39-54</a>.</li>
 </ol>
+</div>
 {% endblock %}

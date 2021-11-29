@@ -19,10 +19,10 @@
         <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'img/comer_server.png' %}" alt="C" height="30">COMER web server</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleMainMenu"><span class="navbar-toggler-icon"></span></button>
         <div id="collapsibleMainMenu" class="collapse navbar-collapse"><ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link" href="{% url 'input' %}">Input query</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'input' %}">Input</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'results' 'example' %}">Example</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'help' %}">Help</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'api_help' %}">Search API</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'api_help' %}">API help</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'tutorial' %}">Tutorial</a></li>
             <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">About</a>
                 <ul class="dropdown-menu">
@@ -30,6 +30,7 @@
                     <li><a class="dropdown-item" href="{% url 'about' %}#browser_compatibility">Browser compatibility</a></li>
                     <li><a class="dropdown-item" href="{% url 'about' %}#data_and_software">Data and software</a></li>
                     <li><a class="dropdown-item" href="{% url 'about' %}#cite_us">Cite us</a></li>
+                    <li><a class="dropdown-item" href="{% url 'about' %}#contacts">Contacts</a></li>
                 </ul>
             </li>
         </div></ul>
