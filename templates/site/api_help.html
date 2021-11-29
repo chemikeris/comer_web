@@ -5,8 +5,23 @@
 <script>nice_json = function(obj, div_id) {e = document.getElementById(div_id); e.innerHTML = JSON.stringify(obj, undefined, 4);}</script>
 <div class="help_page">
 <h1>COMER web service API help page</h1>
-<h2>Command-line interface to services</h2>
-<h3>Conducting a homology search</h3>
+<h2>Table of contents</h2>
+<ol>
+    <li><a href="#api_help_command_line_interface">Command-line interface to services</a>
+        <ol>
+            <li><a href="#api_help_conducting_homology_search">Conducting a homology search</a></li>
+            <li><a href="#api_help_specifying_options">Specifying options</a></li>
+            <li><a href="#api_help_cother_search">COTHER search</a></li>
+            <li><a href="#api_help_uploading">Uploading data files</a></li>
+            <li><a href="#api_help_querying_status">Querying job status</a></li>
+            <li><a href="#api_help_retrieving">Retrieving results</a></li>
+        </ol>
+    </li>
+    <li><a href="#api_help_programmatic_access">Programatic access to services</a></li>
+    <li><a href="#api_help_graphical_environment">Results in the graphical environment</a></li>
+</ol>
+<h2 id="api_help_command_line_interface">Command-line interface to services</h2>
+<h3 id="api_help_conducting_homology_search">Conducting a homology search</h3>
 <p>The simplest way to conduct a COMER2 search from the command line with a sequence query (e.g., "TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR") and default settings against the default database, which is a PDB70 profile database, is to issue the following command:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR</code></p>
 <p>The communication between the client (the user side) and the server is asynchronous.
@@ -19,7 +34,7 @@ On success, the first field ("success": true) indicates no errors, and the secon
     nice_json({"success": true, "job_id": "MyJobID"}, 'submit_json_success');
     nice_json({"success": false, "form_errors": {"__all__": ["Please provide query in the text field or file with queries."]}}, 'submit_json_failure');
 </script>
-<h3>Specifying options</h3>
+<h3 id="api_help_specifying_options">Specifying options</h3>
 <p>The COMER web server API allows for specifying all options that are available in the graphical user interface.
 The syntax for specifying different options using curl is as follows: -F option1_name=option1_value -F option2_name=option2_value ...
 The names of available options, along with their description, can be found in the <a href="{% static 'demo/job.options' %}">COMER/COTHER settings file</a>.</p>
@@ -37,17 +52,17 @@ The following example instructs the server to search the PDB70, Pfam, and UniPro
     </li>
 {% endfor %}</p>
 </ul>
-<h3>COTHER search</h3>
+<h3 id="api_help_cother_search">COTHER search</h3>
 <p>For conducting a COTHER homology search by threading, specify the command-line option: -F use_cother=true.
 For example:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F use_cother=true -F cother_db=pdb70_210609</code></p>
-<h3>Uploading data files</h3>
+<h3 id="api_help_uploading">Uploading data files</h3>
 <p>The command-line option "-F sequence=" corresponds to the main text field (for entering queries) in the graphical user interface and accepts queries of different types and in different formats (see the {% help_link %}).
 For a larger number of queries given, it is much more convenient to provide the server with the input file instead of entering the data in the command line.</p>
 <p>Let us assume that one or more queries are stored locally in file /path/to/my/directory/queries.input, and  <a href="{% static 'demo/job.options' %}">options</a> are located in file /path/to/my/directory/job.options.
 Then, use the following command to submit a job with input data to be read from these files:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F input_query_file=@/path/to/my/directory/queries.input -F input_search_parameters_file=@/path/to/my/directory/job.options</code></p>
-<h3>Querying job status</h3>
+<h3 id="api_help_querying_status">Querying job status</h3>
 <p>Once the job is submitted, query job status asynchronously by typing:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_job_status' job_id='MyJobID' %}</code></p>
 <p>where MyJobID is the job ID returned by the submit command (see Conducting a homology search).
@@ -57,7 +72,7 @@ A typical successful response from the server is the following:</p>
 <p>which shows that the submission was successful ("success": true) and the job is running ("status": "queued").
 Once the job finishes running, the status in the response string will be "finished" ("status": "finished").
 If errors have occurred, the status field will be "failed" ("status": "failed") or an error message if the submission failed ("success": false).</p>
-<h3>Retrieving results</h3>
+<h3 id="api_help_retrieving">Retrieving results</h3>
 <p>The following command is used to retrieve from the server the resulting profile-profile alignments in JSON format, associated with job MyJobID:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_results_json' job_id='MyJobID' %}</code></p>
 <p>If it is issued during the execution of the job, the results will be empty ("results": []), the number of successfully processed queries will be 0 ("number_of_successful_sequences": 0), and the status will indicate the process being in progress ("status": "queued"):</p>
@@ -69,10 +84,10 @@ If errors have occurred, the status field will be "failed" ("status": "failed") 
 <p><code>curl https://{{ request.get_host }}{% url 'api_job_input' job_id='MyJobID' %}</code></p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_job_options' job_id='MyJobID' %}</code></p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_job_error' job_id='MyJobID' %}</code></p>
-<h2>Programmatic access to services</h2>
+<h2 id="api_help_programmatic_access">Programmatic access to services</h2>
 <p>The COMER web server provides programmatic access to running homology searches using the server's computational resources.
 An example Python script that conducts a COMER2 search with a sequence query and default settings, waits for results, and prints them on standard output is  <a href="{% static 'demo/api_demo.py' %}">available here</a>.</p>
-<h2>Results in the graphical environment</h2>
+<h2 id="api_help_graphical_environment">Results in the graphical environment</h2>
 <p>The COMER web server maintains a unified job control system.
 Jobs submitted using the command-line or programmatic interface are also valid for inspection in the graphical user environment as if they were submitted on the server's main page.</p>
 <p>Given job ID MyJobID, visit the results page at:</p>
