@@ -31,15 +31,17 @@
                     <li><a class="dropdown-item" href="{% url 'about' %}#data_and_software">Data and software</a></li>
                     <li><a class="dropdown-item" href="{% url 'about' %}#cite_us">Cite us</a></li>
                     <li><a class="dropdown-item" href="{% url 'about' %}#contacts">Contacts</a></li>
+                    <li><a class="dropdown-item" href="{% url 'about' %}#funding">Funding</a></li>
                 </ul>
             </li>
-        </div></ul>
+            <li class="nav-item" id="funding_link"><a href="{% url 'about' %}#funding" class="nav-link">ERDF support<img src="{% static 'img/about/ESFIVP-I-3.jpg' %}" alt="EU Funds" class="image_funding_small"></a></li>
+        </ul></div>
     </div>
     </nav>
 </header>
 <div id="content" class="container-fluid">{% block content %}{% endblock %}</div>
 <footer class="mt-auto text-center bg-light">
-	&copy; Department of Bioinformatics, Institute of Biotechnology, Life Sciences Center, Vilnius University | <a href="http://www.bioinformatics.lt">bioinformatics.lt</a>
+    &copy; Department of Bioinformatics, Institute of Biotechnology, Life Sciences Center, Vilnius University | <a href="http://www.bioinformatics.lt">bioinformatics.lt</a>
 </footer>
 <button onclick="goToTop()" id="top_button" title="Go to top"><img src="{%  static 'img/icons/arrow-up-circle.svg' %}" width="100%"></button> 
 </div>

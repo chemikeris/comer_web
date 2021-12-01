@@ -98,3 +98,12 @@ ol ol > li:before {
     content: counters(item, ".") ". ";
     margin-left: -20px;
 }
+.image_funding_small {
+    max-height: 2.4em;
+}
+@media (min-width: 768px) {
+    #funding_link {
+        position: absolute;
+        right: 0;
+    }
+}
