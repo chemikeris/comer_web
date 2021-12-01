@@ -6,7 +6,7 @@ from . import default
 from apps.core import sequences
 from apps.core.utils import search_input_files_exist
 
-MAX_SEQUENCE_INPUT = 1048576
+MAX_SEQUENCE_INPUT = 5242880
 MAX_NUMBER_OF_SEQUENCES = 100
 MAX_NUMBER_OF_SEQUENCES_FOR_COTHER = 10
 MAX_FILE_SIZE_MB = 50
