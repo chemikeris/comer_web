@@ -36,6 +36,13 @@ ALLOWED_HOSTS = ['.ibt.lt', '.bioinformatics.lt', '.bioinfo.lt', 'localhost']
 EMAIL_HOST = 'mailrelay.vu.lt'
 DEFAULT_FROM_EMAIL = 'noreply@bioinformatics.lt'
 
+# Add Google Analytics tag into file google_analytics.py if you want to use
+# this service.
+try:
+    from comer_web.settings.google_analytics import GOOGLE_ANALYTICS_CODE
+except ImportError:
+    GOOGLE_ANALYTICS_CODE = ''
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -76,6 +83,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'comer_web.context_processors.google_analytics',
             ],
         },
     },
