@@ -165,7 +165,11 @@ function createLink(result_id) {
         link = createSCOPeLink(result_id);
     }
     else if (result_id.startsWith('sp|')) {
-        link = createUniProtLink(result_id);
+        link = createUniProtLink(result_id, false);
+    }
+    else if (result_id.match('[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}'))
+    {
+        link = createUniProtLink(result_id, true);
     }
     else {
         link = createRCSBLink(result_id);
@@ -178,8 +182,8 @@ function createSCOPeLink(scop_id) {
 function createPfamLink(pfam_id) {
     return 'https://pfam.xfam.org/family/' + pfam_id;
 }
-function createUniProtLink(swissprot_id) {
-    uniprot_ac = swissprot_id.split('|')[1];
+function createUniProtLink(swissprot_id, raw_id) {
+    uniprot_ac = raw_id ? swissprot_id : swissprot_id.split('|')[1];
     return 'https://www.uniprot.org/uniprot/' + uniprot_ac;
 }
 function createRCSBLink(pdb_chain_id) {
