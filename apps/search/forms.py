@@ -137,7 +137,9 @@ class SequencesInputForm(forms.Form):
             )
         )
     # Alignment options.
-    MAPALN = forms.BooleanField(label='Realign by a maximum a posteriori algorithm')
+    MAPALN = forms.BooleanField(
+        required=False, label='Realign by a maximum a posteriori algorithm'
+        )
     MINPP = forms.FloatField(
         min_value=0, max_value=1,
         label='Posterior probability threshold for realignment'
