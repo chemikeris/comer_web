@@ -14,7 +14,7 @@ function showResults(results) {
     results_table.classList.add('table');
     results_table.classList.add('table-striped');
     results_table.classList.add('table-sm');
-    var results_table_columns = ['', 'No.', 'ID', 'Description', 'P-value', 'E-value', 'Score (bits)', 'Length'];
+    var results_table_columns = ['', 'No.', 'ID', 'Description', 'P-value', 'E-value', 'Score (bit-score)', 'Aln. length'];
     var results_table_head = createTableHeader(results_table_columns);
     results_table.appendChild(results_table_head);
     var results_table_body = document.createElement('tbody');
@@ -140,6 +140,8 @@ function addStyleForSummary(summary_element, query_length, query_starts, query_e
 }
 function createTableHeader(column_names) {
     var table_head = document.createElement('thead');
+    table_head.classList.add('align-middle');
+    table_head.classList.add('text-center');
     var table_header_row = document.createElement('tr');
     for (var i = 0; i < column_names.length; i++) {
         table_header_row.appendChild(createTableData(column_names[i]));
