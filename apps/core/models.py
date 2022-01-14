@@ -15,6 +15,7 @@ class ComerWebServerJob(models.Model):
 
     job_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=140, unique=True)
+    description = models.CharField(max_length=140, null=True)
     # Possible job status. Jobs are new by default.
     NEW = 0
     QUEUED = 1
@@ -45,6 +46,12 @@ class ComerWebServerJob(models.Model):
 
     def get_directory(self):
         raise NotImplementedError
+
+    def nice_name(self):
+        if self.description:
+            return self.description
+        else:
+            return self.name
 
     def get_output_name(self):
         raise NotImplementedError

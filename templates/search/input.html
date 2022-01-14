@@ -54,6 +54,8 @@
     <div class="col-12">{{ form.email.errors }}</div>
     <div class="col-sm-2 col-form-label">{{ form.email.label_tag }} {{ 'email_help'|help_tooltip_questionmark }} </div><div class="col-sm-10">{{ form.email }}</div>
     {{ 'email_help'|help_tooltip:'Optionally, provide an e-mail address which will then be used to send a notification upon job completion.' }}
+    <div class="col-sm-2 col-form-label">{{ form.description.label_tag }} {{ 'description_help'|help_tooltip_questionmark }} </div><div class="col-sm-10">{{ form.description }}</div>
+    {{ 'description_help'|help_tooltip:'Optionally, provide a custom job description.' }}
 </div>
 <div class="dropdown-divider"></div>
 <h2 class="dropdown-toggle link-dark" data-bs-toggle="collapse" data-bs-target="#sequence_search_options">Sequence search options</h2>

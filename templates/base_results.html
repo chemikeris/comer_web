@@ -3,7 +3,7 @@
 <div class="row">
 <div id="results_nav" class="col-auto col-12 col-xl-2 bg-light">
 <nav>
-	<button class="btn dropdown-toggle navbar-toggler" data-bs-toggle="collapse" data-bs-target="#current_job_menu">Job: {{ job.name }}</button>
+    <a class="nav-link link-dark dropdown-toggle navbar-toggler text-truncate" data-bs-toggle="collapse" data-bs-target="#current_job_menu" href="#">Job: {{ job.nice_name }}</a>
 	<div id="current_job_menu" class="navbar-collapse collapse show">
 	<ul class="nav-pills list-unstyled" id="current_job_results_menu">
         <li class="nav-item"><a  class="{% if sequence_no != None %}link-dark {% endif %}nav-link dropdown-item{% if active == 'summary' %} active bg-secondary{% endif %}" href="{% url 'results_summary' job_id=job.name %}">Summary</a></li>
@@ -19,7 +19,7 @@
                         <li class="nav-item dropdown-item bg-transparent"><a href="#" class="nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#sequence{{sequence_no}}_models">Structure modeling</a>
                             <ul id="sequence{{sequence_no}}_models" class="collapse{% if active == 'structure_model' %} show{% endif %}">
                             {% for structure_model in structure_models %}
-                            <li class="nav-item dropdown-item"><a class="nav-link{% if structure_model.name == modeling_job.name %} active{% endif %}" href="{% url 'show_modeling_job' search_job_id=job.name modeling_job_id=structure_model.name %}">{{ structure_model.name }}</a></li>
+                            <li class="nav-item dropdown-item"><a class="nav-link{% if structure_model.name == modeling_job.name %} active{% endif %}" href="{% url 'show_modeling_job' search_job_id=job.name modeling_job_id=structure_model.name %}">{{ structure_model.nice_name }}</a></li>
                             {% endfor %}
                             </ul>
                         </li>
@@ -28,7 +28,7 @@
                         <li class="nav-item dropdown-item bg-transparent"><a href="#" class="nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#sequence{{sequence_no}}_msas">Generated MSAs</a>
                             <ul id="sequence{{sequence_no}}_msas" class="collapse {% if active == 'msa' %} show{% endif %}">
                             {% for msa_job in generated_msas %}
-                            <li class="nav-item dropdown-item"><a class="nav-link{% if msa_job.name == msa_job_id %} active{% endif %}" href="{% url 'show_msa' msa_job_id=msa_job.name %}">{{ msa_job.name }}</a></li>
+                            <li class="nav-item dropdown-item"><a class="nav-link{% if msa_job.name == msa_job_id %} active{% endif %}" href="{% url 'show_msa' msa_job_id=msa_job.name %}">{{ msa_job.nice_name }}</a></li>
                             {% endfor %}
                             </ul>
                         </li>

@@ -194,12 +194,14 @@ def process_input_data(input_data, input_files, example=False):
     input_query_f, input_parameters_f = search_input_files_exist(input_files)
     use_cother = input_data.pop('use_cother')
     job_name = 'example' if example else generate_job_name()
+    description = input_data.pop('description')
     email = input_data.pop('email')
     number_of_results = input_data.pop('number_of_results')
     input_data['NOHITS'] = number_of_results
     input_data['NOALNS'] = number_of_results
     new_job = Job.objects.create(
         name=job_name, email=email, is_cother_search=use_cother,
+        description=description,
         number_of_input_sequences=len(sequences_data)
         )
     logging.info(new_job)

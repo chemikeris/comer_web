@@ -51,6 +51,9 @@ class SequencesInputForm(forms.Form):
         required=False
         )
     email = forms.EmailField(required=False, label='E-mail (optional)')
+    description = forms.CharField(
+        required=False, label='Custom job description (optional)', max_length=140
+        )
     use_cother = forms.BooleanField(
         label='Perform COTHER search by threading', required=False
         )
