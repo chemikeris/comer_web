@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'apps.search',
     'apps.model_structure',
     'apps.msa',
+    'apps.website',
 ]
 
 MIDDLEWARE = [

@@ -16,16 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-import comer_web.views
 
 urlpatterns = [
-    path('', comer_web.views.index, name='index'),
+    path('', include('apps.website.urls')),
     path('search/', include('apps.search.urls')),
     path('model_structure/', include('apps.model_structure.urls')),
     #path('admin/', admin.site.urls),
-    path('help/', comer_web.views.help, name='help'),
-    path('api_help/', comer_web.views.api_help, name='api_help'),
-    path('tutorial/', comer_web.views.tutorial, name='tutorial'),
-    path('about/', comer_web.views.about, name="about"),
     path('msa/', include('apps.msa.urls')),
 ]
