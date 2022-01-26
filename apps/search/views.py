@@ -15,6 +15,8 @@ from . import default
 from . import models
 from apps.core import utils
 from apps.core.sequences import read_example_queries
+from apps.website.models import set_and_get_session_jobs
+
 
 def input(request):
     "View to input query sequences or MSA"
@@ -130,6 +132,7 @@ def results(request, job_id, redirect_to_first=False):
         sequences = [r.input_name for r in summary]
         context = {
             'job': job,
+            'recent_jobs': set_and_get_session_jobs(request, job),
             'structure_models': [],
             'generated_msas': [],
             'sequences': sequences,
@@ -145,6 +148,7 @@ def results(request, job_id, redirect_to_first=False):
         context = {
             'status_msg': status_msg,
             'job': job,
+            'recent_jobs': set_and_get_session_jobs(request, job),
             'structure_models': [],
             'generated_msas': [],
             'sequences': [],
@@ -244,6 +248,7 @@ def detailed(request, job_id, sequence_no):
         models.read_input_name_and_type(input_file)
     context = {
         'job': job,
+        'recent_jobs': set_and_get_session_jobs(request, job),
         'structure_models': job.get_structure_models().get(sequence_no, []),
         'generated_msas': job.get_generated_msas().get(sequence_no, []),
         'sequence_no': sequence_no,
@@ -269,6 +274,7 @@ def detailed_summary(request, job_id, sequence_no):
             )
     context = {
         'job': job,
+        'recent_jobs': set_and_get_session_jobs(request, job),
         'structure_models': job.get_structure_models().get(sequence_no, []),
         'generated_msas': job.get_generated_msas().get(sequence_no, []),
         'sequence_no': sequence_no,

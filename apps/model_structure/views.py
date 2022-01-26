@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from . import models
+from apps.website.models import set_and_get_session_jobs
 
 def submit_single_template_structure_model(request):
     print('Submitting data for structure modeling using single template.')
@@ -33,6 +34,7 @@ def show_modeling_job(request, search_job_id, modeling_job_id):
         'modeling_job': job,
         'errors': errors,
         'job': job.search_job,
+        'recent_jobs': set_and_get_session_jobs(request, job.search_job),
         'sequence_no': job.sequence_no,
         'sequences': job.search_job.sequence_headers(),
         'structure_models': \

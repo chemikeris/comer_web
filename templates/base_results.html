@@ -6,7 +6,7 @@
     <a class="nav-link link-dark dropdown-toggle navbar-toggler text-truncate" data-bs-toggle="collapse" data-bs-target="#current_job_menu" href="#">Job: {{ job.nice_name }}</a>
 	<div id="current_job_menu" class="navbar-collapse collapse show">
 	<ul class="nav-pills list-unstyled" id="current_job_results_menu">
-        <li class="nav-item"><a  class="{% if sequence_no != None %}link-dark {% endif %}nav-link dropdown-item{% if active == 'summary' %} active bg-secondary{% endif %}" href="{% url 'results_summary' job_id=job.name %}">Summary</a></li>
+        <li class="nav-item"><a class="{% if sequence_no != None %}link-dark {% endif %}nav-link dropdown-item{% if active == 'summary' %} active bg-secondary{% endif %}" href="{% url 'results_summary' job_id=job.name %}">Summary</a></li>
         <li class="nav-item"><a class="nav-link link-dark{% if active == 'not_finished' %} disabled{% endif %}" href="{% url 'api_results_zip' job_id=job.name %}">Download</a></li>
         <br>
 		{% for s in sequences %}
@@ -50,6 +50,22 @@
 	</ul>
 	</div>
 </nav>
+{% comment %}Showing recent jobs if there is more than one job, or single job can be shown when example job is loaded. Currently loaded job is not shown in this menu.{% endcomment %}
+{% if recent_jobs|length > 1 or recent_jobs.0.name != job.name %}
+<br>
+<nav>
+<a class="nav-link link-dark navbar-toggler dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#recent_jobs_menu" href="#">Recent search jobs:</a>
+<div id="recent_jobs_menu" class="navbar-collapse collapse show">
+    <ul class="nav-pills list-unstyled">
+    {% for j in recent_jobs %}
+        {% if j.name != job.name %}
+            <li class="nav-item"><a class="nav-link link-dark text-truncate" href="{% url 'results_summary' job_id=j.name %}">{{ j.nice_name }}</a></li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+</div>
+</nav>
+{% endif %}
 </div>
 <div id="results" class="col">{% block results %}{% endblock %}</div>
 </div>

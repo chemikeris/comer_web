@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import FileResponse, Http404
 
 from . import models
+from apps.website.models import set_and_get_session_jobs
 
 def submit(request):
     print('Submitting data for MSA generation using COMER results.')
@@ -16,6 +17,7 @@ def show(request, msa_job_id):
         'msa_job_id': msa_job_id,
         'errors': errors,
         'job': job.search_job,
+        'recent_jobs': set_and_get_session_jobs(request, job.search_job),
         'sequence_no': job.sequence_no,
         'sequences': job.search_job.sequence_headers(),
         'structure_models': job.search_job.get_structure_models().get(
