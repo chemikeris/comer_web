@@ -58,9 +58,7 @@
 <div id="recent_jobs_menu" class="navbar-collapse collapse show">
     <ul class="nav-pills list-unstyled">
     {% for j in recent_jobs %}
-        {% if j.name != job.name %}
-            <li class="nav-item"><a class="nav-link link-dark text-truncate" href="{% url 'results_summary' job_id=j.name %}">{{ j.nice_name }}</a></li>
-        {% endif %}
+        <li class="nav-item"><a class="nav-link link-dark text-truncate{% if j.name == job.name %} disabled{% endif %}" href="{% url 'results_summary' job_id=j.name %}">{{ j.nice_name }}</a></li>
     {% endfor %}
     </ul>
 </div>
