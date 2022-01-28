@@ -13,6 +13,9 @@
 </head>
 <body>
 <noscript>COMER web server requires JavaScript, which is disabled in your browser.</noscript>
+<script src="{% static 'cookielaw/js/cookielaw.js' %}"></script>
+{% load cookielaw_tags %}
+{% if cookielaw.notset %}{% cookielaw_banner %}{% endif %}
 <div class="d-flex flex-column min-vh-100">
 <header>
     <nav class="navbar navbar-light navbar-expand-md bg-light">
@@ -32,6 +35,7 @@
                     <li><a class="dropdown-item" href="{% url 'about' %}#data_and_software">Data and software</a></li>
                     <li><a class="dropdown-item" href="{% url 'about' %}#cite_us">Cite us</a></li>
                     <li><a class="dropdown-item" href="{% url 'about' %}#contacts">Contacts</a></li>
+                    <li><a class="dropdown-item" href="{% url 'about' %}#privacy">Privacy policy</a></li>
                     <li><a class="dropdown-item" href="{% url 'about' %}#funding">Funding</a></li>
                 </ul>
             </li>

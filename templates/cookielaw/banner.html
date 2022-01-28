@@ -1,0 +1,7 @@
+{% load i18n %}
+<div id="CookielawBanner">
+    <div class="container-fluid fixed-bottom p-3 text-center bg-dark opacity-75 text-light">
+		This site uses cookies to enhance the user experience. By using the services, you agree to our <a href="{% url 'about' %}#privacy">privacy policy</a>.
+		<a class="btn btn-primary pull-right" href="javascript:Cookielaw.createCookielawCookie();">{% trans "COOKIE_INFO_OK" %}</a>
+    </div>
+</div>
