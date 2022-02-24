@@ -1,5 +1,6 @@
 import os
 import shutil
+import logging
 
 from django.db import models
 
@@ -27,17 +28,18 @@ class Job(SearchSubJob, ComerWebServerJob):
             sf.write('modeller_key = %s\n' % modeller_key)
             sf.write('model_all_pairs = %s\n' % int(model_all_pairs))
 
-    def create_input_data(self, template_numbers):
-        directory = self.get_directory()
-        search_files = self.search_job.read_results_lst()
+    def create_input_data(
+            self, template_numbers, model_all_pairs, modeller_key):
         search_results = self.read_search_json()
-        alignments = []
         query_desc = search_results['query']['description']
+        alignments = []
+        templates = []
         for t in template_numbers:
             hit_record = \
                 search_results['search_hits'][t]['hit_record']
+            template_name = hit_record['target_description'].split()[0]
             a = sequences.comer_json_hit_record_to_alignment(
-                query_desc, hit_record 
+                query_desc, hit_record
                 )
             alignments.append(a)
             q_starts, q_ends, t_starts, t_ends = \
@@ -47,11 +49,48 @@ class Job(SearchSubJob, ComerWebServerJob):
             template, created = Template.objects.get_or_create(
                 search_job=self.search_job,
                 sequence_no=self.sequence_no,
+                template_name=template_name,
                 result_no=t,
                 query_starts=q_starts, query_ends=q_ends,
                 template_starts=t_starts, template_ends=t_ends
                 )
-        return alignments
+            templates.append(template)
+        if model_all_pairs:
+            new_alignments = []
+            new_templates = []
+            for template, alignment in zip(templates, alignments):
+                found_model = self.get_model_matching_template_set([template])
+                if not found_model:
+                    new_templates.append(template)
+                    new_alignments.append(alignment)
+            if new_templates:
+                do_modeling = True
+                self.save()
+                self.write_sequences(new_alignments)
+                self.create_settings_file(modeller_key, model_all_pairs)
+                for t in new_templates:
+                    sm = StructureModel.objects.create(modeling_job=self)
+                    sm.templates.add(t)
+            else:
+                print('No new template sets found, all models are done.')
+                do_modeling = False
+        else:
+            # Creating one model based on all templates, unless such a model
+            # has been already generated.
+            found_same_model = self.get_model_matching_template_set(templates)
+            if found_same_model is None:
+                do_modeling = True
+                self.save()
+                self.write_sequences(alignments)
+                self.create_settings_file(modeller_key, model_all_pairs)
+                sm = StructureModel.objects.create(modeling_job=self)
+                for t in templates:
+                    sm.templates.add(t)
+            else:
+                print('Found exactly the same model, skipping modeling.')
+                do_modeling = False
+        return do_modeling
+
 
     def read_results_lst_files_line(self, files_line):
         "Read results lst for Comer3D job"
@@ -61,20 +100,91 @@ class Job(SearchSubJob, ComerWebServerJob):
         rf['template_ids'] = files_line[-1]
         return rf
 
+    def postprocess_calculation_results(self, results_files):
+        "Postprocess structure modeling job results"
+        if self.number_of_templates == 1:
+            # Every model is based on a separate template.
+            for rf in results_files:
+                m_file = rf['model_file']
+                template_id = rf['template_ids']
+                StructureModel.objects\
+                    .filter(modeling_job=self)\
+                    .filter(templates__template_name=template_id)\
+                    .update(status=StructureModel.FINISHED, file_path=m_file)
+        else:
+            # There is only 1 model, based on multiple templates.
+            model_file = results_files[0]['model_file']
+            templates = results_files[0]['template_ids'].split(',')
+            structure_model = StructureModel.objects.get(modeling_job=self)
+            if len(templates) != self.number_of_templates:
+                logging.warning(
+                    'Number of templates does not match in structure modeling '\
+                        'job %s!',
+                    self.name
+                    )
+                real_templates = Template.objects.filter(
+                    search_job=self.search_job,
+                    template_name__in=templates
+                    )
+                structure_model.templates.clear()
+                structure_model.templates.add(*real_templates)
+                # The problem that this sometimes can duplicate structure
+                # models when impossible templates were selected is left here,
+                # but if all COMER results will have structures (including Pfam
+                # DB), this problem may dissapear.
+            structure_model.status = StructureModel.FINISHED
+            structure_model.file_path = model_file
+            structure_model.save()
+        # All structure models that are not in results files failed.
+        Q = models.Q
+        StructureModel.objects\
+            .filter(modeling_job=self)\
+            .filter(
+                Q(status=StructureModel.NEW) | Q(status=StructureModel.RUNNING)
+                )\
+            .update(status=StructureModel.FAILED)
+
+    def postprocess_failed_calculation(self):
+        "Mark all models as failed if modeling job failed"
+        structure_models = StructureModel.objects\
+            .filter(modeling_job=self)\
+            .update(status=StructureModel.FAILED)
+
+    def get_model_matching_template_set(self, templates):
+        "Retrieve structure model object matching given template set"
+        existing_struct_models = StructureModel.objects\
+            .select_related('modeling_job')\
+            .annotate(num_templates=models.Count('templates'))\
+            .filter(
+                modeling_job__search_job=self.search_job,
+                num_templates=len(templates)
+                )\
+            .prefetch_related('templates')
+        new_model_template_set = sorted(templates, key=lambda t:t.id)
+        for sm in existing_struct_models:
+            sm_template_set = list(sm.templates.all().order_by('pk'))
+            if sm_template_set == new_model_template_set:
+                found_model = sm
+                break
+        else:
+            found_model = None
+        return found_model
+
     def templates(self):
         results_files = self.read_results_lst()
         return [r['template_ids'] for r in results_files]
+
 
 
 class Template(models.Model):
     search_job = models.ForeignKey(SearchJob, on_delete=models.CASCADE)
     sequence_no = models.IntegerField()
     result_no = models.IntegerField()
+    template_name = models.CharField(max_length=140)
     query_starts = models.IntegerField()
     query_ends = models.IntegerField()
     template_starts = models.IntegerField()
     template_ends = models.IntegerField()
-    modeling_job = models.ManyToManyField(Job)
 
     class Meta:
         constraints = [
@@ -88,6 +198,24 @@ class Template(models.Model):
 class StructureModel(models.Model):
     modeling_job = models.ForeignKey(Job, on_delete=models.CASCADE)
     templates = models.ManyToManyField(Template)
+    NEW = 0
+    RUNNING = 1
+    FINISHED = 2
+    FAILED = 3
+    possible_model_statuses = (
+        (NEW, 'new'),
+        (RUNNING, 'running'),
+        (FINISHED, 'finished'),
+        (FAILED, 'failed')
+        )
+    status = models.IntegerField(choices=possible_model_statuses, default=NEW)
+    file_path = models.CharField(max_length=1000, null=True)
+
+    def __str__(self):
+        r = 'Model based on %s' % ','.join(
+            [t.template_name for t in self.templates.all()]
+            )
+        return r
 
 
 def save_structure_modeling_job(
@@ -102,14 +230,18 @@ def save_structure_modeling_job(
     sequence_no = int(post_data['sequence_no'])
     templates = sorted([int(t) for t in post_data.getlist('process')])
     modeller_key = post_data['modeller_key']
-    modeling_job = Job.objects.create(
+    # First, creating temporary modeling job that is not saved in the DB.
+    modeling_job = Job(
         name=job_name, search_job=search_job,
         sequence_no=sequence_no,
-        number_of_templates=1
+        number_of_templates=len(templates) if use_multiple_templates else 1,
         )
+    modeling_job
     model_all_pairs = not use_multiple_templates
-    modeling_job.create_settings_file(modeller_key, model_all_pairs)
-    alignments = modeling_job.create_input_data(templates)
-    modeling_job.write_sequences(alignments)
+    modeling_necessary = modeling_job.create_input_data(
+        templates, model_all_pairs, modeller_key
+        )
+    if modeling_necessary:
+        modeling_job.save()
     return search_job, modeling_job
 

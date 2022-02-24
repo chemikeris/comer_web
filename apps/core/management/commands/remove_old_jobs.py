@@ -8,6 +8,7 @@ from comer_web.calculation_server import Connection
 from comer_web.settings import JOBS_DIRECTORY
 from apps.search.models import Job as SearchJob
 from apps.model_structure.models import Job as StructureModelingJob
+from apps.model_structure.models import Template
 from apps.msa.models import Job as MSAJob
 
 class Command(BaseCommand):
@@ -78,6 +79,12 @@ class Command(BaseCommand):
             else:
                 j.status = j.REMOVED
                 j.save()
+        print('Cleaning struture modeling templates from removed jobs.')
+        Template.objects\
+            .filter(
+                search_job__in=SearchJob.objects.filter(status=SearchJob.REMOVED)
+                )\
+            .delete()
         print('Cleaning COMER web server jobs directory.')
         for root, dirs, files in os.walk(JOBS_DIRECTORY, topdown=False):
             if not dirs and not files:

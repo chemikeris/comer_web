@@ -31,11 +31,10 @@ class ComerWebServerJob(models.Model):
         (FAILED, 'failed'),
         (REMOVED, 'removed')
         )
-    status = models.IntegerField(
-        choices=possible_job_statuses, default=NEW
-        )
+    status = models.IntegerField(choices=possible_job_statuses, default=NEW)
     slurm_job_no = models.IntegerField(null=True)
     calculation_log = models.TextField(null=True)
+    error_log = models.TextField(null=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -86,7 +85,7 @@ class ComerWebServerJob(models.Model):
         self.save(update_fields=['status', 'slurm_job_no'])
 
     def check_calculation_status(self, connection):
-        uri = None
+        "Check job calculation status and process results if it has finished"
         job_status_code, job_status_log = connection.check_slurm_job(
             self.slurm_job_no, self.name
             )
@@ -97,11 +96,13 @@ class ComerWebServerJob(models.Model):
             self.get_results_files(connection)
             results_files = self.read_results_lst()
             self.number_of_successful_sequences = len(results_files)
+            self.postprocess_calculation_results(results_files)
             self.status = getattr(self, 'FINISHED')
             self.send_confirmation_email('finished')
         elif job_status_code == 1:
             self.status = getattr(self, 'FAILED')
             self.get_error_file(connection)
+            self.postprocess_failed_calculation()
             self.send_confirmation_email('failed')
         else:
             raise ValueError(
@@ -109,6 +110,14 @@ class ComerWebServerJob(models.Model):
                 )
         self.save()
         return job_status_log
+
+    def postprocess_calculation_results(self, *args, **kwargs):
+        "Postprocess calculation results, if necessary"
+        pass
+
+    def postprocess_failed_calculation(self, *args, **kwargs):
+        "Postprocess failed calculation, if necessary"
+        pass
 
     def get_results_files(self, connection):
         "Retrieve results files from calculation server"
@@ -143,7 +152,7 @@ class ComerWebServerJob(models.Model):
         connection.get_file(remote_file, local_file)
         return local_file
 
-    def read_error_log(self):
+    def read_error_log_file(self):
         "Read job error log"
         err_file = self.results_file_path(self.name+'.err')
         with open(err_file) as f:
@@ -207,13 +216,13 @@ class ComerWebServerJob(models.Model):
         elif self.status == self.FAILED:
             status_msg = 'failed'
             try:
-                errors = self.read_error_log()
+                errors = self.read_error_log_file()
             except FileNotFoundError:
                 errors = 'Error log not found for a failed job!'
         elif self.status == self.FINISHED:
             status_msg = 'finished'
             finished = True
-            errors = self.read_error_log()
+            errors = self.read_error_log_file()
         elif self.status == self.REMOVED:
             status_msg = 'removed'
             finished = True
