@@ -14,12 +14,12 @@ urlpatterns = [
         name='submit_multiple_templates_structure_model'
         ),
     path(
-        'show_modeling_job/<slug:search_job_id>/<slug:modeling_job_id>',
-        views.show_modeling_job,
-        name='show_modeling_job'
+        'show_model/<slug:search_job_id>/<int:structure_model_id>',
+        views.show_model,
+        name='show_model'
         ),
     path(
-        'download_model/<slug:modeling_job_id>/<int:model_no>',
+        'download_model/<slug:structure_model_id>',
         views.download_model,
         name='model_structure_download_model'
         ),

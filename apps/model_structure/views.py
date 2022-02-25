@@ -6,59 +6,64 @@ from apps.website.models import set_and_get_session_jobs
 
 def submit_single_template_structure_model(request):
     print('Submitting data for structure modeling using single template.')
-    search_job, modeling_job = models.save_structure_modeling_job(
+    search_job, first_model = models.save_structure_modeling_job(
         request.POST, False
         )
     return redirect(
-            'show_modeling_job', search_job_id=search_job.name,
-            modeling_job_id=modeling_job.name
+            'show_model', search_job_id=search_job.name,
+            structure_model_id=first_model.id
             )
 
 
 def submit_multiple_templates_structure_model(request):
     print('Submitting data for structure modeling using multiple templates.')
-    search_job, modeling_job = models.save_structure_modeling_job(
+    search_job, first_model = models.save_structure_modeling_job(
         request.POST, True
         )
     return redirect(
-            'show_modeling_job', search_job_id=search_job.name,
-            modeling_job_id=modeling_job.name
+            'show_model', search_job_id=search_job.name,
+            structure_model_id=first_model.id
             )
 
 
-def show_modeling_job(request, search_job_id, modeling_job_id):
-    job = get_object_or_404(models.Job, name=modeling_job_id)
-    uri = request.build_absolute_uri()
-    finished, removed, status_msg, errors, refresh = job.status_info()
+def show_model(request, search_job_id, structure_model_id):
+    search_job = get_object_or_404(models.SearchJob, name=search_job_id)
+    structure_model = get_object_or_404(
+        models.StructureModel, id=structure_model_id
+        )
+    sequence_no = structure_model.modeling_job.sequence_no
+    finished, removed, status_msg, errors, refresh = search_job.status_info()
     context = {
-        'modeling_job': job,
         'errors': errors,
-        'job': job.search_job,
-        'recent_jobs': set_and_get_session_jobs(request, job.search_job),
-        'sequence_no': job.sequence_no,
-        'sequences': job.search_job.sequence_headers(),
-        'structure_models': \
-            job.search_job.get_structure_models(modeling_job_id).get(
-                job.sequence_no, []
-                ),
-        'generated_msas': job.search_job.get_generated_msas().get(
-            job.sequence_no, []
+        'job': search_job,
+        'recent_jobs': set_and_get_session_jobs(request, search_job),
+        'sequence_no': sequence_no,
+        'sequences': search_job.sequence_headers(),
+        'structure_models': search_job.get_structure_models(
+            sequence_no, structure_model.modeling_job.name
+            ),
+        'current_structure_model': structure_model,
+        'generated_msas': search_job.get_generated_msas().get(
+            sequence_no, []
             ),
         'active': 'structure_model',
-        'log': job.calculation_log,
+        'log': '',
         }
     if finished and not removed:
-        return render(request, 'model_structure/modeling_job.html', context)
+        return render(request, 'model_structure/structure_model.html', context)
     else:
         not_finished_context = {'status_msg': status_msg, 'reload': refresh}
         context.update(not_finished_context)
         return render(request, 'jobs/not_finished_or_removed.html', context)
 
 
-def download_model(request, modeling_job_id, model_no):
-    job = get_object_or_404(models.Job, name=modeling_job_id)
-    results_files = job.read_results_lst()
-    model_file = job.results_file_path(results_files[model_no]['model_file'])
+def download_model(request, structure_model_id):
+    structure_model = get_object_or_404(
+        models.StructureModel, id=structure_model_id
+        )
+    model_file = structure_model.modeling_job.results_file_path(
+            structure_model.file_path)
+    print(model_file)
     with open(model_file) as f:
         pdb_file_content = f.read()
     return HttpResponse(pdb_file_content, content_type="text/plain")

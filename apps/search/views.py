@@ -249,7 +249,7 @@ def detailed(request, job_id, sequence_no):
     context = {
         'job': job,
         'recent_jobs': set_and_get_session_jobs(request, job),
-        'structure_models': job.get_structure_models().get(sequence_no, []),
+        'structure_models': job.get_structure_models(sequence_no),
         'generated_msas': job.get_generated_msas().get(sequence_no, []),
         'sequence_no': sequence_no,
         'sequences': job.sequence_headers(),
@@ -275,7 +275,7 @@ def detailed_summary(request, job_id, sequence_no):
     context = {
         'job': job,
         'recent_jobs': set_and_get_session_jobs(request, job),
-        'structure_models': job.get_structure_models().get(sequence_no, []),
+        'structure_models': job.get_structure_models(sequence_no),
         'generated_msas': job.get_generated_msas().get(sequence_no, []),
         'sequence_no': sequence_no,
         'sequences': job.sequence_headers(),

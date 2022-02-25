@@ -74,6 +74,7 @@ class Job(SearchSubJob, ComerWebServerJob):
             else:
                 print('No new template sets found, all models are done.')
                 do_modeling = False
+            first_model = StructureModel.objects.filter(templates=templates[0])[0]
         else:
             # Creating one model based on all templates, unless such a model
             # has been already generated.
@@ -86,11 +87,12 @@ class Job(SearchSubJob, ComerWebServerJob):
                 sm = StructureModel.objects.create(modeling_job=self)
                 for t in templates:
                     sm.templates.add(t)
+                first_model = sm
             else:
                 print('Found exactly the same model, skipping modeling.')
+                first_model = found_same_model
                 do_modeling = False
-        return do_modeling
-
+        return do_modeling, first_model
 
     def read_results_lst_files_line(self, files_line):
         "Read results lst for Comer3D job"
@@ -175,7 +177,6 @@ class Job(SearchSubJob, ComerWebServerJob):
         return [r['template_ids'] for r in results_files]
 
 
-
 class Template(models.Model):
     search_job = models.ForeignKey(SearchJob, on_delete=models.CASCADE)
     sequence_no = models.IntegerField()
@@ -196,7 +197,9 @@ class Template(models.Model):
 
 
 class StructureModel(models.Model):
-    modeling_job = models.ForeignKey(Job, on_delete=models.CASCADE)
+    modeling_job = models.ForeignKey(
+        Job, on_delete=models.CASCADE, related_name='structure_model'
+        )
     templates = models.ManyToManyField(Template)
     NEW = 0
     RUNNING = 1
@@ -212,10 +215,11 @@ class StructureModel(models.Model):
     file_path = models.CharField(max_length=1000, null=True)
 
     def __str__(self):
-        r = 'Model based on %s' % ','.join(
-            [t.template_name for t in self.templates.all()]
-            )
+        r = 'Model based on %s' % self.printable_templates_list()
         return r
+
+    def printable_templates_list(self):
+        return ','.join([t.template_name for t in self.templates.all()])
 
 
 def save_structure_modeling_job(
@@ -238,10 +242,10 @@ def save_structure_modeling_job(
         )
     modeling_job
     model_all_pairs = not use_multiple_templates
-    modeling_necessary = modeling_job.create_input_data(
+    modeling_necessary, first_model = modeling_job.create_input_data(
         templates, model_all_pairs, modeller_key
         )
     if modeling_necessary:
         modeling_job.save()
-    return search_job, modeling_job
+    return search_job, first_model
 
