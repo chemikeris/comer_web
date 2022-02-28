@@ -30,3 +30,25 @@ def search_input_files_exist(files):
         input_parameters_file = None
     return input_query_file, input_parameters_file
 
+
+def standard_result_name(name):
+    "Convert results to standard IDs, mostly for UniProt"
+    if name.startswith('sp|'):
+        # This is SwissProt, getting UniProt AC from it.
+        standard_name = name.split('|')[1]
+    elif name.startswith('AF-'):
+        # This is AlphaFold DB, getting UniProt AC from it.
+        standard_name = name.split('-')[1]
+    else:
+        # All other databases have only one representation.
+        standard_name = name
+    return standard_name
+
+
+def is_Pfam_result(name):
+    "Check if the result is a Pfam result"
+    if name.startswith('PF'):
+        return True
+    else:
+        return False
+

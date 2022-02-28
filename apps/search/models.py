@@ -121,19 +121,18 @@ class Job(ComerWebServerJob):
             )
         return results_file
 
-    def get_structure_models(self, sequence_no, filter_jobs_for_example=None):
-        if self.name == 'example':
-            example_jobs = ['example_model_%s' % i for i in range(1,6)]
-            if not filter_jobs_for_example is None:
-                example_jobs.append(filter_jobs_for_example)
-            modelings = self.modeling_job\
-                .filter(name__in=example_jobs, sequence_no=sequence_no)
-        else:
-            modelings = self.modeling_job.filter(sequence_no=sequence_no)
+    def get_structure_models(self, sequence_no):
+        modelings = self.modeling_job.filter(sequence_no=sequence_no)
         structure_models = []
         for m in modelings:
-            structure_models += m.structure_model.filter()
-        return structure_models
+            structure_models += m.structure_model\
+                .annotate(first_template_no=models.Min('templates__result_no'))\
+                .all()
+        sorted_models = sorted(
+            structure_models,
+            key=lambda sm: (sm.first_template_no, sm.pk)
+            )
+        return sorted_models
 
     def get_generated_msas(self, filter_jobs_for_example=None):
         if self.name == 'example':

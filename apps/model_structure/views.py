@@ -9,10 +9,16 @@ def submit_single_template_structure_model(request):
     search_job, first_model = models.save_structure_modeling_job(
         request.POST, False
         )
-    return redirect(
-            'show_model', search_job_id=search_job.name,
-            structure_model_id=first_model.id
-            )
+    if first_model is None:
+        return redirect(
+                'detailed', job_id=search_job.name,
+                sequence_no=request.POST['sequence_no']
+                )
+    else:
+        return redirect(
+                'show_model', search_job_id=search_job.name,
+                structure_model_id=first_model.id
+                )
 
 
 def submit_multiple_templates_structure_model(request):
@@ -20,10 +26,16 @@ def submit_multiple_templates_structure_model(request):
     search_job, first_model = models.save_structure_modeling_job(
         request.POST, True
         )
-    return redirect(
-            'show_model', search_job_id=search_job.name,
-            structure_model_id=first_model.id
-            )
+    if first_model is None:
+        return redirect(
+                'detailed', job_id=search_job.name,
+                sequence_no=request.POST['sequence_no']
+                )
+    else:
+        return redirect(
+                'show_model', search_job_id=search_job.name,
+                structure_model_id=first_model.id
+                )
 
 
 def show_model(request, search_job_id, structure_model_id):
@@ -32,22 +44,21 @@ def show_model(request, search_job_id, structure_model_id):
         models.StructureModel, id=structure_model_id
         )
     sequence_no = structure_model.modeling_job.sequence_no
-    finished, removed, status_msg, errors, refresh = search_job.status_info()
+    finished, removed, status_msg, errors, refresh = \
+        structure_model.modeling_job.status_info()
     context = {
         'errors': errors,
         'job': search_job,
         'recent_jobs': set_and_get_session_jobs(request, search_job),
         'sequence_no': sequence_no,
         'sequences': search_job.sequence_headers(),
-        'structure_models': search_job.get_structure_models(
-            sequence_no, structure_model.modeling_job.name
-            ),
+        'structure_models': search_job.get_structure_models(sequence_no),
         'current_structure_model': structure_model,
         'generated_msas': search_job.get_generated_msas().get(
             sequence_no, []
             ),
         'active': 'structure_model',
-        'log': '',
+        'log': structure_model.modeling_job.calculation_log,
         }
     if finished and not removed:
         return render(request, 'model_structure/structure_model.html', context)
@@ -63,7 +74,6 @@ def download_model(request, structure_model_id):
         )
     model_file = structure_model.modeling_job.results_file_path(
             structure_model.file_path)
-    print(model_file)
     with open(model_file) as f:
         pdb_file_content = f.read()
     return HttpResponse(pdb_file_content, content_type="text/plain")

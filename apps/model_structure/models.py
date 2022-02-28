@@ -9,6 +9,9 @@ from apps.core.models import ComerWebServerJob, SearchSubJob, generate_job_name
 from apps.search.models import Job as SearchJob
 
 
+MAX_TEMPLATES_IN_ONE_MODEL = 7
+
+
 class Job(SearchSubJob, ComerWebServerJob):
     search_job = models.ForeignKey(
         SearchJob, on_delete=models.CASCADE, related_name='modeling_job'
@@ -38,6 +41,8 @@ class Job(SearchSubJob, ComerWebServerJob):
             hit_record = \
                 search_results['search_hits'][t]['hit_record']
             template_name = hit_record['target_description'].split()[0]
+            if utils.is_Pfam_result(template_name):
+                continue # Pfam entries have no structures yet, skipping them.
             a = sequences.comer_json_hit_record_to_alignment(
                 query_desc, hit_record
                 )
@@ -49,12 +54,16 @@ class Job(SearchSubJob, ComerWebServerJob):
             template, created = Template.objects.get_or_create(
                 search_job=self.search_job,
                 sequence_no=self.sequence_no,
-                template_name=template_name,
+                template_name=utils.standard_result_name(template_name),
                 result_no=t,
                 query_starts=q_starts, query_ends=q_ends,
                 template_starts=t_starts, template_ends=t_ends
                 )
             templates.append(template)
+        if not templates:
+            do_modeling = False
+            first_model = None
+            return do_modeling, first_model
         if model_all_pairs:
             new_alignments = []
             new_templates = []
@@ -63,7 +72,12 @@ class Job(SearchSubJob, ComerWebServerJob):
                 if not found_model:
                     new_templates.append(template)
                     new_alignments.append(alignment)
-            if new_templates:
+                elif found_model.status == found_model.FAILED:
+                    print('Re-doing failed modeling using %s.' % template)
+                    self.save()
+                    found_model.redo(new_modeling_job=self)
+                    new_alignments.append(alignment)
+            if new_templates or new_alignments:
                 do_modeling = True
                 self.save()
                 self.write_sequences(new_alignments)
@@ -76,18 +90,31 @@ class Job(SearchSubJob, ComerWebServerJob):
                 do_modeling = False
             first_model = StructureModel.objects.filter(templates=templates[0])[0]
         else:
-            # Creating one model based on all templates, unless such a model
-            # has been already generated.
-            found_same_model = self.get_model_matching_template_set(templates)
+            # Creating one model based on first MAX_TEMPLATES_IN_ONE_MODEL
+            # templates, unless such a model has been already generated
+            # previously.
+            usable_alignments = alignments[:MAX_TEMPLATES_IN_ONE_MODEL]
+            usable_templates = templates[:MAX_TEMPLATES_IN_ONE_MODEL]
+            found_same_model = self.get_model_matching_template_set(
+                usable_templates
+                )
             if found_same_model is None:
                 do_modeling = True
                 self.save()
-                self.write_sequences(alignments)
+                self.write_sequences(usable_alignments)
                 self.create_settings_file(modeller_key, model_all_pairs)
                 sm = StructureModel.objects.create(modeling_job=self)
-                for t in templates:
+                for t in usable_templates:
                     sm.templates.add(t)
                 first_model = sm
+            elif found_same_model.status == found_same_model.FAILED:
+                print('Re-doing failed multi-template model.')
+                do_modeling = True
+                self.save()
+                found_same_model.redo(new_modeling_job=self)
+                self.write_sequences(usable_alignments)
+                self.create_settings_file(modeller_key, model_all_pairs)
+                first_model = found_same_model
             else:
                 print('Found exactly the same model, skipping modeling.')
                 first_model = found_same_model
@@ -108,15 +135,22 @@ class Job(SearchSubJob, ComerWebServerJob):
             # Every model is based on a separate template.
             for rf in results_files:
                 m_file = rf['model_file']
-                template_id = rf['template_ids']
-                StructureModel.objects\
+                template_id = utils.standard_result_name(rf['template_ids'])
+                num_updated_structure_models = StructureModel.objects\
                     .filter(modeling_job=self)\
                     .filter(templates__template_name=template_id)\
                     .update(status=StructureModel.FINISHED, file_path=m_file)
+                if num_updated_structure_models != 1:
+                    print(
+                        'Problems when updating model based on %s.' % template_id
+                        )
         else:
             # There is only 1 model, based on multiple templates.
             model_file = results_files[0]['model_file']
-            templates = results_files[0]['template_ids'].split(',')
+            templates = [
+                utils.standard_result_name(r)
+                for r in results_files[0]['template_ids'].split(',')
+                ]
             structure_model = StructureModel.objects.get(modeling_job=self)
             if len(templates) != self.number_of_templates:
                 logging.warning(
@@ -195,6 +229,13 @@ class Template(models.Model):
                 ),
             ]
 
+    def __str__(self):
+        s = 'Template %s (%s-%s), search job %s, query %s, result %s' % (
+            self.template_name, self.template_starts, self.template_ends,
+            self.search_job.name, self.sequence_no, self.result_no
+            )
+        return s
+
 
 class StructureModel(models.Model):
     modeling_job = models.ForeignKey(
@@ -219,7 +260,18 @@ class StructureModel(models.Model):
         return r
 
     def printable_templates_list(self):
-        return ','.join([t.template_name for t in self.templates.all()])
+        l = ','.join(
+            [utils.standard_result_name(t.template_name)
+                for t in self.templates.all()
+                ]
+            )
+        return l
+
+    def redo(self, new_modeling_job):
+        "Try to do (failed) modeling again"
+        self.status = self.NEW
+        self.modeling_job = new_modeling_job
+        self.save()
 
 
 def save_structure_modeling_job(

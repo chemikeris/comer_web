@@ -5,7 +5,7 @@
 <script src="{% static 'js/model_structure/show_structure.js' %}"></script>
 <h1>Structure modeling results</h1>
 <p><a class="btn btn-secondary" data-bs-toggle="collapse" href="#" data-bs-target="#search_log">Modeling log</a></p>
-<div id="search_log" class="collapse"><pre>{{ modeling_job.calculation_log }}</pre></div>
+<div id="search_log" class="collapse"><pre>{{ current_structure_model.modeling_job.calculation_log }}</pre></div>
 <div class="col-auto">
 	{% if current_structure_model.status == current_structure_model.FINISHED %}
 		{% url 'model_structure_download_model' structure_model_id=current_structure_model.id as m_url %}
@@ -14,14 +14,11 @@
 		<script>show_structure("{{ m_url }}", "model_{{ current_structure_model.printable_templates_list }}");</script>
 	{% elif current_structure_model.status == current_structure_model.FAILED %}
 		<p>{{ current_structure_model }} has failed.</p>
+        {% if errors %}<h2>Error log:</h2><pre>{{ errors }} </pre>{% endif %}
 	{% else %}
 		<p>Structure modeling in progress.<p>
 		{% if current_structure_model.modeling_job.log %} <pre>{{ current_structure_model.modeling_job.log }}</pre> {% endif %}
 		<meta http-equiv="refresh" content="10">
 	{% endif %}
 </div>
-{% if errors %}
-<h2>Error log:</h2>
-<pre>{{ errors }} </pre>
-{% endif %}
 {% endblock %}
