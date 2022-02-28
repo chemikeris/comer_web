@@ -34,6 +34,7 @@ python manage.py makemigrations
 python manage.py makemigrations search
 python manage.py makemigrations model_structure
 python manage.py makemigrations msa
+python manage.py makemigrations website
 python manage.py migrate
 python manage.py collectstatic --noinput
 

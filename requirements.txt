@@ -3,7 +3,7 @@ bcrypt==3.2.0
 cffi==1.14.4
 cryptography==3.3.1
 Django==3.1.1
-django-classy-tags==3.0.0
+django-classy-tags==2.0.0
 django-cookie-law==2.1.1
 fabric==2.5.0
 invoke==1.4.1
