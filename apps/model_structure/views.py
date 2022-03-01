@@ -46,9 +46,14 @@ def show_model(request, search_job_id, structure_model_id):
     sequence_no = structure_model.modeling_job.sequence_no
     finished, removed, status_msg, errors, refresh = \
         structure_model.modeling_job.status_info()
+    page_title = '%s-based structure model - %s -%s' % (
+        search_job.method().upper(), search_job.sequence_headers(sequence_no),
+        structure_model.printable_templates_list()
+        )
     context = {
         'errors': errors,
         'job': search_job,
+        'page_title': page_title,
         'recent_jobs': set_and_get_session_jobs(request, search_job),
         'sequence_no': sequence_no,
         'sequences': search_job.sequence_headers(),

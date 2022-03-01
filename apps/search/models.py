@@ -98,14 +98,19 @@ class Job(ComerWebServerJob):
                 traceback.print_exc()
             return
 
-    def sequence_headers(self):
+    def sequence_headers(self, sequence_no=None):
         sequences = []
         results_files = self.read_results_lst()
-        for rf in results_files:
+        for i, rf in enumerate(results_files):
+            if sequence_no and sequence_no != i:
+                continue
             input_file = self.results_file_path(rf['input'])
             input_name, i_f, i_d = read_input_name_and_type(input_file)
             sequences.append(input_name)
-        return sequences
+        if sequence_no is None:
+            return sequences
+        else:
+            return sequences[0]
 
     def results_summary(self):
         summary = []

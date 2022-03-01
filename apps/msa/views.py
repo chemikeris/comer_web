@@ -13,8 +13,11 @@ def submit(request):
 def show(request, msa_job_id):
     job = get_object_or_404(models.Job, name=msa_job_id)
     finished, removed, status_msg, errors, refresh = job.status_info()
+    page_title = '%s-based multiple sequence alignment' % \
+        job.search_job.method().upper()
     context = {
         'msa_job_id': msa_job_id,
+        'page_title': page_title,
         'errors': errors,
         'job': job.search_job,
         'recent_jobs': set_and_get_session_jobs(request, job.search_job),

@@ -5,7 +5,8 @@ def index(request):
     return redirect('input')
 
 def help(request):
-    return render(request, 'site/help.html')
+    page_title = 'COMER web server help'
+    return render(request, 'site/help.html', {'page_title': page_title})
 
 def api_help(request):
     context = {}
@@ -30,11 +31,14 @@ def api_help(request):
     short_db_names['HMMSR'] = [d[0] for d in settings.SEQUENCE_DATABASES]
     context['db'] = available_databases
     context['short_db_names'] = short_db_names
+    context['page_title'] = 'COMER web server API help'
     return render(request, 'site/api_help.html', context)
 
 def tutorial(request):
-    return render(request, 'site/tutorial.html')
+    page_title = 'COMER web server tutorial'
+    return render(request, 'site/tutorial.html', {'page_title': page_title})
 
 def about(request):
-    return render(request, 'site/about.html')
+    page_title = 'COMER web server'
+    return render(request, 'site/about.html', {'page_title': page_title})
 

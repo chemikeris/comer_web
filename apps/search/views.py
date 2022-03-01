@@ -34,6 +34,7 @@ def input(request):
         form = InputForm(initial=search_settings)
     context = {
         'form': form, 'example_str': mark_safe(read_example_queries()),
+        'page_title': 'COMER web server'
         }
     return render(request, 'search/input.html', context)
 
@@ -123,6 +124,7 @@ def results(request, job_id, redirect_to_first=False):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
     finished, removed, status_msg, errors, refresh = job.status_info()
+    page_title = '%s results - %s' % (job.method().upper(), job.nice_name())
     if finished and not removed:
         if job.number_of_input_sequences == 1 and redirect_to_first:
             print('Single-sequence job, redirecting.')
@@ -132,6 +134,7 @@ def results(request, job_id, redirect_to_first=False):
         sequences = [r.input_name for r in summary]
         context = {
             'job': job,
+            'page_title': page_title,
             'recent_jobs': set_and_get_session_jobs(request, job),
             'structure_models': [],
             'generated_msas': [],
@@ -148,6 +151,7 @@ def results(request, job_id, redirect_to_first=False):
         context = {
             'status_msg': status_msg,
             'job': job,
+            'page_title': page_title,
             'recent_jobs': set_and_get_session_jobs(request, job),
             'structure_models': [],
             'generated_msas': [],
@@ -246,8 +250,12 @@ def detailed(request, job_id, sequence_no):
     input_file = job.results_file_path(results_files[sequence_no]['input'])
     input_name, input_format, input_description = \
         models.read_input_name_and_type(input_file)
+    page_title = '%s results - %s - %s' % (
+        job.method().upper(), job.nice_name(), input_name
+        )
     context = {
         'job': job,
+        'page_title': page_title,
         'recent_jobs': set_and_get_session_jobs(request, job),
         'structure_models': job.get_structure_models(sequence_no),
         'generated_msas': job.get_generated_msas().get(sequence_no, []),
@@ -272,13 +280,18 @@ def detailed_summary(request, job_id, sequence_no):
             request, 'search/error.html',
             {'json_error': result_summary.json_error}
             )
+    sequences = job.sequence_headers()
+    page_title = '%s results - %s - %s' % (
+        job.method().upper(), job.nice_name(), sequences[sequence_no]
+        )
     context = {
         'job': job,
+        'page_title': page_title,
         'recent_jobs': set_and_get_session_jobs(request, job),
         'structure_models': job.get_structure_models(sequence_no),
         'generated_msas': job.get_generated_msas().get(sequence_no, []),
         'sequence_no': sequence_no,
-        'sequences': job.sequence_headers(),
+        'sequences': sequences,
         'active': 'query_summary',
         'has_msa': results_files[sequence_no]['msa'],
         'r': result_summary,
@@ -289,14 +302,21 @@ def detailed_summary(request, job_id, sequence_no):
 def show_input(request, job_id, sequence_no=None):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
+    page_title = '%s input - %s' % (job.method().upper(), job.nice_name())
     if sequence_no is None:
         input_file = job.get_input_file('in')
+        input_name = None
     else:
         results_files = job.read_results_lst()
         input_file = job.results_file_path(results_files[sequence_no]['input'])
+        input_name, input_format, input_description = \
+            models.read_input_name_and_type(input_file)
     with open(input_file) as f:
         input_data = f.read()
+    if input_name:
+        page_title += ' - %s' % input_name
+    context = {'input_str': input_data, 'page_title': page_title}
     return render(
-            request, 'search/detailed_input.html', {'input_str': input_data}
+            request, 'search/detailed_input.html', context
             )
 
