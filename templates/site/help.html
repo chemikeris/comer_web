@@ -6,7 +6,7 @@
 <h2>Table of contents</h2>
 <ol>
     <li><a href="#help_introduction">Introduction</a></li>
-    <li><a href="#help_homology_search">Homology search methods</a></li>
+    <li><a href="#help_homology_search">Homology search</a></li>
     <li><a href="#help_workflow">Workflow</a></li>
     <li><a href="#help_input">Input</a></li>
     <li><a href="#help_profile_construction">Profile construction</a></li>
@@ -22,45 +22,41 @@ It is powered by the COMER2 homology search engine. COMER2 is a sensitive and sp
 The COMER2 software architecture allows for simultaneously running multiple instances of homology search on the same GPU independently.
 This property allows the webserver to efficiently exploit computational resources and distribute workload across multiple dedicated GPUs.
 </p>
-<h2 id="help_homology_search">Homology search methods</h2>
+<h2 id="help_homology_search">Homology search</h2>
 <p>
-The server allows for an analysis of the results of two tools: COMER2 and COTHER.
-Both tools are profile-profile comparison and alignment methods whose homology search is based on comparing the query profile (sequence family) model with the entries (profiles) of selected database(s).
-And both tools employ the fast GPU-accelerated search engine originally implemented in COMER2.
-The difference between COMER2 and the new threading method COTHER (currently unpublished) is that COTHER compares a profile with a protein structure.
-In addition to divergence measures between profiles, this kind of comparison rests on evaluating how closely inter-residue distances predicted for the query match the distances observed in a structure.
-Deep convolutional neural networks are used to predict inter-residue distances for the query [3].
+The server allows for an analysis of the results of COMER2.
+COMER2 is a profile-profile comparison and alignment method whose homology search is based on comparing the query profile (sequence family) model with the entries (profiles) of selected database(s).
+It employs a fast GPU-accelerated search engine.
 </p>
 <h2 id="help_workflow">Workflow</h2>
 <p>
-The workflow for using the tools COMER2 and COTHER in the webserver environment is identical (Fig. 1).
-The user is expected to enter her or his queries, select a tool and databases, adjust parameters if desired, and hit the Submit button.
-Information displaying the progress of the job will show up. The results will appear once the job jas finished.
-An e-mail with a link to the results will be sent if the e-mail address was provided by the user.
+The workflow for using the COMER2 tool in the webserver environment is shown in Fig. 1.
+The user is expected to enter her or his queries, select databases, adjust parameters if desired, and hit the Submit button.
+Information displaying the progress of the job will show up.
+The results will appear once the job has finished.
+An e-mail with a link to the results will be sent if the e-mail address was provided by the user. 
 </p>
 <figure>
     <img src="{% static 'img/help/comer_web_server.png' %}" alt="COMER web server" class="img-fluid border">
     <figcaption>Figure 1. Flowchart for the COMER web server</figcaption>
 </figure>
 <p>
-The user can provide sequences, plain and in FASTA format, MSAs in aligned FASTA, STOCKHOLM, and A3M formats, and COMER2 and COTHER profiles—all in the same input field.
+The user can provide sequences, plain and in FASTA format, MSAs in aligned FASTA, STOCKHOLM, and A3M formats, and COMER2 profiles—all in the same input field.
 The server automatically determines the format of input data.
 </p>
 <p>
 The COMER web server can be instructed to build informative and diverse MSAs for user queries (profiles excluded).
-In that case, the server performs additional sequence searches with user queries using HHblits [4], HMMER3 [5], or both and builds MSAs from statistically significant hits.
+In that case, the server performs additional sequence searches with user queries using HHblits [3], HMMER3 [4], or both and builds MSAs from statistically significant hits.
 When using both these tools, an MSA for each query results from combining sequence alignments produced independently by them, which is useful for query sequences with low homology.
 </p>
 <p>
 Each sequence and MSA corresponding to a user query is subjected to profile construction.
-Initially, COMER2 profiles are constructed, which include secondary structure (SS) predictions [6] made for query proteins.
-However, in the case of using COTHER for profile-profile search, the information in the COMER2 profiles and the cross-covariance matrices calculated from the query MSAs (and sequences) using the COMER2 software are further fed into the ROPIUS0 deep learning framework to predict inter-residue distances for the query proteins.
-COTHER profiles are then the COMER2 profiles augmented with predicted distances.
+COMER2 profiles include secondary structure (SS) predictions [5] made for query proteins.
 </p>
 <p>
-The format in which the results of a profile-profile search appear is the same for COMER2 and COTHER. Search results include for each user query a list of pairwise alignments between the query and a database sequence, both representing constructed profiles.
+The format in which the results of a profile-profile search appear includes for each user query a list of pairwise alignments between the query and a database sequence, both representing constructed profiles.
 Produced alignments are amenable to further analysis.
-Their different selection combinations for a query allow the user to construct different MSAs and generate 3D structural models by homology to detected proteins [7] in bulk when those protein sequences have a known structure.
+Their different selection combinations for a query allow the user to construct different MSAs and generate 3D structural models by homology to detected proteins [6] in bulk when those protein sequences have a known structure.
 </p>
 <h2 id="help_input">Input</h2>
 <p>
@@ -68,10 +64,6 @@ The user is allowed to enter multiple queries in different formats.
 Processing user queries in bulk removes the limitation of focusing on a single protein of interest at a time and allows the server to utilize computing power efficiently.
 Results will be provided by the server for each query.
 The number of queries in the input field is limited to 100 for COMER2 searches.
-The corresponding number for COTHER is 10.
-Also, the maximum allowed length of a COTHER profile model is 1000.
-If a query is in aligned FASTA format (see below), the number of residues of the first sequence should be less than this number.
-The COMER2 profile length is not constrained.
 Maximum size of queries in the text field is 5 MB, and maximum file size for upload of queries is 50 MB.
 </p>
 <p>
@@ -79,9 +71,7 @@ Individual queries are separated by the line "//".
 The format of a query is recognized automatically.
 Currently, these formats are supported for sequences: plain sequence and FASTA.
 A multiple sequence alignment (MSA) can be provided in these formats: aligned FASTA (FASTA with gaps "-" allowed), STOCKHOLM, and A3M.
-Also, the server recognizes COMER2 and COTHER profiles as individual queries.
-COMER2 and COTHER profiles cannot be used by these tools interchangeably.
-Therefore, COMER profiles will be ignored during a COTHER search, and COTHER profiles will be ignored during a COMER2 search.
+Also, the server recognizes COMER2 profiles as individual queries.
 </p>
 <p>An example of an input record containing multiple queries is shown below:</p>
 <pre>
@@ -119,10 +109,10 @@ MARGSGAGGGGGGGGGGLELSV-GVGG---GGG--------A-RGG----GG-G-E-A--AAAV----ETA---AP-I--
 <p>can be configured to represent three different queries (sequences in the MSA).</p>
 <h2 id="help_profile_construction">Profile construction</h2>
 <p>
-The COMER2 and COTHER profile are constructed from an MSA.
+The COMER2 profile is constructed from an MSA.
 A profile and an MSA can be provided directly (see Input).
 Otherwise, or optionally in the case of MSAs, the query is searched in sequence database(s) to build an MSA.
-Sequence search can be configured to be conducted using either HHblits [4] or HMMER [5] or both.
+Sequence search can be configured to be conducted using either HHblits [3] or HMMER [4] or both.
 The latter means that HHblits and HMMER are used independently, and their resulting pairwise sequence alignments are combined into a final MSA.
 Note that if an MSA provided as a query is to be searched for, it first undergoes (HHblits and/or HMMER) profile construction followed by a profile-to-sequence search.
 </p>
@@ -135,16 +125,14 @@ Note that if an MSA provided as a query is to be searched for, it first undergoe
     <li>UniProtKB/Swiss-Prot filtered to 90% sequence identity.</li>
 </ul>
 <p>Multiple databases can be selected (Ctrl key + Mouse's left-click) before submitting a job.</p>
-<p>The PDB70 database of COTHER profiles is available for COTHER search by threading.</p>
 <h2 id="help_results">Results and supported services</h2>
 <p>
-The format of COMER2 and COTHER results is the same.
+The format of COMER2 results is as follows.
 First, the list of links to the results for each query is displayed.
 By clicking on the links, the detailed results for individual queries are shown (Fig. 2).
 </p>
 <p>
-Results show the list of pairwise profile-profile (COMER) or profile-structure (COTHER) alignments.
-The formats of alignments produced by both tools are equivalent.
+Results show the list of pairwise profile-profile (COMER) alignments.
 </p>
 <figure>
     <img src="{% static 'img/help/detailed_results.png' %}" alt="Query results" class="img-fluid border">
@@ -177,13 +165,13 @@ The original input, final MSA, profile, log files, and the result file in JSON f
 </p>
 <p>
 The COMER web server offers services at the sequence, structure, and function levels.
-At the sequence level, alignments produced by COMER2 or COTHER can be selected individually or as a group for building an MSA based on accurate profile-profile alignments.
+At the sequence level, alignments produced by COMER2 can be selected individually or as a group for building an MSA based on accurate profile-profile alignments.
 The latter option is particularly useful when the number of produced alignments is large, and only their subset with an E-value within a given interval is of interest.
 Visualization of a resulting MSA allows for interactive analysis of aligned sequences.
 </p>
 <p>
-Structural analysis is possible through 3D structural model generation with Modeller [7] using the structures of identified proteins as templates and produced alignments as restraints.
-A multiple selection option allows the user to generate one model using multiple templates (up to 7) or multiple models (currently up to 100), one for each selected alignment, with one click of a button.
+Structural analysis is possible through 3D structural model generation with Modeller [6] using the structures of identified proteins as templates and produced alignments as restraints.
+A multiple selection option allows the user to generate one model using multiple templates (up to 7) or multiple models (currently up to 15), one for each selected alignment, with one click of a button.
 Interactive visual analysis of generated models is maintained.
 </p>
 <p>
@@ -198,8 +186,8 @@ Once the results are ready, a visualization layer is added to depict results gra
 <h2 id="help_limits">Limits</h2>
 <ul>
     <li>Maximum number of queries in the input field for COMER searches = 100.</li>
-    <li>Maximum number of queries in the input field for COTHER = 10.</li>
-    <li>Maximum query length (corresponding to the COTHER profile length) when using COTHER = 1000.</li>
+    {# <li>Maximum number of queries in the input field for COTHER = 10.</li> #}
+    {# <li>Maximum query length (corresponding to the COTHER profile length) when using COTHER = 1000.</li> #}
     <li>Maximum number of single-template 3D structural models for generating them simultaneously = 15.</li>
     <li>Maximum number of structural templates for one 3D model = 7.</li>
 </ul>
@@ -207,7 +195,6 @@ Once the results are ready, a visualization layer is added to depict results gra
 <ol>
     <li>Margelevičius M. Bayesian nonparametrics in protein remote homology search. <a href="https://doi.org/10.1093/bioinformatics/btw213">Bioinformatics. 2016;32(18):2744-52</a>.</li>
     <li>Margelevičius M. COMER2: GPU-accelerated sensitive and specific homology searches. <a href="https://doi.org/10.1093/bioinformatics/btaa185">Bioinformatics. 2020;36(11):3570-3572</a>.</li>
-    <li>Margelevičius M. ROPIUS0: A deep learning-based protocol for protein structure prediction and model selection and its performance in CASP14. <a href="https://doi.org/10.1101/2021.06.22.449457">bioRxiv. 2021.06.22.449457</a>.</li>
     <li>Remmert M, Biegert A, Hauser A, Söding J. HHblits: lightning-fast iterative protein sequence searching by HMM-HMM alignment. <a href="https://doi.org/10.1038/nmeth.1818">Nat Methods. 2011;9(2):173-5</a>.</li>
     <li>Eddy SR. Accelerated Profile HMM Searches. <a href="https://doi.org/10.1371/journal.pcbi.1002195">PLoS Comput Biol. 2011;7(10):e1002195</a>.</li>
     <li>Jones D. Protein secondary structure prediction based on position-specific scoring matrices. <a href="https://doi.org/10.1006/jmbi.1999.3091">J Mol Biol 1999;292(2):195–202</a>.</li>
