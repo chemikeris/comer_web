@@ -11,7 +11,7 @@
         <ol>
             <li><a href="#api_help_conducting_homology_search">Conducting a homology search</a></li>
             <li><a href="#api_help_specifying_options">Specifying options</a></li>
-            <li><a href="#api_help_cother_search">COTHER search</a></li>
+            {% comment %}<li><a href="#api_help_cother_search">COTHER search</a></li>{% endcomment %}
             <li><a href="#api_help_uploading">Uploading data files</a></li>
             <li><a href="#api_help_querying_status">Querying job status</a></li>
             <li><a href="#api_help_retrieving">Retrieving results</a></li>
@@ -37,7 +37,7 @@ On success, the first field ("success": true) indicates no errors, and the secon
 <h3 id="api_help_specifying_options">Specifying options</h3>
 <p>The COMER web server API allows for specifying all options that are available in the graphical user interface.
 The syntax for specifying different options using curl is as follows: -F option1_name=option1_value -F option2_name=option2_value ...
-The names of available options, along with their description, can be found in the <a href="{% static 'demo/job.options' %}">COMER/COTHER settings file</a>.</p>
+The names of available options, along with their description, can be found in the <a href="{% static 'demo/job.options' %}">COMER{% comment %}/COTHER{% endcomment %} settings file</a>.</p>
 <p>In the following example, a COMER2 search is configured with a statistical significance threshold of E-value=0.0001, which means that hits detected with a significance greater than this value will not be displayed.
 Also, HMMER3 replaces HHblits for sequence search when building an MSA for the query (see the {% help_link %}):</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F EVAL=0.0001 -F hmmer_in_use=true -F hhsuite_in_use=false</code></p>
@@ -52,10 +52,12 @@ The following example instructs the server to search the PDB70, Pfam, and UniPro
     </li>
 {% endfor %}</p>
 </ul>
+{% comment %}
 <h3 id="api_help_cother_search">COTHER search</h3>
 <p>For conducting a COTHER homology search by threading, specify the command-line option: -F use_cother=true.
 For example:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F use_cother=true -F cother_db=pdb70_210609</code></p>
+{% endcomment %}
 <h3 id="api_help_uploading">Uploading data files</h3>
 <p>The command-line option "-F sequence=" corresponds to the main text field (for entering queries) in the graphical user interface and accepts queries of different types and in different formats (see the {% help_link %}).
 For a larger number of queries given, it is much more convenient to provide the server with the input file instead of entering the data in the command line.</p>

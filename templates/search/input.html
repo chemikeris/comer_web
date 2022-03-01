@@ -7,9 +7,9 @@
 <h1>COMER web server for protein analysis by homology</h1>
     <ol class="bg-light">
         <li>Enter your sequence, MSA, and/or profile queries below (use the line "//" to separate individual queries). {{ 'query_formats_help'|help_tooltip_questionmark }}
-            {{ 'query_formats_help'|help_tooltip:'A query can represent a sequence, plain or in FASTA format, an MSA in aligned FASTA, STOCKHOLM, or A3M format, or a COMER2 or COTHER profile (max 5 MB).' }}
+            {{ 'query_formats_help'|help_tooltip:'A query can represent a sequence, plain or in FASTA format, an MSA in aligned FASTA, STOCKHOLM, or A3M format, or a COMER2 profile (max 5 MB).' }}
         </li>
-        <li>Select target databases and a homology search method.</li>
+        <li>Select target databases.</li>
         <li>Tune sequence search options to build informative MSAs for the queries.</li>
         <li>Click "Submit".</li>
     </ol>
@@ -27,7 +27,7 @@
     {{ form.multi_sequence_fasta.label_tag }} {{ 'split_fasta_help'|help_tooltip_questionmark }} {{ form.multi_sequence_fasta }}
     {{ 'split_fasta_help'|help_tooltip:'When the input is a set of sequences in FASTA or aligned FASTA format, instruct the server to consider each sequence (gaps ignored) as a separate single sequence query (as if they were separated by "//").' }}
 </div>
-<div>
+<div style="display:none">
     {{ form.use_cother.errors }}
     {{ form.use_cother.label_tag }} {{ 'cother_search_help'|help_tooltip_questionmark }} {{ form.use_cother }}
     {{ 'cother_search_help'|help_tooltip:'Use the COTHER method to search profile database(s) selected below with the input queries.' }}
@@ -105,7 +105,7 @@
         </div>
     </div>
 </div>
-<h2 class="dropdown-toggle link-dark" data-bs-toggle="collapse" data-bs-target="#advanced_options">Advanced options for COMER/COTHER</h2>
+<h2 class="dropdown-toggle link-dark" data-bs-toggle="collapse" data-bs-target="#advanced_options">Advanced options for COMER{% comment %}/COTHER{% endcomment %}</h2>
 <div id="advanced_options" class="collapse">
     <div>
         {{ form.LCFILTEREACH.errors }}
