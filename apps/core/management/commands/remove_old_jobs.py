@@ -85,6 +85,8 @@ class Command(BaseCommand):
                 search_job__in=SearchJob.objects.filter(status=SearchJob.REMOVED)
                 )\
             .delete()
+        print('Cleaning e-mail addresses from removed jobs.')
+        SearchJob.objects.filter(status=SearchJob.REMOVED).update(email=None)
         print('Cleaning COMER web server jobs directory.')
         for root, dirs, files in os.walk(JOBS_DIRECTORY, topdown=False):
             if not dirs and not files:
