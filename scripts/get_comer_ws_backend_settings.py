@@ -26,8 +26,15 @@ def nice_db_name(conf_name, suffix=None):
         'pfam': 'Pfam',
         'mgy': 'MGnify_clusters',
         'swissprot': 'UniProtKB/SwissProt90',
+        'ecod': 'ECOD',
+        'cog': 'COG',
+        'ncbicd': 'NCBI_Conserved_Domains',
         }
-    nice_name = nice_names[name.lower()]
+    try:
+        nice_name = nice_names[name.lower()]
+    except KeyError:
+        logging.warning('Unknown database name: %s', name)
+        return None
     if suffix:
         if name.lower() == 'mgy':
             pass

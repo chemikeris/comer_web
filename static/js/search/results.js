@@ -166,12 +166,18 @@ function createLink(result_id) {
     else if ((result_id[0] == 'd') || (result_id[0] == 'g')) {
         link = createSCOPeLink(result_id);
     }
+    else if (result_id.startsWith('ECOD')) {
+        link = createECODLink(result_id);
+    }
     else if (result_id.startsWith('sp|')) {
         link = createUniProtLink(result_id, false);
     }
     else if (result_id.match('[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}'))
     {
         link = createUniProtLink(result_id, true);
+    }
+    else if (result_id.startsWith('cd') || result_id.startsWith('COG')) {
+        link = createNCBILink(result_id);
     }
     else {
         link = createRCSBLink(result_id);
@@ -181,12 +187,19 @@ function createLink(result_id) {
 function createSCOPeLink(scop_id) {
     return 'https://scop.berkeley.edu/sid=' + scop_id;
 }
+function createECODLink(ecod_id) {
+    ecod_domain = ecod_id.split('_')[2];
+    return 'http://prodata.swmed.edu/ecod/complete/domain/' + ecod_domain;
+}
 function createPfamLink(pfam_id) {
     return 'https://pfam.xfam.org/family/' + pfam_id;
 }
 function createUniProtLink(swissprot_id, raw_id) {
     uniprot_ac = raw_id ? swissprot_id : swissprot_id.split('|')[1];
     return 'https://www.uniprot.org/uniprot/' + uniprot_ac;
+}
+function createNCBILink(cdd_or_cog_uid) {
+    return 'https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=' + cdd_or_cog_uid;
 }
 function createRCSBLink(pdb_chain_id) {
     pdb_id = pdb_chain_id.substr(0,4)

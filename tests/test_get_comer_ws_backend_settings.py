@@ -3,6 +3,7 @@
 import sys
 import os
 import unittest
+import logging
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -42,6 +43,10 @@ class Test_parse_comer_ws_backend_config(unittest.TestCase):
         self.assertEqual('SCOPe70', s.nice_db_name('blabla_scop_name'))
         self.assertEqual('MGnify_clusters', s.nice_db_name('blabla_mgy_name'))
         self.assertEqual('UniProtKB/SwissProt90', s.nice_db_name('blabla_SwissProt_name'))
+        self.assertEqual('ECOD', s.nice_db_name('blabla_ECOD_F70_version'))
+        logging.disable()
+        self.assertIsNone(s.nice_db_name('blabla_ELSE_name'))
+        logging.disable(logging.NOTSET)
 
 
 if __name__ == '__main__':
