@@ -26,9 +26,9 @@ def nice_db_name(conf_name, suffix=None):
         'pfam': 'Pfam',
         'mgy': 'MGnify_clusters',
         'swissprot': 'UniProtKB/SwissProt90',
-        'ecod': 'ECOD',
-        'cog': 'COG',
-        'ncbicd': 'NCBI_Conserved_Domains',
+        'ecod': 'ECOD-F70',
+        'cog': 'COG-KOG',
+        'ncbicd': 'NCBI-Conserved-Domains',
         }
     try:
         nice_name = nice_names[name.lower()]
@@ -44,7 +44,10 @@ def nice_db_name(conf_name, suffix=None):
 
 
 def db_version(conf_value):
-    version = conf_value.split('_', 1)[1]
+    try:
+        version = conf_value.split('_', 1)[1]
+    except IndexError:
+        version = None
     return version
 
 
@@ -68,7 +71,12 @@ def parse_comer_ws_backend_config(backend_config):
             databases['hhsuite'][v] = nice_db_name(s, '30_'+db_version(v))
         elif s.startswith('cprodb'):
             logging.info('%s = %s', setting, v)
-            databases['comer'][v] = '%s_%s' % (nice_db_name(s), db_version(v))
+            nice_name = nice_db_name(s)
+            version = db_version(v)
+            if version:
+                databases['comer'][v] = '%s_%s' % (nice_name, version)
+            else:
+                databases['comer'][v] = nice_name
         elif s.startswith('cotherprodb'):
             logging.info('%s = %s', setting, v)
             databases['cother'][v] = '%s_%s' % (nice_db_name(s), db_version(v))
