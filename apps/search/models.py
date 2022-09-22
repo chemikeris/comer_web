@@ -80,14 +80,16 @@ class Job(ComerWebServerJob):
         if self.email:
             print('Sending confirmation email to %s.' % self.email)
             message = ''
-            message += 'COMER web server job %s has %s.\n' % (self.name, status)
+            message += 'COMER web server search job "%s" has %s.\n' % (
+                self.nice_name(), status
+                )
             message += '\n'
             message += 'To see the results, please go to website:\n'
             message += self.uri()
             message += '\n'
             try:
                 send_mail(
-                    subject='COMER web server job %s' % self.name,
+                    subject='COMER web server job "%s"' % self.nice_name(),
                     message=message,
                     from_email=None,
                     recipient_list=[self.email]
