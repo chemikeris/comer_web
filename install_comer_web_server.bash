@@ -39,12 +39,6 @@ python manage.py collectstatic --noinput
 echo 'Getting available databases from comer-ws-backend settings.'
 su comerws sh -c 'python manage.py get_comer_ws_backend_databases'
 
-echo 'Creating example job, if necessary.'
-su comerws sh -c 'python manage.py create_example_job'
-
-echo 'Deactivating virtual environment.'
-deactivate
-
 echo 'Setting ownership for files and directories.'
 chown -R comerws:comerws $directory
 
@@ -56,6 +50,12 @@ cp comer.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now comer.service
 service comer restart
+
+echo 'Creating example job, if necessary.'
+su comerws sh -c 'python manage.py create_example_job'
+
+echo 'Deactivating virtual environment.'
+deactivate
 
 echo 'Reloading httpd.'
 service httpd reload

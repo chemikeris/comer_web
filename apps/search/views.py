@@ -9,7 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from . import forms
 from . import default
 from . import models
 from apps.core import utils
@@ -20,7 +19,8 @@ from apps.website.models import set_and_get_session_jobs
 
 def input(request):
     "View to input query sequences or MSA"
-    InputForm = forms.SequencesInputForm
+    from .forms import SequencesInputForm
+    InputForm = SequencesInputForm
 
     if request.method == 'POST':
         form = InputForm(request.POST, request.FILES)
@@ -65,7 +65,8 @@ def submit(request):
         input_data_and_settings.setdefault(
             'sequence_db', get_databases_for('hmmer')[0][0]
             )
-        form = forms.SequencesInputFormWithAllSettings(
+        from .forms import SequencesInputFormWithAllSettings
+        form = SequencesInputFormWithAllSettings(
             input_data_and_settings, request.FILES
             )
         result = {}
