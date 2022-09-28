@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
-from django.conf import settings
+
+from apps.core.models import get_databases_for
 
 def index(request):
     return redirect('input')
@@ -11,7 +12,7 @@ def help(request):
 def api_help(request):
     context = {}
     available_databases = {}
-    def nice_db_names(desc_tuples):
+    def nice(desc_tuples):
         dbs = []
         for desc_tuple in desc_tuples:
             computer_db_name, human_db_name = desc_tuple
@@ -20,15 +21,14 @@ def api_help(request):
                 )
             dbs.append(db_name)
         return ', '.join(dbs)
-    available_databases['COMER'] = nice_db_names(settings.COMER_DATABASES)
-    # available_databases['COTHER'] = nice_db_names(settings.COTHER_DATABASES)
-    available_databases['HHsuite'] = nice_db_names(settings.HHSUITE_DATABASES)
-    available_databases['HMMER'] = nice_db_names(settings.SEQUENCE_DATABASES)
+    available_databases['COMER'] = nice(get_databases_for('comer'))
+    # available_databases['COTHER'] = nice(get_databases_for('cother'))
+    available_databases['HHsuite'] = nice(get_databases_for('hhsuite'))
+    available_databases['HMMER'] = nice(get_databases_for('hmmer'))
     short_db_names = {}
-    short_db_names['COMER'] = [d[0] for d in settings.COMER_DATABASES]
-    # short_db_names['COTHER'] = [d[0] for d in settings.COTHER_DATABASES]
-    short_db_names['HHsuite'] = [d[0] for d in settings.HHSUITE_DATABASES]
-    short_db_names['HMMSR'] = [d[0] for d in settings.SEQUENCE_DATABASES]
+    short_db_names['COMER'] = [
+        d[0] for d in get_databases_for('comer', ['pdb', 'pfam', 'swissprot'])
+        ]
     context['db'] = available_databases
     context['short_db_names'] = short_db_names
     context['page_title'] = 'COMER web server API help'

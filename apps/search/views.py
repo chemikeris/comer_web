@@ -4,7 +4,6 @@ import copy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, HttpResponse, JsonResponse, FileResponse, \
         QueryDict
-from django.conf import settings
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
@@ -14,6 +13,7 @@ from . import forms
 from . import default
 from . import models
 from apps.core import utils
+from apps.core.models import get_databases_for
 from apps.core.sequences import read_example_queries
 from apps.website.models import set_and_get_session_jobs
 
@@ -54,16 +54,16 @@ def submit(request):
             'number_of_results', default.number_of_results
             )
         input_data_and_settings.setdefault(
-            'comer_db', settings.COMER_DATABASES[0][0]
+            'comer_db', get_databases_for('comer', ['pdb'])[0][0]
             )
         input_data_and_settings.setdefault(
-            'cother_db', settings.COTHER_DATABASES[0][0]
+            'cother_db', get_databases_for('cother', ['pdb'])[0][0]
             )
         input_data_and_settings.setdefault(
-            'hhsuite_db', settings.HHSUITE_DATABASES[0][0]
+            'hhsuite_db', get_databases_for('hhsuite')[0][0]
             )
         input_data_and_settings.setdefault(
-            'sequence_db', settings.SEQUENCE_DATABASES[0][0]
+            'sequence_db', get_databases_for('hmmer')[0][0]
             )
         form = forms.SequencesInputFormWithAllSettings(
             input_data_and_settings, request.FILES

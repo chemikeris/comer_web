@@ -153,18 +153,3 @@ STATICFILES_DIRS = [
 
 # COMER server settings
 
-search_db_config_file = os.path.join(current_dir, 'search_databases.ini')
-search_db_config = configparser.ConfigParser()
-search_db_config.optionxform = str
-try:
-    file_found = search_db_config.read_file(open(search_db_config_file))
-except FileNotFoundError as err:
-    raise FileNotFoundError(
-        str(err) + ', create it with scripts/get_comer_ws_backend_settings.py.'
-        )
-else:
-    COMER_DATABASES = list(search_db_config['comer'].items())
-    COTHER_DATABASES = list(search_db_config['cother'].items())
-    HHSUITE_DATABASES = list(search_db_config['hhsuite'].items())
-    SEQUENCE_DATABASES = list(search_db_config['hmmer'].items())
-

@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import QueryDict
 
 from apps.core.sequences import read_example_queries
+from apps.core.models import get_databases_for
 from apps.search.models import Job as SearchJob
 from apps.search.models import process_input_data
 from apps.search.forms import SequencesInputForm
@@ -38,12 +39,11 @@ class Command(BaseCommand):
             form_data['multi_sequence_fasta'] = True
             form_data['use_cother'] = False
             form_data['comer_db'] = [
-                settings.COMER_DATABASES[0][0],
-                settings.COMER_DATABASES[-1][0],
+                d[0] for d in get_databases_for('comer', ['pdb', 'swissprot'])
                 ]
-            form_data['cother_db'] = [settings.COTHER_DATABASES[0][0]]
-            form_data['hhsuite_db'] = settings.HHSUITE_DATABASES[0][0]
-            form_data['sequence_db'] = settings.SEQUENCE_DATABASES[0][0]
+            form_data['cother_db'] = [get_databases_for('cother')[0][0]]
+            form_data['hhsuite_db'] = get_databases_for('hhsuite')[0][0]
+            form_data['sequence_db'] = get_databases_for('hmmer')[0][0]
             form_data['number_of_results'] = default.number_of_results
             form = SequencesInputForm(form_data)
             if form.is_valid():

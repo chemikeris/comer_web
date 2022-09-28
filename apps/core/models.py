@@ -5,6 +5,7 @@ import tarfile
 import csv
 
 from django.db import models
+from django.db.utils import OperationalError
 
 from comer_web import calculation_server
 from . import utils
@@ -253,6 +254,62 @@ class SearchSubJob:
             search_json_file, filter_key='%s_search' % self.search_job.method()
             )
         return search_results
+
+
+class Databases(models.Model):
+    "COMER web server databases"
+    class Program(models.TextChoices):
+        COMER = 'comer', 'COMER'
+        COTHER = 'cother', 'COTHER'
+        HHsuite = 'hhsuite', 'HH-suite'
+        hmmer = 'hmmer', 'hmmer'
+    program = models.CharField(
+        max_length=160, choices=Program.choices
+        )
+    class DB(models.TextChoices):
+        pdb = 'pdb', 'PDB70'
+        uniref30 = 'uniref30', 'UniRef30'
+        uniref50 = 'uniref50', 'UniRef50'
+        scop = 'scop', 'SCOPe70'
+        pfam = 'pfam', 'Pfam'
+        mgy = 'mgy', 'MGnify_clusters'
+        swissprot = 'swissprot', 'UniProtKB/SwissProt90'
+        ecod = 'ecod', 'ECOD-F70'
+        cog = 'cog', 'COG-KOG'
+        ncbicd = 'ncbicd', 'NCBI-Conserved-Domains'
+        bfd = 'bfd', 'BFD'
+    db = models.CharField(
+        max_length=160, choices=DB.choices
+        )
+    calculation_server_description = models.CharField(max_length=160)
+    version = models.CharField(max_length=160, null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['program', 'db'],
+                name='unique_program_database'
+                ),
+            ]
+
+    def __str__(self):
+        if self.version:
+            return '%s_%s' % (self.get_db_display(), self.version)
+        else:
+            return self.get_db_display()
+
+
+def get_databases_for(program, db=None):
+    try:
+        databases = Databases.objects.filter(program=program).order_by('pk')
+        if db:
+            databases = databases.filter(db__in=db)
+        descriptions = []
+        for d in databases:
+            descriptions.append([d.calculation_server_description, str(d)])
+    except OperationalError:
+        descriptions = []
+    return descriptions
 
 
 def generate_job_name():

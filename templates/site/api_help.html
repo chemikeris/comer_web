@@ -43,7 +43,7 @@ Also, HMMER3 replaces HHblits for sequence search when building an MSA for the q
 <p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F EVAL=0.0001 -F hmmer_in_use=true -F hhsuite_in_use=false</code></p>
 <p>Multiple COMER2 profile databases can be selected for searching using COMER2 by specifying the corresponding option once for each database name.
 The following example instructs the server to search the PDB70, Pfam, and UniProtKB/Swiss-Prot COMER2 profile databases:</p>
-<p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F comer_db={{ short_db_names.COMER.0 }} -F comer_db={{ short_db_names.COMER|last }}</code></p>
+<p><code>curl https://{{ request.get_host }}{% url 'api_submit' %} -F sequence=TKPCQSDKDCKKFACRKPKVPKCINGFCKCVR -F comer_db={{ short_db_names.COMER.0 }} -F comer_db={{ short_db_names.COMER.1 }} -F comer_db={{ short_db_names.COMER.2 }}</code></p>
 <p>The names of the up-to-date databases are provided here:</p>
 <ul>
 {% for program, databases in db.items %}

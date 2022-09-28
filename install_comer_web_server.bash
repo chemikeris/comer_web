@@ -16,9 +16,6 @@ echo 'Installing dependencies.'
 pip install --upgrade pip
 pip install -r requirements.txt
 
-echo 'Getting comer-ws-backend settings.'
-su comerws sh -c 'python scripts/get_comer_ws_backend_settings.py > comer_web/settings/search_databases.ini'
-
 echo 'Creating necessary Django configuration.'
 echo "DEBUG = False" > comer_web/settings/debug.py
 passwords_file="comer_web/settings/passwords.py"
@@ -31,12 +28,16 @@ fi
 
 echo 'Setting up Django.'
 python manage.py makemigrations
+python manage.py makemigrations core
 python manage.py makemigrations search
 python manage.py makemigrations model_structure
 python manage.py makemigrations msa
 python manage.py makemigrations website
 python manage.py migrate
 python manage.py collectstatic --noinput
+
+echo 'Getting available databases from comer-ws-backend settings.'
+su comerws sh -c 'python manage.py get_comer_ws_backend_databases'
 
 echo 'Creating example job, if necessary.'
 su comerws sh -c 'python manage.py create_example_job'

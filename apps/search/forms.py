@@ -1,9 +1,9 @@
 from django import forms
-from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from . import default
 from apps.core import sequences
+from apps.core.models import get_databases_for
 from apps.core.utils import search_input_files_exist
 
 MAX_SEQUENCE_INPUT = 5242880
@@ -59,12 +59,12 @@ class SequencesInputForm(forms.Form):
         )
     # Database to search.
     comer_db = forms.MultipleChoiceField(
-        choices=settings.COMER_DATABASES, label='COMER databases',
-        initial=settings.COMER_DATABASES[0][0]
+        choices=get_databases_for('comer'), label='COMER databases',
+        initial=get_databases_for('comer', ['pdb'])[0]
         )
     cother_db = forms.MultipleChoiceField(
-        choices=settings.COTHER_DATABASES, label='COTHER databases',
-        initial=settings.COTHER_DATABASES[0][0]
+        choices=get_databases_for('cother'), label='COTHER databases',
+        initial=get_databases_for('cother', ['pdb'])[0]
         )
     # Optional job name and email fields.
     # job_name = forms.CharField(required=False, label='Job name (optional)')
@@ -84,7 +84,7 @@ class SequencesInputForm(forms.Form):
         label='Use HHblits for sequence search', required=False,
         )
     hhsuite_db = forms.ChoiceField(
-        choices=settings.HHSUITE_DATABASES, label='HHsuite database'
+        choices=get_databases_for('hhsuite'), label='HHsuite database'
         )
     hhsuite_opt_niterations = forms.IntegerField(
         label='Number of HHblits iterations', required=False
@@ -98,7 +98,7 @@ class SequencesInputForm(forms.Form):
         label='Use HMMER for sequence search', required=False,
         )
     sequence_db = forms.ChoiceField(
-        choices = settings.SEQUENCE_DATABASES, label='HMMER database'
+        choices = get_databases_for('hmmer'), label='HMMER database'
         )
     hmmer_opt_niterations = forms.IntegerField(
         label='Number of HMMER iterations', required=False

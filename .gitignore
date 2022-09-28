@@ -9,7 +9,6 @@ __pycache__
 passwords.py
 debug.py
 custom_servers.ini
-search_databases.ini
 migrations
 comer_web/settings/comer_ws_backend.py
 static/*.js

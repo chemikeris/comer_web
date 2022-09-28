@@ -6,23 +6,32 @@ import shutil
 
 from django.test import TestCase, Client
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 
 from . import forms
 from . import default
 from . import models
 from comer_web import settings
 from comer_web.calculation_server import read_config_file
+from apps.core.models import get_databases_for
 
-class TestInputValidation(TestCase):
+
+class FormTest:
+    @classmethod
+    def setUpTestData(cls):
+        call_command('get_comer_ws_backend_databases', silent=True)
+
+
+class TestInputValidation(FormTest, TestCase):
     def setUp(self):
         self.form_data = copy.deepcopy(default.search_settings)
         self.form_data['sequence'] = 'SEQUENCE'
         self.form_data['number_of_results'] = 700
         # Setting default databases
-        self.form_data['comer_db'] = [settings.COMER_DATABASES[0][0]]
-        self.form_data['hhsuite_db'] = settings.HHSUITE_DATABASES[0][0]
-        self.form_data['sequence_db'] = settings.SEQUENCE_DATABASES[0][0]
-        self.form_data['cother_db'] = [settings.COTHER_DATABASES[0][0]]
+        self.form_data['comer_db'] = [get_databases_for('comer')[0][0]]
+        self.form_data['hhsuite_db'] = get_databases_for('hhsuite')[0][0]
+        self.form_data['sequence_db'] = get_databases_for('hmmer')[0][0]
+        self.form_data['cother_db'] = [get_databases_for('cother')[0][0]]
 
     def test_default_sequences_form(self):
         form = forms.SequencesInputForm(default.search_settings)
@@ -221,7 +230,7 @@ class TestInputValidation(TestCase):
         self.assertFalse(form.is_valid())
 
 
-class TestApi(TestCase):
+class TestApi(FormTest, TestCase):
     "Test search API functionality"
     def setUp(self):
         self.client = Client()
