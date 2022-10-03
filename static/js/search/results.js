@@ -101,6 +101,9 @@ function shortDescription(description) {
     {
         return description.split('|')[1];
     }
+    else if (description.startsWith('ECOD')) {
+        return description.split(' ')[0].split('_').pop();
+    }
     else
     {
         return description.split(' ')[0];
@@ -166,7 +169,7 @@ function createLink(result_id) {
     else if ((result_id[0] == 'd') || (result_id[0] == 'g')) {
         link = createSCOPeLink(result_id);
     }
-    else if (result_id.startsWith('ECOD')) {
+    else if (result_id.startsWith('ECOD') || result_id.startsWith('e')) {
         link = createECODLink(result_id);
     }
     else if (result_id.startsWith('sp|')) {
@@ -176,7 +179,7 @@ function createLink(result_id) {
     {
         link = createUniProtLink(result_id, true);
     }
-    else if (result_id.startsWith('cd') || result_id.startsWith('COG')) {
+    else if (result_id.startsWith('cd') || result_id.startsWith('COG') || result_id.startsWith('KOG')) {
         link = createNCBILink(result_id);
     }
     else {

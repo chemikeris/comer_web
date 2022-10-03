@@ -41,8 +41,10 @@ class Job(SearchSubJob, ComerWebServerJob):
             hit_record = \
                 search_results['search_hits'][t]['hit_record']
             template_name = hit_record['target_description'].split()[0]
-            if utils.is_Pfam_result(template_name):
-                continue # Pfam entries have no structures yet, skipping them.
+            if not utils.suitable_for_structure_modeling(template_name):
+                continue
+                # Pfam, COG-KOG and CDD entries have no structures yet,
+                # skipping them.
             a = sequences.comer_json_hit_record_to_alignment(
                 query_desc, hit_record
                 )

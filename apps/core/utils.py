@@ -39,6 +39,8 @@ def standard_result_name(name):
     elif name.startswith('AF-'):
         # This is AlphaFold DB, getting UniProt AC from it.
         standard_name = name.split('-')[1]
+    elif name.startswith('ECOD'):
+        standard_name = name.split('_')[-1]
     else:
         # All other databases have only one representation.
         standard_name = name
@@ -51,4 +53,32 @@ def is_Pfam_result(name):
         return True
     else:
         return False
+
+def is_CDD_result(name):
+    "Check if the result is a Pfam result"
+    if name.startswith('cd'):
+        return True
+    else:
+        return False
+
+
+def is_COG_KOG_result(name):
+    "Check if the result is a Pfam result"
+    if name.startswith('COG'):
+        return True
+    elif name.startswith('KOG'):
+        return True
+    else:
+        return False
+
+
+def suitable_for_structure_modeling(name):
+    if is_Pfam_result(name):
+        return False
+    elif is_CDD_result(name):
+        return False
+    elif is_COG_KOG_result(name):
+        return False
+    else:
+        return True
 
