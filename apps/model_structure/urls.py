@@ -23,4 +23,10 @@ urlpatterns = [
         views.download_model,
         name='model_structure_download_model'
         ),
+    path(
+        'download_pir_file/<slug:structure_model_id>',
+        views.download_model,
+        {'pir_file': True},
+        name='model_structure_download_pir_file'
+        ),
 ]

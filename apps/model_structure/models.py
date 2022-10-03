@@ -125,7 +125,7 @@ class Job(SearchSubJob, ComerWebServerJob):
         "Read results lst for Comer3D job"
         rf = {}
         rf['model_file'] = files_line[0]
-        rf['pir_file'] = files_line[0]
+        rf['pir_file'] = files_line[1]
         rf['template_ids'] = files_line[-1]
         return rf
 
@@ -134,12 +134,15 @@ class Job(SearchSubJob, ComerWebServerJob):
         if self.number_of_templates == 1:
             # Every model is based on a separate template.
             for rf in results_files:
-                m_file = rf['model_file']
                 template_id = utils.standard_result_name(rf['template_ids'])
                 num_updated_structure_models = StructureModel.objects\
                     .filter(modeling_job=self)\
                     .filter(templates__template_name=template_id)\
-                    .update(status=StructureModel.FINISHED, file_path=m_file)
+                    .update(
+                        status=StructureModel.FINISHED,
+                        file_path=rf['model_file'],
+                        pir_file_path=rf['pir_file']
+                        )
                 if num_updated_structure_models != 1:
                     print(
                         'Problems when updating model based on %s.' % template_id
@@ -147,6 +150,7 @@ class Job(SearchSubJob, ComerWebServerJob):
         else:
             # There is only 1 model, based on multiple templates.
             model_file = results_files[0]['model_file']
+            pir_file = results_files[0]['pir_file']
             templates = [
                 utils.standard_result_name(r)
                 for r in results_files[0]['template_ids'].split(',')
@@ -170,6 +174,7 @@ class Job(SearchSubJob, ComerWebServerJob):
                 # DB), this problem may dissapear.
             structure_model.status = StructureModel.FINISHED
             structure_model.file_path = model_file
+            structure_model.pir_file_path = pir_file
             structure_model.save()
         # All structure models that are not in results files failed.
         Q = models.Q
@@ -254,6 +259,7 @@ class StructureModel(models.Model):
         )
     status = models.IntegerField(choices=possible_model_statuses, default=NEW)
     file_path = models.CharField(max_length=1000, null=True)
+    pir_file_path = models.CharField(max_length=1000, null=True)
 
     def __str__(self):
         r = 'Model based on %s' % self.printable_templates_list()

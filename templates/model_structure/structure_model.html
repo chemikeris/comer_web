@@ -9,7 +9,8 @@
 <div class="col-auto">
 	{% if current_structure_model.status == current_structure_model.FINISHED %}
 		{% url 'model_structure_download_model' structure_model_id=current_structure_model.id as m_url %}
-		<p>{{ current_structure_model }} (<a href="{{ m_url }}">download</a>).</p>
+		{% url 'model_structure_download_pir_file' structure_model_id=current_structure_model.id as pir_url %}
+        <p>{{ current_structure_model }} (<a href="{{ m_url }}" download>download model</a>, <a href="{{ pir_url }}" download>download_PIR_file</a>).</p>
 		<div id="model_{{ current_structure_model.printable_templates_list }}" class="structure_viewer"></div>
 		<script>show_structure("{{ m_url }}", "model_{{ current_structure_model.printable_templates_list }}");</script>
 	{% elif current_structure_model.status == current_structure_model.FAILED %}

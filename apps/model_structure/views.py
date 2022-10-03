@@ -1,3 +1,6 @@
+import os
+import logging
+
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -73,13 +76,21 @@ def show_model(request, search_job_id, structure_model_id):
         return render(request, 'jobs/not_finished_or_removed.html', context)
 
 
-def download_model(request, structure_model_id):
+def download_model(request, structure_model_id, pir_file=False):
     structure_model = get_object_or_404(
         models.StructureModel, id=structure_model_id
         )
-    model_file = structure_model.modeling_job.results_file_path(
-            structure_model.file_path)
+    if pir_file:
+        logging.debug('Downloading PIR file.')
+        file_path = structure_model.pir_file_path
+    else:
+        logging.debug('Downloading PDB file.')
+        file_path = structure_model.file_path
+    logging.debug(file_path)
+    model_file = structure_model.modeling_job.results_file_path(file_path)
     with open(model_file) as f:
         pdb_file_content = f.read()
-    return HttpResponse(pdb_file_content, content_type="text/plain")
+    resp = HttpResponse(pdb_file_content, content_type="text/plain")
+    resp['Content-Disposition'] = 'filename=%s' % os.path.basename(model_file)
+    return resp
 
