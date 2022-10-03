@@ -30,7 +30,7 @@ def set_and_get_session_jobs(request, search_job=None):
     session_jobs = SessionJob.objects.select_related('search_job')\
         .filter(session=request.session.session_key)\
         .exclude(search_job__name='example')\
-        .exclude(search_job__status=search_job.REMOVED)
+        .exclude(search_job__status=SearchJob.REMOVED)
     jobs = [sj.search_job for sj in session_jobs]
     return jobs
 

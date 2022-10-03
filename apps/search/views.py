@@ -34,6 +34,7 @@ def input(request):
         form = InputForm(initial=search_settings)
     context = {
         'form': form, 'example_str': mark_safe(read_example_queries()),
+        'recent_jobs': set_and_get_session_jobs(request),
         'page_title': 'COMER web server'
         }
     return render(request, 'search/input.html', context)

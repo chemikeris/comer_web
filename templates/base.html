@@ -24,6 +24,17 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleMainMenu"><span class="navbar-toggler-icon"></span></button>
         <div id="collapsibleMainMenu" class="collapse navbar-collapse"><ul class="navbar-nav">
             <li class="nav-item"><a class="nav-link" href="{% url 'input' %}">Input</a></li>
+            <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Recent jobs</a>
+                <ul class="dropdown-menu">
+                {% if recent_jobs %}
+                    {% for j in recent_jobs %}
+                        <li><a class="dropdown-item {% if j.name == job.name %} disabled{% endif %}" href="{% url 'results_summary' job_id=j.name %}">{{ j.nice_name }}</a></li>
+                    {% endfor %}
+                {% else %}
+                    <li><a class="dropdown-item disabled" href="#">No recent jobs</a></li>
+                {% endif %}
+                </ul>
+            </li>
             <li class="nav-item"><a class="nav-link" href="{% url 'results' 'example' %}">Example</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'help' %}">Help</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'api_help' %}">API help</a></li>
