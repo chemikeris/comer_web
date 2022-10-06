@@ -240,7 +240,7 @@ class ApiDetailedDownloadJSON(ApiResultsDownloadFile):
 
 
 def detailed(request, job_id, sequence_no):
-    job = get_object_or_404(models.Job, name=job_id)
+    job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
     print(job)
     results_files = job.read_results_lst()
     results_file = job.results_file_path(
@@ -274,7 +274,7 @@ def detailed(request, job_id, sequence_no):
 
 
 def detailed_summary(request, job_id, sequence_no):
-    job = get_object_or_404(models.Job, name=job_id)
+    job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
     results_files = job.read_results_lst()
     result_summary = models.SearchResultsSummary(job, results_files[sequence_no])
     if result_summary.results_json is None:
@@ -302,7 +302,7 @@ def detailed_summary(request, job_id, sequence_no):
 
 
 def show_input(request, job_id, sequence_no=None):
-    job = get_object_or_404(models.Job, name=job_id)
+    job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
     print(job)
     page_title = '%s input - %s' % (job.method().upper(), job.nice_name())
     if sequence_no is None:

@@ -1,6 +1,10 @@
 import json
 import logging
 
+from django.shortcuts import get_object_or_404
+from django.http import Http404
+
+
 def read_json_file(fname, filter_key=None):
     "Read JSON file contents into Python format"
     with open(fname) as f:
@@ -81,4 +85,13 @@ def suitable_for_structure_modeling(name):
         return False
     else:
         return True
+
+
+def get_object_or_404_for_removed_also(model, **kwargs):
+    "Wrapper for get_object_or_404 that gives error 404 for removed jobs"
+    m = get_object_or_404(model, **kwargs)
+    if m.status == m.REMOVED:
+        raise Http404
+    else:
+        return m
 
