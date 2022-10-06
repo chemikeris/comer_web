@@ -16,6 +16,15 @@
   hosts: all
   become: true
   tasks:
+      - name: Remove conflicting packages, if they are installed
+        dnf:
+            name: '{{ item }}'
+            state: absent
+        loop:
+            - mysql
+            - mysql-server
+        tags:
+            - install-dnf
       - name: Install CentOS packages
         dnf:
             name: '{{ item }}'
@@ -29,6 +38,9 @@
             - python3-devel
             - python3-virtualenv
             - python3-mod_wsgi
+            - mariadb
+            - mariadb-server
+            - mariadb-devel
         tags:
             - install-dnf
       - name: Configure firewall to allow httpd connections
@@ -39,6 +51,15 @@
             immediate: yes
             state: enabled
         ignore_errors: yes
+        tags:
+            - firewall
+      - name: Configure DB server firewall to allow MySQL connections
+        firewalld:
+            service: mysql
+            zone: public
+            permanent: true
+            immediate: yes
+            state: enabled
         tags:
             - firewall
       - name: Create user for COMER server tasks

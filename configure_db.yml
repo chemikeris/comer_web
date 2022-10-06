@@ -1,0 +1,56 @@
+---
+- name: Configure databases in COMER web server
+  hosts: all
+  become: true
+  vars_prompt:
+      - name: mysql_root_password
+        prompt: 'Please enter password for MySQL user "root"'
+      - name: mysql_user_name
+        prompt: 'Please enter name of MySQL user of COMER web server'
+      - name: mysql_password
+        prompt: 'Please enter password of MySQL user of COMER web server'
+  tasks:
+      - name: Setup MySQL root user
+        mysql_user:
+            login_user: root
+            login_password: '{{ mysql_root_password }}'
+            user: root
+            check_implicit_admin: true
+            password: "{{ mysql_root_password }}"
+      - name: Remove anonymous user
+        mysql_user:
+            login_user: root
+            login_password: '{{ mysql_root_password }}'
+            name: ''
+            state: absent
+      - name: Create MySQL user for COMER web server database
+        mysql_user:
+            login_user: root
+            login_password: '{{ mysql_root_password }}'
+            user: '{{ mysql_user_name }}'
+            password: '{{ mysql_password }}'
+            host: 'localhost'
+            state: present
+            priv: 'comer_web_server.*:ALL,GRANT'
+      - name: Save COMER web server MySQL user in settings
+        lineinfile:
+            path: /opt/comer_web/src/comer_web/settings/passwords.py
+            regexp: '^MYSQL_USER ='
+            line: 'MYSQL_USER = "{{ mysql_user_name }}"'
+      - name: Save COMER web server MySQL user in settings
+        lineinfile:
+            path: /opt/comer_web/src/comer_web/settings/passwords.py
+            regexp: '^MYSQL_PASSWORD ='
+            line: 'MYSQL_PASSWORD = "{{ mysql_password }}"'
+      - name: Create MySQL databases
+        mysql_db:
+            login_user: root
+            login_password: '{{ mysql_root_password }}'
+            name: '{{ item }}'
+            encoding: 'utf8'
+            state: present
+        loop:
+            - test
+            - comer_web_server
+            - test_comer_web_server
+...

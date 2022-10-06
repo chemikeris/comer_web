@@ -17,12 +17,10 @@ import configparser
 current_dir = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(os.path.dirname(current_dir))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
+from comer_web.settings import passwords
 
 # SECURITY WARNING: keep the secret key used in production secret!
-from comer_web.settings.passwords import SECRET_KEY
+SECRET_KEY = passwords.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 try:
@@ -100,8 +98,13 @@ WSGI_APPLICATION = 'comer_web.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'comer_web_server',
+        'USER': passwords.MYSQL_USER,
+        'PASSWORD': passwords.MYSQL_PASSWORD,
+        'OPTIONS': {
+            'charset': 'utf8',
+        }
     }
 }
 
