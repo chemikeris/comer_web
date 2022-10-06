@@ -42,6 +42,7 @@
             - mariadb-server
             - mariadb-devel
             - python3-mysql
+            - gcc
         tags:
             - install-dnf
       - name: Configure firewall to allow httpd connections
@@ -121,14 +122,6 @@
         git:
             repo: 'https://github.com/chemikeris/comer_web.git'
             dest: /opt/comer_web/src
-        tags:
-            - github
-      - name: Remove password from Git directory
-        git_config:
-            name: remote.origin.url
-            value: https://github.com/chemikeris/comer_web.git
-            scope: local
-            repo: /opt/comer_web/src
         tags:
             - github
 ...

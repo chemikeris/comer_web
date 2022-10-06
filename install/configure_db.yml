@@ -39,7 +39,7 @@
             regexp: '^MYSQL_USER ='
             line: 'MYSQL_USER = "{{ mysql_user_name }}"'
             create: true
-      - name: Save COMER web server MySQL user in settings
+      - name: Save COMER web server MySQL password in settings
         lineinfile:
             path: /opt/comer_web/src/comer_web/settings/passwords.py
             regexp: '^MYSQL_PASSWORD ='
