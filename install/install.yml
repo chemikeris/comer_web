@@ -1,0 +1,10 @@
+---
+- name: Install COMER web server
+  hosts: all
+  become: true
+  tasks:
+      - name: Generate secret key, if necessary
+        shell: '/opt/comer_web/src/install/generate_secret_key.bash'
+      - name: Install COMER web server
+        shell: '/opt/comer_web/src/install/install_comer_web_server.bash > /opt/comer_web/logs/install.log 2>&1'
+...

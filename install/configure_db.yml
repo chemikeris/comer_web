@@ -7,6 +7,7 @@
         prompt: 'Please enter password for MySQL user "root"'
       - name: mysql_user_name
         prompt: 'Please enter name of MySQL user of COMER web server'
+        private: no
       - name: mysql_password
         prompt: 'Please enter password of MySQL user of COMER web server'
   tasks:
@@ -37,6 +38,7 @@
             path: /opt/comer_web/src/comer_web/settings/passwords.py
             regexp: '^MYSQL_USER ='
             line: 'MYSQL_USER = "{{ mysql_user_name }}"'
+            create: true
       - name: Save COMER web server MySQL user in settings
         lineinfile:
             path: /opt/comer_web/src/comer_web/settings/passwords.py

@@ -41,6 +41,7 @@
             - mariadb
             - mariadb-server
             - mariadb-devel
+            - python3-mysql
         tags:
             - install-dnf
       - name: Configure firewall to allow httpd connections
@@ -84,6 +85,13 @@
             entry: default:user:apache:rwx
             state: present
             recursive: yes
+      - name: Start necessary services
+        service:
+            name: '{{ item }}'
+            state: started
+            enabled: true
+        loop:
+            - mariadb
 - name: Install JavaScript dependencies
   hosts: all
   become: true
@@ -105,7 +113,7 @@
       get_url:
           url: 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js'
           dest: '/opt/comer_web/static'
-- name: Install COMER web server
+- name: Download COMER web software and do initial setup
   hosts: all
   become: true
   tasks:
@@ -123,6 +131,4 @@
             repo: /opt/comer_web/src
         tags:
             - github
-      - name: Install COMER web server
-        shell: '/opt/comer_web/src/install_comer_web_server.bash > /opt/comer_web/logs/install.log 2>&1'
 ...
