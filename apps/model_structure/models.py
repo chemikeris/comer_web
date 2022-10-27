@@ -267,8 +267,8 @@ class StructureModel(models.Model):
         r = 'Model based on %s' % self.printable_templates_list()
         return r
 
-    def printable_templates_list(self):
-        l = ','.join(
+    def printable_templates_list(self, separator=','):
+        l = separator.join(
             [utils.standard_result_name(t.template_name)
                 for t in self.templates.all()
                 ]

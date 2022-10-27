@@ -91,6 +91,13 @@ def download_model(request, structure_model_id, pir_file=False):
     with open(model_file) as f:
         pdb_file_content = f.read()
     resp = HttpResponse(pdb_file_content, content_type="text/plain")
-    resp['Content-Disposition'] = 'filename=%s' % os.path.basename(model_file)
+    filename_parts = os.path.basename(model_file).split('.')
+    filename_parts = filename_parts[:1] + \
+        ['_'] + \
+        [structure_model.printable_templates_list('-')] + \
+        ['.'] + \
+        filename_parts[-1:]
+    filename = ''.join(filename_parts)
+    resp['Content-Disposition'] = 'filename=%s' % filename
     return resp
 
