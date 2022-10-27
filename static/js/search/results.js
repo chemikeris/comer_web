@@ -255,7 +255,7 @@ function formatAlignment(result_no, hit_record) {
     var alignment_str = '';
     var query_starts = hit_record.alignment.query_from;
     var target_starts = hit_record.alignment.target_from;
-    for (var i = 0; i <= hit_record.alignment.aln_length; i += ALIGNMENT_LENGTH) {
+    for (var i = 0; i <= hit_record.alignment.aln_length - 1; i += ALIGNMENT_LENGTH) {
         var query_ss = hit_record.alignment.query_secstr.substr(i, ALIGNMENT_LENGTH);
         var aligned_query = hit_record.alignment.query_aln.substr(i, ALIGNMENT_LENGTH);
         var middle = hit_record.alignment.middle.substr(i, ALIGNMENT_LENGTH);
