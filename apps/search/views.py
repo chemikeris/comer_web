@@ -162,6 +162,8 @@ def results(request, job_id, redirect_to_first=False):
             'log': job.calculation_log,
             'errors': errors,
             'active': 'not_finished',
+            'job_input': job.read_input_file('in'),
+            'job_options': job.read_input_file('options'),
             }
         return render(request, 'jobs/not_finished_or_removed.html', context)
 

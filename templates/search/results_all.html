@@ -3,14 +3,7 @@
 {% load input_form %}
 <h1>{{ job.method|upper }} results</h1>
 <p>{{ job.number_of_successful_sequences }} / {{ job.number_of_input_sequences }} queries were successful.</p>
-<p>
-    <a class="btn btn-secondary" data-bs-toggle="collapse" href="#" data-bs-target="#job_input">Input</a>
-    <a class="btn btn-secondary" data-bs-toggle="collapse" href="#" data-bs-target="#job_settings">Search settings</a>
-    <a class="btn btn-secondary" data-bs-toggle="collapse" href="#" data-bs-target="#search_log">Search log</a>
-</p>
-<div id="job_settings" class="collapse"><pre>{{ job_options }}</pre></div>
-<div id="job_input" class="collapse"><pre>{{ job_input }}</pre></div>
-<div id="search_log" class="collapse"><pre>{{ job.calculation_log }}</pre></div>
+{% include 'jobs/input_data_buttons.html' %}
 <table class='table table-striped'>
 <thead>
     <tr>

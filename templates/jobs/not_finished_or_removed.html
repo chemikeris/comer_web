@@ -1,5 +1,6 @@
 {% extends 'base_results.html' %}
 {% block results %}
+{% include 'jobs/input_data_buttons.html' %}
 <p>Job status: {{ status_msg }}.</p>
 {% if reload %}
 {% if log %} <pre>{{ log }}</pre> {% endif %}
