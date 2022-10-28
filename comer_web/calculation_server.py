@@ -85,6 +85,7 @@ class Connection:
         return result
 
     def check_slurm_job(self, slurm_job_no, job_id):
+        log_line = ''
         try:
             squeue_result = self.connection.run(
                 'squeue --noheader --long -j %s' % slurm_job_no
@@ -93,8 +94,16 @@ class Connection:
             if not squeue_result.stdout:
                 raise
         except:
+            logging.debug('SLURM job %s not found.', slurm_job_no)
             job_status_code = self.check_job_err_file(job_id)
-        job_status_log = self.check_job_status_file(job_id)
+            if job_status_code is None:
+                logging.warning(
+                    'Checking SLURM output for job %s (%s).',
+                    slurm_job_no, job_id
+                    )
+                new_status, log_line = self.check_job_slurm_out_file(job_id)
+                job_status_code = new_status
+        job_status_log = self.check_job_status_file(job_id) + log_line
         return job_status_code, job_status_log
 
     def check_job_err_file(self, job_id):
@@ -102,9 +111,27 @@ class Connection:
         err_lines = err_file_contents.splitlines()
         try:
             err_code = int(err_lines[-1])
-        except ValueError:
+        except (ValueError, IndexError):
             err_code = None
         return err_code
+
+    def check_job_slurm_out_file(self, job_id):
+        slurm_out_contents = self.retrieve_job_file_contents(job_id, 'pbstdout')
+        last_line = slurm_out_contents.splitlines()[-1]
+        if 'CANCELLED' in last_line:
+            if 'DUE TO TIME LIMIT' in last_line:
+                status = 1
+                log_line = '\nJob cancelled due to exceeding the time limit.\n'
+            else:
+                status = 1
+                log_line = '\nJob cancelled.\n'
+        elif 'error' in last_line:
+            status = 1
+            log_line = '\nJob encountered an error.\n'
+        else:
+            status = None
+            log_line = ''
+        return status, log_line
 
     def check_job_status_file(self, job_id):
         print('Retrieving status log for %s' % job_id)
