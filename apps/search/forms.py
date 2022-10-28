@@ -10,6 +10,7 @@ MAX_SEQUENCE_INPUT = 5242880
 MAX_NUMBER_OF_SEQUENCES = 100
 MAX_NUMBER_OF_SEQUENCES_FOR_COTHER = 10
 MAX_FILE_SIZE_MB = 50
+MAX_SEQUENCE_LENGTH = 9999
 
 class SequenceField(forms.CharField):
     "Sequence input field"
@@ -59,11 +60,13 @@ class SequencesInputForm(forms.Form):
         )
     # Database to search.
     comer_db = forms.MultipleChoiceField(
-        choices=get_databases_for('comer'), label='COMER databases',
+        choices=get_databases_for('comer'),
+        label='COMER databases  (multiple selection: Ctrl + left-click)',
         initial=get_databases_for('comer', ['pdb'])[0]
         )
     cother_db = forms.MultipleChoiceField(
-        choices=get_databases_for('cother'), label='COTHER databases',
+        choices=get_databases_for('cother'),
+        label='COTHER databases  (multiple selection: Ctrl + left-click)',
         initial=get_databases_for('cother', ['pdb'])[0]
         )
     # Optional job name and email fields.
@@ -172,7 +175,18 @@ class SequencesInputForm(forms.Form):
         # Allowing gaps (-) in sequence.
         sequence_to_check = sequence_str.replace('-', '').replace('.', '')
         if sequence_to_check.isalpha():
-            return sequence_str
+            sequence_length = len(sequence_to_check)
+            if sequence_length > MAX_SEQUENCE_LENGTH:
+                if description:
+                    msg = 'Query sequence %(desc)s is longer than %(max)s.'
+                    params = {'desc': description, 'max': MAX_SEQUENCE_LENGTH}
+                else:
+                    msg = 'Query sequence is longer than %(max)s.'
+                    params = {'max': MAX_SEQUENCE_LENGTH}
+                self.add_error('sequence', ValidationError(msg, params=params))
+                return None
+            else:
+                return sequence_str
         else:
             if description:
                 msg = 'Query %(desc)s contains illegal characters.'
@@ -187,8 +201,11 @@ class SequencesInputForm(forms.Form):
         all_sequences, problematic_sequences = sequences.split_fasta(
             input_fasta_str
             )
-        for desc, sequence in all_sequences:
-            sequence = self.validate_plain_sequence(sequence, '"%s"' % desc)
+        # At this point all FASTA inputs are either of length 1 or a multiple
+        # sequence alignment, therefore only the first sequence has to be
+        # validated.
+        desc, sequence = all_sequences[0]
+        sequence = self.validate_plain_sequence(sequence, '"%s"' % desc)
         self.add_problematic_fasta_errors(problematic_sequences)
         return input_fasta_str
 

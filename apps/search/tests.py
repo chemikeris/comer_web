@@ -119,6 +119,26 @@ class TestInputValidation(FormTest, TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['sequence'], [sequence])
 
+    def test_sequence_input_fasta_too_long(self):
+        "Test too long sequence in FASTA input"
+        sequence = 'A' * 10000
+        fasta = '>A\n%s\n' % sequence
+        form_data = copy.deepcopy(self.form_data)
+        form_data['sequence'] = fasta
+        form = forms.SequencesInputForm(form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_sequence_input_fasta_too_long_in_alignment(self):
+        "Test too long sequence in FASTA input"
+        sequence = 'A' * 6000
+        sequence_2 = sequence * 2
+        sequence += '-' * 6000
+        fasta = '>A\n%s\n>second\n%s' % (sequence, sequence_2)
+        form_data = copy.deepcopy(self.form_data)
+        form_data['sequence'] = fasta
+        form = forms.SequencesInputForm(form_data)
+        self.assertTrue(form.is_valid())
+
     def test_sequence_input_fasta_with_unequal_sequences(self):
         "Test single sequence fasta input"
         sequence = '>d1\nsss\n>d2\ns'

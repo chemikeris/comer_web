@@ -33,19 +33,19 @@
     {{ 'cother_search_help'|help_tooltip:'Use the COTHER method to search profile database(s) selected below with the input queries.' }}
 </div>
 <div class="row g-2 bg-light pb-2">
-    <div class="col-sm-4">
+    <div class="col-sm-6">
         {{ form.comer_db.errors }}{{ form.comer_db.label_tag }} {{ 'comer_db_help'|help_tooltip_questionmark }} {{ form.comer_db }}
         {{ 'comer_db_help'|help_tooltip:'Select one or more profile databases to search using COMER2 (multiple selection: Ctrl key + Mouse\'s left-click).' }}
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-6">
         {{ form.cother_db.errors }}{{ form.cother_db.label_tag }} {{ 'cother_db_help'|help_tooltip_questionmark }} {{ form.cother_db }}
         {{ 'cother_db_help'|help_tooltip:'Select one or more profile databases to search using COTHER (multiple selection: Ctrl key + Mouse\'s left-click).' }}
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         {{ form.EVAL.errors }}{{ form.EVAL.label_tag }} {{ 'EVAL_help'|help_tooltip_questionmark }} {{ form.EVAL }}
         {{ 'EVAL_help'|help_tooltip:'Specify a statistical significance threshold. Hits with an E-value greater than this value will not be displayed. (Possible real values: [0,100]).' }}
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         {{ form.number_of_results.errors }}{{ form.number_of_results.label_tag }} {{ 'num_results_help'|help_tooltip_questionmark }} {{ form.number_of_results }}
         {{ 'num_results_help'|help_tooltip:'Specify a maximum number of hits to display on output (max 2000).' }}
     </div>

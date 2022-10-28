@@ -34,7 +34,7 @@ The workflow for using the COMER2 tool in the webserver environment is shown in 
 The user is expected to enter her or his queries, select databases, adjust parameters if desired, and hit the Submit button.
 Information displaying the progress of the job will show up.
 The results will appear once the job has finished.
-An e-mail with a link to the results will be sent if the e-mail address was provided by the user. 
+An e-mail with a link to the results will be sent if the e-mail address was provided by the user.
 </p>
 <figure>
     <img src="{% static 'img/help/comer_web_server.png' %}" alt="COMER web server" class="img-fluid border">
@@ -185,12 +185,25 @@ Once the results are ready, a visualization layer is added to depict results gra
 </p>
 <h2 id="help_limits">Limits</h2>
 <ul>
+    <li>Maximum number of residues in the query (excluding gaps) = 9999.</li>
     <li>Maximum number of queries in the input field for COMER searches = 100.</li>
     {# <li>Maximum number of queries in the input field for COTHER = 10.</li> #}
     {# <li>Maximum query length (corresponding to the COTHER profile length) when using COTHER = 1000.</li> #}
-    <li>Maximum number of single-template 3D structural models for generating them simultaneously = 15.</li>
+    <li>Maximum text size in the input field = 5MB.</li>
+    <li>Maximum file size of queries for upload = 50MB.</li>
+    <li>Maximum number of single-template 3D structural models for generating them simultaneously = 50.</li>
     <li>Maximum number of structural templates for one 3D model = 7.</li>
 </ul>
+<p>
+The maximum duration of a job is limited to 24 hours.
+A job will be canceled and the user will be notified when that time expires.
+</p>
+<p>
+If some of a job's queries fail, the error log will contain a short
+description of a problem, which will be visible to the user.
+The results of the other successfully completed queries of the same
+job will be available for analysis as usual.
+</p>
 <h2 id="help_references">References</h2>
 <ol>
     <li>Margelevičius M. Bayesian nonparametrics in protein remote homology search. <a href="https://doi.org/10.1093/bioinformatics/btw213">Bioinformatics. 2016;32(18):2744-52</a>.</li>
