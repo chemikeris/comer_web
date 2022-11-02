@@ -9,13 +9,13 @@
 <link rel="stylesheet" href="{% static 'css/site.css' %}">
 <link rel="icon" type="image/png" href="{% static 'img/comer_server.png' %}">
 <script src="{% static 'js/site.js' %}"></script>
-{{ google_analytics_tag }}
 </head>
 <body>
 <noscript>COMER web server requires JavaScript, which is disabled in your browser.</noscript>
 <script src="{% static 'cookielaw/js/cookielaw.js' %}"></script>
 {% load cookielaw_tags %}
 {% if cookielaw.notset %}{% cookielaw_banner %}{% endif %}
+{% if cookielaw.accepted %}{{ google_analytics_tag }}{% endif %}
 <div class="d-flex flex-column min-vh-100">
 <header>
     <nav class="navbar navbar-light navbar-expand-md bg-light">

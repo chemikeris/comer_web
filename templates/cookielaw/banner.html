@@ -1,7 +1,8 @@
 {% load i18n %}
 <div id="CookielawBanner">
     <div class="container-fluid fixed-bottom p-3 text-center bg-dark opacity-75 text-light">
-		This site uses cookies to enhance the user experience. By using the services, you agree to our <a href="https://bioinformatics.lt/privacy/">privacy policy</a>.
-		<a class="btn btn-primary pull-right" href="javascript:Cookielaw.createCookielawCookie();">{% trans "COOKIE_INFO_OK" %}</a>
+		This site uses cookies to enhance the user experience and for statistical purposes. Necessary cookies ensure proper functioning and cannot be switched off. Our privacy policy is <a href="https://bioinformatics.lt/privacy/">available here</a>.
+        <a class="btn btn-primary pull-right" href="javascript:Cookielaw.accept();">Accept all cookies</a>
+        <a class="btn btn-primary pull-right reject" href="javascript:Cookielaw.reject();">Accept only necessary cookies</a>
     </div>
 </div>
