@@ -169,8 +169,11 @@ function createLink(result_id) {
     else if ((result_id[0] == 'd') || (result_id[0] == 'g')) {
         link = createSCOPeLink(result_id);
     }
-    else if (result_id.startsWith('ECOD') || result_id.startsWith('e')) {
-        link = createECODLink(result_id);
+    else if (result_id.startsWith('ECOD')) {
+        link = createECODLink(result_id, false);
+    }
+    else if (result_id.startsWith('e')) {
+        link = createECODLink(result_id, true);
     }
     else if (result_id.startsWith('sp|')) {
         link = createUniProtLink(result_id, false);
@@ -190,12 +193,12 @@ function createLink(result_id) {
 function createSCOPeLink(scop_id) {
     return 'https://scop.berkeley.edu/sid=' + scop_id;
 }
-function createECODLink(ecod_id) {
-    ecod_domain = ecod_id.split('_')[2];
+function createECODLink(ecod_id, raw_id) {
+    ecod_domain = raw_id ? ecod_id : ecod_id.split('_')[2];
     return 'http://prodata.swmed.edu/ecod/complete/domain/' + ecod_domain;
 }
 function createPfamLink(pfam_id) {
-    return 'https://pfam.xfam.org/family/' + pfam_id;
+    return 'https://www.ebi.ac.uk/interpro/entry/pfam/' + pfam_id.split('.')[0];
 }
 function createUniProtLink(swissprot_id, raw_id) {
     uniprot_ac = raw_id ? swissprot_id : swissprot_id.split('|')[1];
