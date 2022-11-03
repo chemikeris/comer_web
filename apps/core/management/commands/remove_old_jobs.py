@@ -11,6 +11,8 @@ from apps.model_structure.models import Job as StructureModelingJob
 from apps.model_structure.models import Template
 from apps.msa.models import Job as MSAJob
 
+PERMANENT_JOBS = ['benchmark2', 'benchmark3']
+
 class Command(BaseCommand):
     help = 'Remove old COMER web server jobs'
 
@@ -66,6 +68,9 @@ class Command(BaseCommand):
                 else:
                     print('Keeping example job, only subjobs are deleted.')
                     continue
+            elif j.name in PERMANENT_JOBS:
+                print('Keeping permanent job %s' % job_name)
+                continue
             job_directory_to_remove = j.get_directory()
             try:
                 print(job_directory_to_remove)
