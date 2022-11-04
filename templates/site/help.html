@@ -20,7 +20,7 @@
 <h2 id="help_introduction">Introduction</h2>
 <p>
 The COMER web server provides services for protein analysis by homology.
-It is powered by the COMER2 homology search engine. COMER2 is a sensitive and specific homology search method [<a href="#help_ref_1">1</a>] that accelerates homology searches by harnessing the power of GPUs [<a href="#help_ref_2">2</a>].
+It is powered by the COMER2 homology search engine. COMER2 is a sensitive and specific homology search method [<a href="#help_ref_comer">1</a>] that accelerates homology searches by harnessing the power of GPUs [<a href="#help_ref_comer2">2</a>].
 The COMER2 software architecture allows for simultaneously running multiple instances of homology search on the same GPU independently.
 This property allows the webserver to efficiently exploit computational resources and distribute workload across multiple dedicated GPUs.
 </p>
@@ -48,17 +48,17 @@ The server automatically determines the format of input data.
 </p>
 <p>
 The COMER web server can be instructed to build informative and diverse MSAs for user queries (profiles excluded).
-In that case, the server performs additional sequence searches with user queries using HHblits [<a href="#help_ref_3">3</a>], HMMER3 [<a href="#help_ref_4">4</a>], or both and builds MSAs from statistically significant hits.
+In that case, the server performs additional sequence searches with user queries using HHblits [<a href="#help_ref_hhblits">3</a>], HMMER3 [<a href="#help_ref_hmmer">4</a>], or both and builds MSAs from statistically significant hits.
 When using both these tools, an MSA for each query results from combining sequence alignments produced independently by them, which is useful for query sequences with low homology.
 </p>
 <p>
 Each sequence and MSA corresponding to a user query is subjected to profile construction.
-COMER2 profiles include secondary structure (SS) predictions [<a href="#help_ref_5">5</a>] made for query proteins.
+COMER2 profiles include secondary structure (SS) predictions [<a href="#help_ref_psipred">5</a>] made for query proteins.
 </p>
 <p>
 The format in which the results of a profile-profile search appear includes for each user query a list of pairwise alignments between the query and a database sequence, both representing constructed profiles.
 Produced alignments are amenable to further analysis.
-Their different selection combinations for a query allow the user to construct different MSAs and generate 3D structural models by homology to detected proteins [<a href="#help_ref_6">6</a>] in bulk when those protein sequences have a known structure.
+Their different selection combinations for a query allow the user to construct different MSAs and generate 3D structural models by homology to detected proteins [<a href="#help_ref_modeller">6</a>] in bulk when those protein sequences have a known structure.
 </p>
 <h2 id="help_input">Input</h2>
 <p>
@@ -121,13 +121,13 @@ Note that if an MSA provided as a query is to be searched for, it first undergoe
 <h2 id="help_profile_databases">Profile databases</h2>
 <p>The following profile databases are available for COMER2 search:</p>
 <ul>
-    <li>PDB filtered to 70% sequence identity (PDB70),</li>
-    <li>SCOPe70,</li>
-    <li>Pfam,</li>
-    <li>UniProtKB/Swiss-Prot filtered to 90% sequence identity,</li>
-    <li>ECOD-F70,</li>
-    <li>COG-KOG,</li>
-    <li>NCBI-CDD.</li>
+    <li><a href="https://www.rcsb.org/">PDB</a> filtered to 70% sequence identity (PDB70) [<a href="#help_ref_pdb">7</a>],</li>
+    <li><a href="https://scop.berkeley.edu/">SCOPe70</a> [<a href="#help_ref_scop">8</a>],</li>
+    <li><a href="https://www.ebi.ac.uk/interpro/entry/pfam/">Pfam</a> [<a href="#help_ref_pfam">9</a>],</li>
+    <li><a href="https://www.uniprot.org/">UniProtKB/Swiss-Prot</a> filtered to 90% sequence identity [<a href="#help_ref_swissprot">10</a>],</li>
+    <li><a href="http://prodata.swmed.edu/ecod/">ECOD-F70</a> [<a href="#help_ref_ecod">11</a>],</li>
+    <li><a href="https://www.ncbi.nlm.nih.gov/research/cog">COG-KOG</a> [<a href="#help_ref_cog">12</a>],</li>
+    <li><a href="http://www.ncbi.nlm.nih.gov/Structure/cdd/cdd.shtml">NCBI-CDD</a> [<a href="#help_ref_cdd">13</a>].</li>
 </ul>
 <p>Multiple databases can be selected (Ctrl key + Mouse's left-click) before submitting a job.</p>
 <h2 id="help_results">Results and supported services</h2>
@@ -175,7 +175,7 @@ The latter option is particularly useful when the number of produced alignments 
 Visualization of a resulting MSA allows for interactive analysis of aligned sequences.
 </p>
 <p>
-Structural analysis is possible through 3D structural model generation with Modeller [<a href="#help_ref_6">6</a>] using the structures of identified proteins as templates and produced alignments as restraints.
+Structural analysis is possible through 3D structural model generation with Modeller [<a href="#help_ref_modeller">6</a>] using the structures of identified proteins as templates and produced alignments as restraints.
 A multiple selection option allows the user to generate one model using multiple templates (up to 7) or multiple models (currently up to 15), one for each selected alignment, with one click of a button.
 Interactive visual analysis of generated models is maintained.
 </p>
@@ -191,11 +191,11 @@ Once the results are ready, a visualization layer is added to depict results gra
 <h2 id="help_homology_examples">Homology examples</h2>
 <h3>PF11821</h3>
 <p>
-The most significant hit identified by COMER2 with E-value=1.6e-7 for Pfam DUF family PF11821 when searching the UniProtKB/Swiss-Prot90 (2021_03) database was P23461 (6% sequence identity), Rhodobacter capsulatus protein PucD. 
+The most significant hit identified by COMER2 with E-value=1.6e-7 for Pfam DUF family <a href="https://www.ebi.ac.uk/interpro/entry/pfam/PF11821/">PF11821</a> when searching the UniProtKB/Swiss-Prot90 (2021_03) database was <a href="https://www.uniprot.org/uniprotkb/P23461">P23461</a> (6% sequence identity), Rhodobacter capsulatus protein PucD. 
 The search took 37 sec to run on the COMER web server. 
 </p>
 <p>
-In Pfam 35.0, PF11821 was classified as the ActD subunit (PDB ID: 6btm_D) of the Alternative complex III (ACIII). 
+In Pfam 35.0, <a href="https://www.ebi.ac.uk/interpro/entry/pfam/PF11821/">PF11821</a> was classified as the ActD subunit (PDB ID: <a href="https://www.rcsb.org/structure/6BTM">6btm_D</a>) of the Alternative complex III (ACIII). 
 The function of the ActD subunit is unknown, but some evidence suggests that it may play a role in stabilizing the ACIII complex, a key component of bacteria respiratory and/or photosynthetic electron transport chains. 
 </p>
 <p>
@@ -204,33 +204,32 @@ Although the function of PucD is unknown, experiments have shown PucD to be invo
 </p>
 <p>
 The AlphaFold2 model of PucD shows the same fold as ActD, where ActD has an insertion of two transmembrane helices (see the Figure). 
-The structural and molecular context similarity suggests that the relationship between ActD (PF11821) and PucD (P23461) identified by COMER2 is homologous. 
+The structural and molecular context similarity suggests that the relationship between ActD (<a href="https://www.ebi.ac.uk/interpro/entry/pfam/PF11821/">PF11821</a>) and PucD (<a href="https://www.uniprot.org/uniprotkb/P23461">P23461</a>) identified by COMER2 is homologous. 
 </p>
 <figure>
     <img src="{% static 'img/help/homology_example_PF11821.png' %}" alt="PF11821" class="img-fluid border">
     <figcaption>
-        Figure 3. Structural similarity between ActD (PF11821; left) and the AlphaFold2 model of PucD (P23461; center and right). The segments aligned by COMER2 are colored blue to red from N- to C-terminus (left and center). The confidence of the AlphaFold2 model is shown on the right
+        Figure 3. Structural similarity between ActD (<a href="https://www.ebi.ac.uk/interpro/entry/pfam/PF11821/">PF11821</a>; left) and the AlphaFold2 model of PucD (<a href="https://www.uniprot.org/uniprotkb/P23461">P23461</a>; center and right). The segments aligned by COMER2 are colored blue to red from N- to C-terminus (left and center). The confidence of the AlphaFold2 model is shown on the right
     </figcaption>
 </figure>
 <h3>PF09196</h3>
 <p>
-In Pfam 35.0, the PF09196 family consists of a single sequence, a Sulfolobus tokodaii maltooligosyl trehalose synthase domain (PDB ID: 3hje:642--704), with an unknown function (see the Figure below). 
+In Pfam 35.0, the <a href="https://www.ebi.ac.uk/interpro/entry/pfam/PF09196/">PF09196</a> family consists of a single sequence, a Sulfolobus tokodaii maltooligosyl trehalose synthase domain (PDB ID: <a href="https://www.rcsb.org/structure/3HJE">3hje</a>:642--704), with an unknown function (see the Figure below). 
 No significant hits to the UniProtKB/Swiss-Prot90 (2021_03) database have been produced. 
 </p>
 <p>
-A more informative MSA (29 sequences) for PF09196 was obtained by conducting 3 HMMER iterations against the MGnify sequence database. 
+A more informative MSA (29 sequences) for <a href="https://www.ebi.ac.uk/interpro/entry/pfam/PF09196/">PF09196</a> was obtained by conducting 3 HMMER iterations against the MGnify sequence database. 
 The whole process, including COMER2 profile construction and searching the Swiss-Prot90 database, took 36 min to run on the COMER web server. 
 </p>
 <p>
-This time, the most significant was the alignment (E-value=0.0011; 24% sequence identity) with an annotated entry P9WQ20, Mycobacterium tuberculosis putative maltooligosyl trehalose synthase. 
-COMER2 aligned the corresponding domain of P9WQ20 that shares the same fold with PF09196 (see the Figure). 
-The high overall structural similarity of 3hje and P9WQ20 (TM-score=0.947) suggests that the two share a common functional mechanism. 
+This time, the most significant was the alignment (E-value=0.0011; 24% sequence identity) with an annotated entry <a href="https://www.uniprot.org/uniprotkb/P9WQ20/">P9WQ20</a>, Mycobacterium tuberculosis putative maltooligosyl trehalose synthase. 
+COMER2 aligned the corresponding domain of <a href="https://www.uniprot.org/uniprotkb/P9WQ20/">P9WQ20</a> that shares the same fold with <a href="https://www.ebi.ac.uk/interpro/entry/pfam/PF09196/">PF09196</a> (see the Figure). 
+The high overall structural similarity of <a href="https://www.rcsb.org/structure/3HJE">3hje</a> and <a href="https://www.uniprot.org/uniprotkb/P9WQ20/">P9WQ20</a> (TM-score=0.947) suggests that the two share a common functional mechanism. 
 </p>
-<p>
 <figure>
     <img src="{% static 'img/help/homology_example_PF09196.png' %}" alt="PF09196" class="img-fluid border">
     <figcaption>
-        Figure 3. Structural similarity between PF09196 (colored; top) and the corresponding domain of the AlphaFold2 model of P9WQ20 (colored; bottom). The segments aligned by COMER2 are colored blue to red
+        Figure 4. Structural similarity between <a href="https://www.ebi.ac.uk/interpro/entry/pfam/PF09196/">PF09196</a> (colored; top) and the corresponding domain of the AlphaFold2 model of <a href="https://www.uniprot.org/uniprotkb/P9WQ20/">P9WQ20</a> (colored; bottom). The segments aligned by COMER2 are colored blue to red
     </figcaption>
 </figure>
 <h2 id="help_execution_times">Execution times</h2>
@@ -240,11 +239,11 @@ These times were obtained using the server's API.
 Another dozen seconds would be required to render results in the graphical user interface.
 </p>
 <p>
-The sequences were searched against the HHsuite databases UniRef30 [<a href="#help_ref_7">7</a>] and BFD [<a href="#help_ref_8">8</a>} using HHblits and against the sequence databases UniRef50 [<a href="#help_ref_9">9</a>] and MGnify [<a href="#help_ref_10">10</a>] using HMMER.
+The sequences were searched against the HHsuite databases UniRef30 [<a href="#help_ref_uniclust">14</a>] and BFD [<a href="#help_ref_bfd">15</a>] using HHblits and against the sequence databases UniRef50 [<a href="#help_ref_uniref">16</a>] and MGnify [<a href="#help_ref_mgnify">17</a>] using HMMER.
 MSAs obtained from the HHblits search against UniRef30 (MSA query) and COMER2 profiles constructed from these MSAs (Profile query) were used separately to query the server instructed to skip sequence searches.
 All other settings were set to default values.
 </p>
-<div id=execution_times_table_swissprot" class="table-responsive">
+<div id="execution_times_table_swissprot" class="table-responsive">
 <table class="table table-striped table-sm text-center">
     <thead>
         <tr><th colspan=8>UniProtKB/Swiss-Prot90 searches</th></tr>
@@ -322,15 +321,13 @@ All other settings were set to default values.
             <td>Q8I3Z1<sup>#</sup></td><td>9999</td><td>345</td><td>683</td><td>2452</td><td>4956</td><td>61335</td><td>58382</td>
         </tr>
     </tbody>
-    <tfoot>
-        <caption>
-            <p><sup>*</sup>a MSA reduced to a maximum size of 50MB.</p>
-            <p><sup>#</sup>a truncated sequence.</p>
-        </caption>
-    </tfoot>
+    <caption>
+        <p><sup>*</sup>MSA reduced to a maximum size of 50MB</p>
+        <p><sup>#</sup>truncated sequence</p>
+    </caption>
 </table>
 </div>
-<div id=execution_times_table_pdb" class="table-responsive">
+<div id="execution_times_table_pdb" class="table-responsive">
 <table class="table table-striped table-sm text-center">
     <thead>
         <tr><th colspan=8>PDB70 searches</th></tr>
@@ -408,12 +405,10 @@ All other settings were set to default values.
             <td>Q8I3Z1<sup>#</sup></td><td>9999</td><td>49</td><td>388</td><td>2157</td><td>4656</td><td>61031</td><td>58086</td>
         </tr>
     </tbody>
-    <tfoot>
-        <caption>
-            <p><sup>*</sup>a MSA reduced to a maximum size of 50MB.</p>
-            <p><sup>#</sup>a truncated sequence.</p>
-        </caption>
-    </tfoot>
+    <caption>
+        <p><sup>*</sup>MSA reduced to a maximum size of 50MB</p>
+        <p><sup>#</sup>truncated sequence</p>
+    </caption>
 </table>
 </div>
 <h2 id="help_limits">Limits</h2>
@@ -439,16 +434,23 @@ job will be available for analysis as usual.
 </p>
 <h2 id="help_references">References</h2>
 <ol>
-    <li id="help_ref_1">Margelevičius M. Bayesian nonparametrics in protein remote homology search. <a href="https://doi.org/10.1093/bioinformatics/btw213">Bioinformatics. 2016;32(18):2744-52</a>.</li>
-    <li id="help_ref_2">Margelevičius M. COMER2: GPU-accelerated sensitive and specific homology searches. <a href="https://doi.org/10.1093/bioinformatics/btaa185">Bioinformatics. 2020;36(11):3570-3572</a>.</li>
-    <li id="help_ref_3">Remmert M, Biegert A, Hauser A, Söding J. HHblits: lightning-fast iterative protein sequence searching by HMM-HMM alignment. <a href="https://doi.org/10.1038/nmeth.1818">Nat Methods. 2011;9(2):173-5</a>.</li>
-    <li id="help_ref_4">Eddy SR. Accelerated Profile HMM Searches. <a href="https://doi.org/10.1371/journal.pcbi.1002195">PLoS Comput Biol. 2011;7(10):e1002195</a>.</li>
-    <li id="help_ref_5">Jones D. Protein secondary structure prediction based on position-specific scoring matrices. <a href="https://doi.org/10.1006/jmbi.1999.3091">J Mol Biol 1999;292(2):195–202</a>.</li>
-    <li id="help_ref_6">Webb B, Sali A. Protein Structure Modeling with MODELLER. <a href="https://doi.org/10.1007/978-1-4939-7231-9_4">Methods Mol Biol. 2017;1654:39-54</a>.</li>
-    <li id="help_ref_7">Mirdita M, von den Driesch L, Galiez C, Martin M, Söding J, Steinegger M. Uniclust databases of clustered and deeply annotated protein sequences and alignments. <a href="https://doi.org/10.1093/nar/gkw1081">Nucleic Acids Res. 2017;45(D1):D170-D176</a>.</li>
-    <li id="help_ref_8">Steinegger M, Mirdita M, Söding J. Protein-level assembly increases protein sequence recovery from metagenomic samples manyfold. <a href="https://doi.org/10.1038/s41592-019-0437-4">Nat Methods. 2019;16(7):603-606</a>.</li>
-    <li id="help_ref_9">Suzek B, Wang Y, Huang H, McGarvey P, Wu C, and the UniProt Consortium. UniRef clusters: a comprehensive and scalable alternative for improving sequence similarity searches. <a href="https://doi.org/10.1093/bioinformatics/btu739">Bioinformatics. 2015;31(6):926-32</a>.</li>
-    <li id="help_ref_10">Mitchell A, Almeida A, Beracochea M, Boland M, Burgin J, Cochrane G, Crusoe M, Kale V, Potter S, Richardson L, et al. MGnify: the microbiome analysis resource in 2020. <a href="https://doi.org/10.1093/nar/gkz1035">Nucleic Acids Res. 2020;48(D1):D570-D578</a>.</li>
+    {# 1 #}<li id="help_ref_comer">Margelevičius M. Bayesian nonparametrics in protein remote homology search. <a href="https://doi.org/10.1093/bioinformatics/btw213">Bioinformatics. 2016;32(18):2744-52</a>.</li>
+    {# 2 #}<li id="help_ref_comer2">Margelevičius M. COMER2: GPU-accelerated sensitive and specific homology searches. <a href="https://doi.org/10.1093/bioinformatics/btaa185">Bioinformatics. 2020;36(11):3570-3572</a>.</li>
+    {# 3 #}<li id="help_ref_hhblits">Remmert M, Biegert A, Hauser A, Söding J. HHblits: lightning-fast iterative protein sequence searching by HMM-HMM alignment. <a href="https://doi.org/10.1038/nmeth.1818">Nat Methods. 2011;9(2):173-5</a>.</li>
+    {# 4 #}<li id="help_ref_hmmer">Eddy SR. Accelerated Profile HMM Searches. <a href="https://doi.org/10.1371/journal.pcbi.1002195">PLoS Comput Biol. 2011;7(10):e1002195</a>.</li>
+    {# 5 #}<li id="help_ref_psipred">Jones D. Protein secondary structure prediction based on position-specific scoring matrices. <a href="https://doi.org/10.1006/jmbi.1999.3091">J Mol Biol 1999;292(2):195–202</a>.</li>
+    {# 6 #}<li id="help_ref_modeller">Webb B, Sali A. Protein Structure Modeling with MODELLER. <a href="https://doi.org/10.1007/978-1-4939-7231-9_4">Methods Mol Biol. 2017;1654:39-54</a>.</li>
+    {# 7 #}<li id="help_ref_pdb">Burley S, Bhikadiya C, Bi C, Bittrich S, Chen L, Crichlow G, Christie C, Dalenberg K, Di Costanzo L, Duarte J, et al. RCSB Protein Data Bank: powerful new tools for exploring 3D structures of biological macromolecules for basic and applied research and education in fundamental biology, biomedicine, biotechnology, bioengineering and energy sciences. <a href="https://doi.org/10.1093/nar/gkaa1038">Nucleic Acids Res. 2021;49(D1):D437-D451</a>.</li>
+    {# 8 #}<li id="help_ref_scop">Chandonia J, Fox N, Brenner S. SCOPe: classification of large macromolecular structures in the structural classification of proteins-extended database. <a href="https://doi.org/10.1093/nar/gky1134">Nucleic Acids Res. 2019;47(D1):D475-D481</a>.</li> 
+    {# 9 #}<li id="help_ref_pfam">Mistry J, Chuguransky S, Williams L, Qureshi M, Salazar G, Sonnhammer E, Tosatto S, Paladin L, Raj S, Richardson L, et al. Pfam: The protein families database in 2021. <a href="https://doi.org/10.1093/nar/gkaa913">Nucleic Acids Res. 2021;49(D1):D412-D419</a>.</li>
+    {# 10 #}<li id="help_ref_swissprot">UniProt Consortium. UniProt: the universal protein knowledgebase in 2021. <a href="https://doi.org/10.1093/nar/gkaa1100">Nucleic Acids Res. 2021;49(D1):D480-D489</a>.</li>
+    {# 11 #}<li id="help_ref_ecod">Schaeffer R, Liao Y, Cheng H, Grishin N. ECOD: new developments in the evolutionary classification of domains. <a href="https://doi.org/10.1093/nar/gkw1137">Nucleic Acids Res. 2017;45(D1):D296-D302</a>.</li>
+    {# 12 #}<li id="help_ref_cog">Galperin M, Wolf Y, Makarova K, Vera Alvarez R, Landsman D, Koonin E. COG database update: focus on microbial diversity, model organisms, and widespread pathogens. <a href="https://doi.org/10.1093/nar/gkaa1018">Nucleic Acids Res. 2021;49(D1):D274-D281</a>.</li>
+    {# 13 #}<li id="help_ref_cdd">Lu S, Wang J, Chitsaz F, Derbyshire M, Geer R, Gonzales N, Gwadz M, Hurwitz D, Marchler G, Song J, et al. CDD/SPARCLE: the conserved domain database in 2020. <a href="https://doi.org/10.1093/nar/gkz991">Nucleic Acids Res. 2020;48(D1):D265-D268</a>.</li>
+    {# 14 #}<li id="help_ref_uniclust">Mirdita M, von den Driesch L, Galiez C, Martin M, Söding J, Steinegger M. Uniclust databases of clustered and deeply annotated protein sequences and alignments. <a href="https://doi.org/10.1093/nar/gkw1081">Nucleic Acids Res. 2017;45(D1):D170-D176</a>.</li>
+    {# 15 #}<li id="help_ref_bfd">Steinegger M, Mirdita M, Söding J. Protein-level assembly increases protein sequence recovery from metagenomic samples manyfold. <a href="https://doi.org/10.1038/s41592-019-0437-4">Nat Methods. 2019;16(7):603-606</a>.</li>
+    {# 16 #}<li id="help_ref_uniref">Suzek B, Wang Y, Huang H, McGarvey P, Wu C, and the UniProt Consortium. UniRef clusters: a comprehensive and scalable alternative for improving sequence similarity searches. <a href="https://doi.org/10.1093/bioinformatics/btu739">Bioinformatics. 2015;31(6):926-32</a>.</li>
+    {# 17 #}<li id="help_ref_mgnify">Mitchell A, Almeida A, Beracochea M, Boland M, Burgin J, Cochrane G, Crusoe M, Kale V, Potter S, Richardson L, et al. MGnify: the microbiome analysis resource in 2020. <a href="https://doi.org/10.1093/nar/gkz1035">Nucleic Acids Res. 2020;48(D1):D570-D578</a>.</li>
 </ol>
 </div>
 {% endblock %}

@@ -84,10 +84,9 @@ noscript {
 .help_page {
     max-width: 1140px;
 }
-ol {
+.multilevel_numbered_list ol {
     counter-reset: item;
 }
-
 ol > li {
     counter-increment: item;
 }
