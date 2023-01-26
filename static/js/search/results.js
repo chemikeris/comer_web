@@ -104,6 +104,9 @@ function shortDescription(description) {
     else if (description.startsWith('ECOD')) {
         return description.split(' ')[0].split('_').pop();
     }
+    else if (description.startsWith('SCOP')) {
+        return description.split(' ')[0].split(/_(.*)/s)[1];
+    }
     else
     {
         return description.split(' ')[0];
@@ -166,8 +169,11 @@ function createLink(result_id) {
     if (result_id.startsWith('PF')) {
         link = createPfamLink(result_id);
     }
+    else if (result_id.startsWith('SCOP')) {
+        link = createSCOPeLink(result_id, false);
+    }
     else if ((result_id[0] == 'd') || (result_id[0] == 'g')) {
-        link = createSCOPeLink(result_id);
+        link = createSCOPeLink(result_id, true);
     }
     else if (result_id.startsWith('ECOD')) {
         link = createECODLink(result_id, false);
@@ -190,8 +196,9 @@ function createLink(result_id) {
     }
     return '<a href="' + link + '">' + result_id + '</a>'
 }
-function createSCOPeLink(scop_id) {
-    return 'https://scop.berkeley.edu/sid=' + scop_id;
+function createSCOPeLink(scop_id, raw_id) {
+    scop_domain = raw_id ? scop_id : scop_id.split(/_(.*)/s)[1];
+    return 'https://scop.berkeley.edu/sid=' + scop_domain;
 }
 function createECODLink(ecod_id, raw_id) {
     ecod_domain = raw_id ? ecod_id : ecod_id.split('_')[2];
