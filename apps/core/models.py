@@ -307,7 +307,8 @@ class Databases(models.Model):
 
 def get_databases_for(program, db=None):
     try:
-        databases = Databases.objects.filter(program=program).order_by('pk')
+        databases = Databases.objects\
+            .filter(program=program).order_by('pk').all()
         if db:
             databases = databases.filter(db__in=db)
         descriptions = []
