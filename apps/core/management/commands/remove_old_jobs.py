@@ -69,7 +69,7 @@ class Command(BaseCommand):
                     print('Keeping example job, only subjobs are deleted.')
                     continue
             elif j.name in PERMANENT_JOBS:
-                print('Keeping permanent job %s' % job_name)
+                print('Keeping permanent job %s' % j.name)
                 continue
             job_directory_to_remove = j.get_directory()
             try:
