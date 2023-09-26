@@ -32,7 +32,7 @@ BASE_URL = 'https://bioinformatics.lt/comer'
 ALLOWED_HOSTS = ['.ibt.lt', '.bioinformatics.lt', '.bioinfo.lt', 'localhost']
 
 EMAIL_HOST = 'mailrelay.vu.lt'
-DEFAULT_FROM_EMAIL = 'noreply@bioinformatics.lt'
+DEFAULT_FROM_EMAIL = 'comer@bti.vu.lt'
 
 # Add Google Analytics tag into file google_analytics.py if you want to use
 # this service.
@@ -102,6 +102,7 @@ DATABASES = {
         'NAME': 'comer_web_server',
         'USER': passwords.MYSQL_USER,
         'PASSWORD': passwords.MYSQL_PASSWORD,
+        'HOST': '127.0.0.1',
         'OPTIONS': {
             'charset': 'utf8',
         }
