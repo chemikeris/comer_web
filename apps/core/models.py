@@ -269,6 +269,7 @@ class Databases(models.Model):
         COTHER = 'cother', 'COTHER'
         HHsuite = 'hhsuite', 'HH-suite'
         hmmer = 'hmmer', 'hmmer'
+        GTalign = 'gtalign', 'GTalign'
     program = models.CharField(
         max_length=160, choices=Program.choices
         )

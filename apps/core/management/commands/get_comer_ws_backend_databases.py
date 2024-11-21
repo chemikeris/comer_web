@@ -20,18 +20,21 @@ class Command(BaseCommand):
         "Connect to calculation server, get and parse DB info"
         if not options['silent']:
             logging.basicConfig(level=logging.INFO)
-        backend_config = retrieve_calculation_server_config()
-        databases_info = parse_comer_ws_backend_config(backend_config)
-        write_or_update(databases_info)
+        backend_software = ['comer', 'gtalign']
+        for software in backend_software:
+            backend_config = retrieve_calculation_server_config(software)
+            databases_info = parse_comer_ws_backend_config(backend_config)
+            write_or_update(databases_info)
 
 
-def retrieve_calculation_server_config():
+def retrieve_calculation_server_config(software='comer'):
     "Retrieve calculation server config"
     server_config_file = calculation_server.SERVER_CONFIG_FILE
     server_connection = calculation_server.Connection(server_config_file)
     backend_config_fd = io.BytesIO()
+    software_paths_str = '%s-ws-backend_path' % software
     server_connection.connection.get(
-        server_connection.config['comer-ws-backend_path']['config'],
+        server_connection.config[software_paths_str]['config'],
         local=backend_config_fd
         )
     backend_config = backend_config_fd.getvalue().decode()
@@ -62,6 +65,7 @@ def parse_comer_ws_backend_config(backend_config):
     databases['cother'] = {}
     databases['hmmer'] = {}
     databases['hhsuite'] = {}
+    databases['gtalign'] = {}
     version_not_necessary = []
     for setting, value in c['values'].items():
         s, v = setting, value
@@ -81,6 +85,9 @@ def parse_comer_ws_backend_config(backend_config):
         elif s.startswith('cotherprodb'):
             logging.info('%s = %s', setting, v)
             databases['cother'][v] = db_name_and_version(s, v)
+        elif s.startswith('strdb'):
+            logging.info('%s = %s', setting, v)
+            databases['gtalign'][v] = db_name_and_version(s, v)
         else:
             continue
     return databases
@@ -89,7 +96,8 @@ def parse_comer_ws_backend_config(backend_config):
 def write_or_update(databases_info):
     "Write databases info to web server DB"
     for program, db_info in databases_info.items():
-        logging.info('Saving search databases for %s.', program)
+        if db_info:
+            logging.info('Saving search databases for %s.', program)
         for backend_name, info in db_info.items():
             db, version = info
             logging.info(
