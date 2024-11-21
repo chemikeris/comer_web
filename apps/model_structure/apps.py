@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class ModelStructureConfig(AppConfig):
-    name = 'model_structure'
+    name = 'apps.model_structure'

@@ -96,6 +96,8 @@ WSGI_APPLICATION = 'comer_web.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
