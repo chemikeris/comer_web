@@ -23,4 +23,5 @@ urlpatterns = [
     path('model_structure/', include('apps.model_structure.urls')),
     #path('admin/', admin.site.urls),
     path('msa/', include('apps.msa.urls')),
+    path('gtalign/', include('apps.structure_search.urls')),
 ]
