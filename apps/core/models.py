@@ -6,6 +6,7 @@ import csv
 
 from django.db import models
 from django.db.utils import OperationalError
+from django.conf import settings
 
 from comer_web import calculation_server
 from . import utils
@@ -240,6 +241,20 @@ class ComerWebServerJob(models.Model):
 
     def results_summary(self):
         raise NotImplementedError
+
+
+class SearchJob(ComerWebServerJob):
+    class Meta:
+        abstract = True
+
+    date = models.DateField(auto_now_add=True)
+    email = models.EmailField(null=True)
+
+    def get_directory(self):
+        self.directory = os.path.join(
+            settings.JOBS_DIRECTORY, str(self.date), self.name
+            )
+        return self.directory
 
 
 class SearchSubJob:

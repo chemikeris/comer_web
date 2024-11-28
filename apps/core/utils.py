@@ -58,6 +58,7 @@ def is_Pfam_result(name):
     else:
         return False
 
+
 def is_CDD_result(name):
     "Check if the result is a Pfam result"
     if name.startswith('cd'):

@@ -3,7 +3,6 @@ import copy
 import logging
 
 from django.db import models
-from django.conf import settings
 from django.urls import reverse
 from django.core.mail import send_mail
 from django.core.files.uploadedfile import UploadedFile
@@ -12,14 +11,12 @@ from django.core.files.uploadedfile import UploadedFile
 from . import default
 from comer_web import calculation_server
 from comer_web.settings import BASE_URL
-from apps.core.models import ComerWebServerJob, generate_job_name
+from apps.core.models import SearchJob, generate_job_name
 from apps.core.utils import search_input_files_exist, read_json_file
 from apps.core import sequences
 
 
-class Job(ComerWebServerJob):
-    date = models.DateField(auto_now_add=True)
-    email = models.EmailField(null=True)
+class Job(SearchJob):
     # Number of sequences is estimated after job is finished, as the sequences
     # input is parsed by calculation server.
     number_of_input_sequences = models.IntegerField()
@@ -38,12 +35,6 @@ class Job(ComerWebServerJob):
             return 'cother'
         else:
             return 'comer'
-
-    def get_directory(self):
-        self.directory = os.path.join(
-            settings.JOBS_DIRECTORY, str(self.date), self.name
-            )
-        return self.directory
 
     def __str__(self):
         s = 'COMER job\n'
