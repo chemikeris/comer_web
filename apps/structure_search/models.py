@@ -10,23 +10,34 @@ from apps.core.models import SearchJob, generate_job_name
 
 
 class Job(SearchJob):
-    # Number of structures and number of successful structures are idenfitied
-    # after the job is finished in calculation server.
-    number_of_input_structures = models.IntegerField(null=True)
-    number_of_successful_structures = models.IntegerField(null=True)
-
+    "GTalign search job"
     def method(self):
+        return 'gtalign'
+
+    def query_suffix(self):
+        return 'tar'
+
+    def process(self):
         return 'gtalign'
 
     def write_sequences(self):
         logging.error('Structure search job cannot write sequences!')
 
+    def read_results_lst_files_line(self, files_line):
+        "Reading results lst line for GTalign search job"
+        rf = {}
+        rf['results_json'] = files_line[0]
+        rf['structure_description'] = files_line[1]
+        rf['structure_length'] = files_line[2]
+        return rf
+
 
 def process_input_data(input_data, input_files):
     "Process input data for GTalign search"
     structure_str = input_data.pop('structure')
-    email=input_data.pop('email')
-    description=input_data.pop('description')
+    email = input_data.pop('email')
+    description = input_data.pop('description')
+    database = input_data.pop('database')
     try:
         input_query_files = input_files.getlist('input_query_files')
     except KeyError:
@@ -50,12 +61,14 @@ def process_input_data(input_data, input_files):
     with tarfile.open(input_archive_file, 'w') as tf:
         for fname in os.listdir(input_directory):
             tf.add(os.path.join(input_directory, fname), arcname=fname)
-    save_gtalign_settings(new_job.get_input_file('settings'))
+    save_gtalign_settings(new_job.get_input_file('options'), database)
     return new_job
 
 
-def save_gtalign_settings(settings_file):
+def save_gtalign_settings(settings_file, database):
     default_settings_file = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), 'default_settings.txt')
     shutil.copy(default_settings_file, settings_file)
+    with open(settings_file, 'a') as f:
+        f.write('gtalign_db = %s' % database)
        

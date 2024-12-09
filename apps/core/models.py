@@ -72,13 +72,24 @@ class ComerWebServerJob(models.Model):
     def method(self):
         raise NotImplementedError
 
+    def query_suffix(self):
+        return 'in'
+
+    def process(self):
+        return 'comer'
+
     def submit_to_calculation(self, connection):
         "Submit COMER job for calculation to calculation server"
         remote_job_directory = connection.job_directory(self.name, create=True)
-        connection.send_file(self.get_input_file('options'), remote_job_directory)
-        connection.send_file(self.get_input_file('in'), remote_job_directory)
-        run_result = connection.run_comer(
-            self.name, remote_job_directory, self.task()
+        connection.send_file(
+            self.get_input_file('options'), remote_job_directory
+            )
+        connection.send_file(
+            self.get_input_file(self.query_suffix()),
+            remote_job_directory
+            )
+        run_result = connection.run_computation(
+            self.name, remote_job_directory, self.process(), self.task()
             )
         job_calculation_slurm_id = run_result.stdout
         print(job_calculation_slurm_id)
@@ -97,7 +108,7 @@ class ComerWebServerJob(models.Model):
         elif job_status_code == 0:
             self.get_results_files(connection)
             results_files = self.read_results_lst()
-            self.number_of_successful_sequences = len(results_files)
+            self.number_of_successful_queries = len(results_files)
             self.postprocess_calculation_results(results_files)
             self.status = getattr(self, 'FINISHED')
             self.send_confirmation_email('finished')
@@ -249,12 +260,17 @@ class SearchJob(ComerWebServerJob):
 
     date = models.DateField(auto_now_add=True)
     email = models.EmailField(null=True)
+    number_of_input_queries = models.IntegerField(null=True)
+    number_of_successful_queries = models.IntegerField(null=True)
 
     def get_directory(self):
         self.directory = os.path.join(
             settings.JOBS_DIRECTORY, str(self.date), self.name
             )
         return self.directory
+
+    def get_output_name(self):
+        return '%s__%s_out' % (self.name, self.method())
 
 
 class SearchSubJob:

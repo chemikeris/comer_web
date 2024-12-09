@@ -35,10 +35,10 @@ class StructureInputForm(forms.Form):
     input_query_files = MultipleFileField(
         required=False, label='Upload structure file(s)'
         )
-    databases = forms.ChoiceField(
+    database = forms.ChoiceField(
         choices=get_databases_for('gtalign'),
         initial=get_databases_for('gtalign', 'pdb'),
-        label='Databases'
+        label='Database'
         )
     email = forms.EmailField(required=False, label='E-mail (optional)')
     description = forms.CharField(

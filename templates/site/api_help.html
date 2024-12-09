@@ -77,9 +77,9 @@ If errors have occurred, the status field will be "failed" ("status": "failed") 
 <h3 id="api_help_retrieving">Retrieving results</h3>
 <p>The following command is used to retrieve from the server the resulting profile-profile alignments in JSON format, associated with job MyJobID:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_results_json' job_id='MyJobID' %}</code></p>
-<p>If it is issued during the execution of the job, the results will be empty ("results": []), the number of successfully processed queries will be 0 ("number_of_successful_sequences": 0), and the status will indicate the process being in progress ("status": "queued"):</p>
+<p>If it is issued during the execution of the job, the results will be empty ("results": []), the number of successfully processed queries will be 0 ("number_of_successful_queries": 0), and the status will indicate the process being in progress ("status": "queued"):</p>
 <code><pre id="results_json_empty"></pre></code>
-<script>nice_json({"success": true, "job_id": "MyJobID", "status": "queued", "search_method": "COMER", "error_log": "", "number_of_input_sequences": 5, "number_of_successful_sequences": 0, "results": [], "web_url": "/search/results/MyJobID"}, 'results_json_empty');</script>
+<script>nice_json({"success": true, "job_id": "MyJobID", "status": "queued", "search_method": "COMER", "error_log": "", "number_of_input_queries": 5, "number_of_successful_queries": 0, "results": [], "web_url": "/search/results/MyJobID"}, 'results_json_empty');</script>
 <p>The profile-profile alignments along with intermediate results, including initial queries, constructed MSAs and profiles, and log files, are also available as a single compressed zip file:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'api_results_zip' job_id='MyJobID' %}</code></p>
 <p>The input data, the options of the job, and the job progress information can be retrieved separately using the following commands:</p>

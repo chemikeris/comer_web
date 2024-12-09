@@ -19,8 +19,8 @@ from apps.core import sequences
 class Job(SearchJob):
     # Number of sequences is estimated after job is finished, as the sequences
     # input is parsed by calculation server.
-    number_of_input_sequences = models.IntegerField()
-    number_of_successful_sequences = models.IntegerField(null=True)
+    number_of_input_queries = models.IntegerField()
+    number_of_successful_queries = models.IntegerField(null=True)
     is_cother_search = models.BooleanField()
 
     def task(self):
@@ -41,14 +41,11 @@ class Job(SearchJob):
         s += 'Date started: %s\n' % self.date
         s += 'Name: %s\n' % self.name
         s += 'Number of input sequences: %s\n' % \
-            self.number_of_input_sequences or '?'
+            self.number_of_input_queries or '?'
         s += 'Number of results sequences: %s\n' % \
-            self.number_of_successful_sequences or '?'
+            self.number_of_successful_queries or '?'
         s += 'Status: %s\n' % self.get_status_display()
         return s
-
-    def get_output_name(self):
-        return '%s__%s_out' % (self.name, self.method())
 
     def read_results_lst_files_line(self, files_line):
         "Reading results lst line for Comer search job"
@@ -197,7 +194,7 @@ def process_input_data(input_data, input_files, example=False):
     new_job = Job.objects.create(
         name=job_name, email=email, is_cother_search=use_cother,
         description=description,
-        number_of_input_sequences=len(sequences_data)
+        number_of_input_queries=len(sequences_data)
         )
     logging.info(new_job)
     options_file = new_job.get_input_file('options')

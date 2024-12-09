@@ -128,7 +128,7 @@ def results(request, job_id, redirect_to_first=False):
     finished, removed, status_msg, errors, refresh = job.status_info()
     page_title = '%s results - %s' % (job.method().upper(), job.nice_name())
     if finished and not removed:
-        if job.number_of_input_sequences == 1 and redirect_to_first:
+        if job.number_of_input_queries == 1 and redirect_to_first:
             print('Single-sequence job, redirecting.')
             return redirect('detailed', job_id=job_id, sequence_no=0)
 
@@ -172,9 +172,9 @@ class ApiResultsJson(ApiResultsView):
     "API view showing results in JSON format"
     def format_output(self, job, sequence_no=None):
         result = self.start_output_for_successful_result(job)
-        result['number_of_input_sequences'] = job.number_of_input_sequences
-        result['number_of_successful_sequences'] = \
-            job.number_of_successful_sequences or 0
+        result['number_of_input_queries'] = job.number_of_input_queries
+        result['number_of_successful_queries'] = \
+            job.number_of_successful_queries or 0
         result['results'] = []
         if job.status == job.FINISHED:
             results_files = job.read_results_lst()

@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand, CommandError
 from apps.search import models as search_models
 from apps.model_structure import models as structure_models
 from apps.msa import models as msa_models
+from apps.structure_search import models as struct_search_models
 from comer_web import calculation_server
 
 
@@ -35,7 +36,11 @@ def track_jobs():
     search_jobs = retrieve_unfinished_jobs(search_models.Job)
     modeling_jobs = retrieve_unfinished_jobs(structure_models.Job)
     msa_jobs = retrieve_unfinished_jobs(msa_models.Job)
-    all_jobs = list(search_jobs) + list(modeling_jobs) + list(msa_jobs)
+    structure_search_jobs = retrieve_unfinished_jobs(struct_search_models.Job)
+    all_jobs = list(search_jobs) \
+        + list(modeling_jobs) \
+        + list(msa_jobs) \
+        + list(structure_search_jobs)
     if all_jobs:
         connection = calculation_server.Connection()
     for j in all_jobs:
@@ -43,11 +48,8 @@ def track_jobs():
 
 
 def track_status(job, connection):
-    finished = False
-    removed = False
     status_msg = None
     job_log = None
-    refresh = False
     if job.status == job.NEW:
         status_msg = 'new'
         # Submitting new job to calculation server.
@@ -57,7 +59,6 @@ def track_status(job, connection):
             logging.error(e)
             job.status = job.FAILED
             job.save()
-        refresh = True
     elif job.status == job.QUEUED:
         status_msg = 'queued'
         # Checking job status.
@@ -68,12 +69,10 @@ def track_status(job, connection):
             else:
                 job.status = job.RUNNING
         job.save()
-        refresh = True
     elif job.status == job.RUNNING:
         status_msg = 'running'
         job.calculation_log = job.check_calculation_status(connection)
         job.save()
-        refresh = True
     else:
         print('Unknown job status!')
 
