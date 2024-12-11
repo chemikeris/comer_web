@@ -7,6 +7,7 @@ import glob
 from django.db import models
 
 from apps.core.models import SearchJob, generate_job_name
+from apps.core.utils import read_json_file
 
 
 class Job(SearchJob):
@@ -30,6 +31,28 @@ class Job(SearchJob):
         rf['structure_description'] = files_line[1]
         rf['structure_length'] = files_line[2]
         return rf
+
+    def summarize_results_for_query(self, results_files):
+        return StructureSearchResultsSummary(self, results_files)
+
+
+class StructureSearchResultsSummary:
+    def __init__(self, job, results_data):
+        r = results_data
+        input_structure_data = r['structure_description'].split()
+        structure_file = input_structure_data[0]
+        self.structure_file = structure_file.split(':')[-1]
+        chain_desc = input_structure_data[1]
+        self.chain = chain_desc.split(':')[-1]
+        try:
+            model_desc = input_structure_data[2]
+            self.model = model_desc.lstrip('(').rstrip(')').split(':')[-1]
+        except IndexError:
+            self.model = 1
+        self.input_length = r['structure_length']
+        json_file = job.results_file_path(r['results_json'])
+        results_json, err = read_json_file(json_file, job.method()+'_search')
+        self.number_of_results = len(results_json['search_results'])
 
 
 def process_input_data(input_data, input_files):
@@ -71,4 +94,4 @@ def save_gtalign_settings(settings_file, database):
     shutil.copy(default_settings_file, settings_file)
     with open(settings_file, 'a') as f:
         f.write('gtalign_db = %s' % database)
-       
+

@@ -25,7 +25,11 @@ def input(request):
 def results(request, job_id, redirect_to_first=False):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
-    return
+    context = {
+        'job': job,
+        'results_summary': job.results_summary(),
+        }
+    return render(request, 'structure_search/results_all.html', context)
 
 
 def detailed(request, job_id, structure_no):

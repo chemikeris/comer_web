@@ -12,7 +12,7 @@ urlpatterns = [
         name='gtalign_results'
         ),
     path(
-        'detailed/<slug:job_id>/<int:sequence_no>', views.detailed,
+        'detailed/<slug:job_id>/<int:structure_no>', views.detailed,
         name='gtalign_detailed'
         ),
 ]

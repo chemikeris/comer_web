@@ -36,17 +36,6 @@ class Job(SearchJob):
         else:
             return 'comer'
 
-    def __str__(self):
-        s = 'COMER job\n'
-        s += 'Date started: %s\n' % self.date
-        s += 'Name: %s\n' % self.name
-        s += 'Number of input sequences: %s\n' % \
-            self.number_of_input_queries or '?'
-        s += 'Number of results sequences: %s\n' % \
-            self.number_of_successful_queries or '?'
-        s += 'Status: %s\n' % self.get_status_display()
-        return s
-
     def read_results_lst_files_line(self, files_line):
         "Reading results lst line for Comer search job"
         rf = {}
@@ -102,12 +91,8 @@ class Job(SearchJob):
         else:
             return sequences[0]
 
-    def results_summary(self):
-        summary = []
-        results_files = self.read_results_lst()
-        for rf in results_files:
-            summary.append(SearchResultsSummary(self, rf))
-        return summary
+    def summarize_results_for_query(self, results_files):
+        return SearchResultsSummary(self, results_files)
 
     def results_file(self, sequence_no, what_file):
         results_files = self.read_results_lst()

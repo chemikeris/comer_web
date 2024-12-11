@@ -1,0 +1,23 @@
+{% block results %}
+<h1>GTalign results</h1>
+<table>
+	<thead>
+		<tr>
+			<td>Input structure</td>
+			<td>Chain</td>
+			<td>Model</td>
+			<td>Length</td>
+			<td>Number of results</td>
+		</tr>
+	</thead>
+{% for r in results_summary %}
+<tr>
+	<td>{{ r.structure_file }}</td>
+	<td>{{ r.chain }}</td>
+	<td>{{ r.model }}</td>
+	<td>{{ r.input_length }}</td>
+	<td><a href="{% url 'gtalign_detailed' job_id=job.name structure_no=forloop.counter0 %}">{{ r.number_of_results }}</a></td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

@@ -272,6 +272,24 @@ class SearchJob(ComerWebServerJob):
     def get_output_name(self):
         return '%s__%s_out' % (self.name, self.method())
 
+    def __str__(self):
+        s = '%s job\n' % self.method().upper()
+        s += 'Date started: %s\n' % self.date
+        s += 'Name: %s\n' % self.name
+        s += 'Number of input queries: %s\n' % \
+            self.number_of_input_queries or '?'
+        s += 'Number of results queries: %s\n' % \
+            self.number_of_successful_queries or '?'
+        s += 'Status: %s\n' % self.get_status_display()
+        return s
+
+    def results_summary(self):
+        summary = []
+        results_files = self.read_results_lst()
+        for rf in results_files:
+            summary.append(self.summarize_results_for_query(rf))
+        return summary
+
 
 class SearchSubJob:
     "Class for defining common methods for jobs derived from SearchJob"
