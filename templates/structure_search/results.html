@@ -1,0 +1,14 @@
+{% load static %}
+<h1>GTalign results</h1>
+{{ results|json_script:"raw_results" }}
+<script>const results = JSON.parse(document.getElementById('raw_results').textContent);</script>
+
+<h2>Results summary</h2>
+<div id="schematic_sequences"></div>
+<h2>Results table</h2>
+<div id="results_table"></div>
+<h2>Alignments</h2>
+<div id="alignments"></div>
+
+<script src="{% static 'js/common/results.js' %}"></script>
+<script src="{% static 'js/structure_search/results.js' %}"></script>

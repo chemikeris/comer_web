@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 
 from . import models
+from apps.core import utils
 
 
 def input(request):
@@ -33,5 +34,15 @@ def results(request, job_id, redirect_to_first=False):
 
 
 def detailed(request, job_id, structure_no):
-    pass
+    job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
+    print(job)
+    results_file = job.results_file_path(
+        job.read_results_lst()[structure_no]['results_json']
+        )
+    results, json_error = utils.read_json_file(results_file)
+    context = {
+        'job': job,
+        'results': results,
+        }
+    return render(request, 'structure_search/results.html', context)
 
