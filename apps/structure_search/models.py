@@ -95,3 +95,18 @@ def save_gtalign_settings(settings_file, database):
     with open(settings_file, 'a') as f:
         f.write('gtalign_db = %s' % database)
 
+
+def prepare_results_json(results_json):
+    "Remove unnecessary data from GTalign results JSON"
+    for hit_record in results_json['gtalign_search']['search_results']:
+        hr = hit_record['hit_record']
+        description = hr['reference_description'].split()
+        formatted_description = []
+        formatted_description.append(
+            os.path.basename(description[0])
+            )
+        for d in description[1:]:
+            formatted_description.append(d)
+        hr['reference_description'] = ' '.join(formatted_description)
+    return results_json
+

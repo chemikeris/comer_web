@@ -40,9 +40,10 @@ def detailed(request, job_id, structure_no):
         job.read_results_lst()[structure_no]['results_json']
         )
     results, json_error = utils.read_json_file(results_file)
+    processed_results = models.prepare_results_json(results)
     context = {
         'job': job,
-        'results': results,
+        'results': processed_results,
         }
     return render(request, 'structure_search/results.html', context)
 
