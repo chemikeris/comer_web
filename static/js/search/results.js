@@ -35,6 +35,9 @@ function fillSummaryTableRowData(row, hit_record) {
 function getTargetDescription(hit_record) {
     return hit_record.target_description;
 }
+function getAlignmentLength(hit_record) {
+    return hit_record.alignment.aln_length;
+}
 function formatAlignmentDescription(alignment_div, hit_record) {
     var alignment_description = document.createElement('p');
     alignment_description.innerText = 'Length/ENO: ';

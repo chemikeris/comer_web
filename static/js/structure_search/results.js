@@ -14,6 +14,9 @@ function fillSummaryTableRowData(row, hit_record) {
 function getTargetDescription(hit_record) {
     return hit_record.reference_description;
 }
+function getAlignmentLength(hit_record) {
+    return hit_record.alignment.n_aligned;
+}
 function formatAlignmentDescription(alignment_div, hit_record) {
 
 }

@@ -1,4 +1,5 @@
 {% load static %}
+<link rel="stylesheet" href="{% static 'css/site.css' %}">
 <h1>GTalign results</h1>
 {{ results|json_script:"raw_results" }}
 <script>const results = JSON.parse(document.getElementById('raw_results').textContent);</script>
@@ -12,3 +13,4 @@
 
 <script src="{% static 'js/common/results.js' %}"></script>
 <script src="{% static 'js/structure_search/results.js' %}"></script>
+

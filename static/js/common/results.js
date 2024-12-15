@@ -53,7 +53,7 @@ function showResults(results) {
         results_table_body.appendChild(row);
 
         // Formatting sequence alignments.
-        alignments_div.appendChild(formatAlignment(i, hit_record));
+        alignments_div.appendChild(formatAlignment(i, hit_record, structure_search));
     }
     if (number_of_hits == 0) {
         summary_div.innerHTML += '<p>No hits found.</p>';
@@ -210,7 +210,20 @@ function createRCSBLink(pdb_chain_id) {
     pdb_id = pdb_chain_id.substr(0,4)
     return 'https://www.rcsb.org/structure/' + pdb_id;
 }
-function formatAlignment(result_no, hit_record) {
+function formatAlignment(result_no, hit_record, structure_search) {
+    // Different target description names are used for GTalign and COMER, therefore...
+    if (structure_search) {
+        var target_from = 'refn_from';
+        var target_to = 'refn_to';
+        var target_aln = 'refrn_aln';
+        var target_secstr = 'refrn_secstr';
+    }
+    else {
+        var target_from = 'target_from';
+        var target_to = 'target_to';
+        var target_aln = 'target_aln';
+        var target_secstr = 'target_secstr';
+    }
     var alignment_div = document.createElement('div');
     alignment_div.classList.add('alignment');
     alignment_div.classList.add('alignment_part_'+resultsPartNo(result_no));
@@ -242,16 +255,17 @@ function formatAlignment(result_no, hit_record) {
 
     var alignment_str = '';
     var query_starts = hit_record.alignment.query_from;
-    var target_starts = hit_record.alignment.target_from;
-    for (var i = 0; i <= hit_record.alignment.aln_length - 1; i += ALIGNMENT_LENGTH) {
+    var target_starts = hit_record.alignment[target_from];
+    var aln_length = getAlignmentLength(hit_record);
+    for (var i = 0; i <= aln_length - 1; i += ALIGNMENT_LENGTH) {
         var query_ss = hit_record.alignment.query_secstr.substr(i, ALIGNMENT_LENGTH);
         var aligned_query = hit_record.alignment.query_aln.substr(i, ALIGNMENT_LENGTH);
         var middle = hit_record.alignment.middle.substr(i, ALIGNMENT_LENGTH);
-        var aligned_target = hit_record.alignment.target_aln.substr(i, ALIGNMENT_LENGTH);
-        var target_ss = hit_record.alignment.target_secstr.substr(i, ALIGNMENT_LENGTH);
+        var aligned_target = hit_record.alignment[target_aln].substr(i, ALIGNMENT_LENGTH);
+        var target_ss = hit_record.alignment[target_secstr].substr(i, ALIGNMENT_LENGTH);
 
         query_ends = Math.min(hit_record.alignment.query_to, query_starts+ALIGNMENT_LENGTH-1-countGaps(aligned_query));
-        target_ends = Math.min(hit_record.alignment.target_to, target_starts+ALIGNMENT_LENGTH-1-countGaps(aligned_target));
+        target_ends = Math.min(hit_record.alignment[target_to], target_starts+ALIGNMENT_LENGTH-1-countGaps(aligned_target));
 
         if (query_ss) alignment_str += query_sec_str_prefix + spacer + colorSS(query_ss).padEnd(ALIGNMENT_LENGTH, ' ') + '\n';
         alignment_str += query_prefix + query_starts.toString().padEnd(spacer_size, ' ') + colorResidues(aligned_query).padEnd(ALIGNMENT_LENGTH, ' ') + query_ends.toString().padStart(spacer_size, ' ') + '\n';
