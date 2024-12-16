@@ -14,7 +14,7 @@ def input(request):
             new_job = models.process_input_data(
                 form.cleaned_data, request.FILES
                 )
-            redirect('gtalign_results', job_id=new_job.name)
+            return redirect('gtalign_results', job_id=new_job.name)
     else:
         form = StructureInputForm()
     context = {
@@ -26,11 +26,24 @@ def input(request):
 def results(request, job_id, redirect_to_first=False):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
-    context = {
-        'job': job,
-        'results_summary': job.results_summary(),
-        }
-    return render(request, 'structure_search/results_all.html', context)
+    finished, removed, status_msg, errors, refresh = job.status_info()
+    if finished and not removed:
+        context = {
+            'job': job,
+            'results_summary': job.results_summary(),
+            'job_options': job.read_input_file('options'),
+            }
+        return render(request, 'structure_search/results_all.html', context)
+    else:
+        context = {
+            'job': job,
+            'status_msg': status_msg,
+            'reload': refresh,
+            'log': job.calculation_log,
+            'errors': errors,
+            'job_options': job.read_input_file('options'),
+            }
+        return render(request, 'jobs/not_finished_or_removed.html', context)
 
 
 def detailed(request, job_id, structure_no):
