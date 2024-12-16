@@ -37,7 +37,7 @@ class StructureInputForm(forms.Form):
         )
     database = forms.ChoiceField(
         choices=get_databases_for('gtalign'),
-        initial=get_databases_for('gtalign', 'pdb'),
+        initial=get_databases_for('gtalign', 'pdb_mmcif'),
         label='Database'
         )
     email = forms.EmailField(required=False, label='E-mail (optional)')

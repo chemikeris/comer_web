@@ -334,6 +334,8 @@ class Databases(models.Model):
         cog = 'cog', 'COG-KOG'
         ncbicd = 'ncbicd', 'NCBI-Conserved-Domains'
         bfd = 'bfd', 'BFD'
+        pdb_mmcif = 'pdb_mmcif', 'PDB mmCIF'
+
     db = models.CharField(
         max_length=160, choices=DB.choices
         )
@@ -363,7 +365,11 @@ def get_databases_for(program, db=None):
             databases = databases.filter(db__in=db)
         descriptions = []
         for d in databases:
-            descriptions.append([d.calculation_server_description, str(d)])
+            if program == 'gtalign':
+                desc = d.calculation_server_description
+            else:
+                desc = str(d)
+            descriptions.append([d.calculation_server_description, desc])
     except OperationalError:
         descriptions = []
     return descriptions

@@ -19,8 +19,7 @@ class Test_config_file(unittest.TestCase):
         self.assertTrue('jobs_directory' in comer_ws_backend_config)
         # gtalign-ws-backend config
         gtalign_ws_backend_config = config['gtalign-ws-backend_path']
-        self.assertTrue('structure_search_executable' in comer_ws_backend_config)
-        self.assertTrue('msa_executable' in comer_ws_backend_config)
-        self.assertTrue('config' in comer_ws_backend_config)
-        self.assertTrue('jobs_directory' in comer_ws_backend_config)
+        self.assertTrue('structure_search_executable' in gtalign_ws_backend_config)
+        self.assertTrue('msa_executable' in gtalign_ws_backend_config)
+        self.assertTrue('config' in gtalign_ws_backend_config)
 

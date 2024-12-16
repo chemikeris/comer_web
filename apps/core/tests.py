@@ -6,6 +6,8 @@ from apps.core import sequences
 from apps.core import utils
 from comer_web import settings
 
+import apps.core.management.commands.get_comer_ws_backend_databases as get_dbs
+
 
 class TestSequencesTools(TestCase):
     "Test tools that manipulate sequences data"
@@ -114,4 +116,29 @@ class TestUtils(TestCase):
         self.assertFalse(utils.suitable_for_structure_modeling(cdd_id))
         self.assertFalse(utils.suitable_for_structure_modeling(cog_id))
         self.assertFalse(utils.suitable_for_structure_modeling(kog_id))
+
+
+class TestParsingCalculationServerConfig(TestCase):
+    "Test parsing calculation server config file"
+    def test_reading_db_data_pdb_comer(self):
+        name, version = get_dbs.db_name_and_version(
+            'cprodb_pdb_name', 'pdb70_240312'
+            )
+        self.assertEqual(name, 'pdb')
+        self.assertEqual(version, '240312')
+
+    def test_reading_db_data_pdb_gtalign(self):
+        name, version = get_dbs.db_name_and_version(
+            'strdb_pdb_name', 'mmCIF', for_gtalign=True
+            )
+        self.assertEqual(name, 'pdb_mmcif')
+        self.assertIsNone(version)
+
+    def test_reading_db_data_pdb_plus_gtalign(self):
+        name, version = get_dbs.db_name_and_version(
+            'strdb_pdb_scop_ecod_name', 'mmCIF|scope40_208|ecod_20240325_F70',
+            for_gtalign=True
+            )
+        self.assertEqual(name, 'pdb_scop_ecod')
+        self.assertIsNone(version)
 

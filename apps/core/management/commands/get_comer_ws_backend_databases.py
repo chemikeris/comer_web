@@ -42,18 +42,36 @@ def retrieve_calculation_server_config(software='comer'):
     return backend_config
 
 
-def db_name_and_version(conf_name, conf_value, uniref_suffix=None):
-    name = conf_name.split('_')[1]
+def db_name_and_version(conf_name, conf_value, uniref_suffix=None,
+                        for_gtalign=False):
+    parts = conf_name.split('_')
+    name = parts[1]
     if name == 'bfd':
         version = None
+    elif name == 'pdb':
+        if for_gtalign:
+            if len(parts) > 3:
+                name = '_'.join(parts[1:-1])
+                version = None
+            else:
+                name = 'pdb_mmcif'
+                version = None
+        else:
+            version = db_version(conf_value)
     else:
-        try:
-            version = conf_value.split('_', 1)[1]
-        except IndexError:
-            version = None
+        version = db_version(conf_value)
     if name == 'uniref' and uniref_suffix:
         name = name + uniref_suffix
     return name, version
+
+
+def db_version(conf_value):
+    "Parse DB version from calculation server config value"
+    try:
+        version = conf_value.split('_', 1)[1]
+    except IndexError:
+        version = None
+    return version
 
 
 def parse_comer_ws_backend_config(backend_config):
@@ -87,7 +105,9 @@ def parse_comer_ws_backend_config(backend_config):
             databases['cother'][v] = db_name_and_version(s, v)
         elif s.startswith('strdb'):
             logging.info('%s = %s', setting, v)
-            databases['gtalign'][v] = db_name_and_version(s, v)
+            databases['gtalign'][v] = db_name_and_version(
+                s, v, for_gtalign=True
+                )
         else:
             continue
     return databases
