@@ -98,15 +98,54 @@ def save_gtalign_settings(settings_file, database):
 
 def prepare_results_json(results_json):
     "Remove unnecessary data from GTalign results JSON"
-    for hit_record in results_json['gtalign_search']['search_results']:
+    res = results_json['gtalign_search']
+    for i, hit_record in enumerate(res['search_results']):
         hr = hit_record['hit_record']
-        description = hr['reference_description'].split()
-        formatted_description = []
-        formatted_description.append(
-            os.path.basename(description[0])
-            )
-        for d in description[1:]:
-            formatted_description.append(d)
-        hr['reference_description'] = ' '.join(formatted_description)
+        description = format_description(hr['reference_description'])
+        hr['reference_description'] = description
+        res['search_summary'][i]['summary_entry']['description'] = description
     return results_json
+
+
+def format_description(description):
+    "Parse description from GTalign JSON"
+    def parse_chain(chain_data):
+        return chain_data.split(':')[1]
+    def parse_model(model_data):
+        return model_data[1:-1].split(':')[1]
+    def trim_id(i):
+        if i.endswith('.cif.gz'):
+            return i.split('.')[0]
+        elif i.endswith('.pdb.gz'):
+            return i.split('.')[0]
+        elif i.endswith('.ent'):
+            return i.split('.')[0]
+        elif i.endswith('.tar'):
+            return i.split('.')[0]
+        else:
+            return i
+    def afdb_id_to_uniprot(i):
+        uniprot_ac = i.split('-')[1]
+        return uniprot_ac
+    def after_colon(i):
+        return i.split(':')[1]
+    parts = description.split()
+    identifier = os.path.basename(parts[0])
+    if identifier.startswith('ecod'):
+        return identifier
+    elif identifier.startswith('scope'):
+        identifier = trim_id(after_colon(identifier))
+        return identifier
+    elif identifier.startswith('swissprot') or identifier.startswith('uniref'):
+        return afdb_id_to_uniprot(after_colon(identifier))
+    elif identifier.startswith('UP'):
+        id_parts = identifier.split(':')
+        identifier = afdb_id_to_uniprot(id_parts[1])
+        return '%s %a' % (identifier, trim_id(id_parts[0]))
+    else:
+        # Assuming PDB here
+        identifier = trim_id(identifier)
+        chain = parse_chain(parts[1])
+        model = parse_model(parts[2])
+        return '%s_%s_%s' % (identifier, chain, model)
 
