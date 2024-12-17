@@ -1,6 +1,7 @@
+{% extends 'base_results.html' %}
 {% block results %}
 <h1>GTalign results</h1>
-<table>
+<table class='table table-striped'>
 	<thead>
 		<tr>
 			<td>Input structure</td>
@@ -16,7 +17,7 @@
 	<td>{{ r.chain }}</td>
 	<td>{{ r.model }}</td>
 	<td>{{ r.input_length }}</td>
-	<td><a href="{% url 'gtalign_detailed' job_id=job.name structure_no=forloop.counter0 %}">{{ r.number_of_results }}</a></td>
+	<td><a href="{% url 'gtalign_detailed' job_id=job.name result_no=forloop.counter0 %}">{{ r.number_of_results }}</a></td>
 </tr>
 {% endfor %}
 </table>

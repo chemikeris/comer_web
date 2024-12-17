@@ -35,6 +35,14 @@ class Job(SearchJob):
     def summarize_results_for_query(self, results_files):
         return StructureSearchResultsSummary(self, results_files)
 
+    def structure_headers(self):
+        structures = []
+        results_files = self.read_results_lst()
+        for i, rf in enumerate(results_files):
+            s = self.summarize_results_for_query(rf)
+            structures.append(s.input_description)
+        return structures
+
 
 class StructureSearchResultsSummary:
     def __init__(self, job, results_data):
@@ -49,6 +57,8 @@ class StructureSearchResultsSummary:
             self.model = model_desc.lstrip('(').rstrip(')').split(':')[-1]
         except IndexError:
             self.model = 1
+        self.input_description = '%s Chain:%s Model:%s' % (
+            self.structure_file, self.chain, self.model)
         self.input_length = r['structure_length']
         json_file = job.results_file_path(r['results_json'])
         results_json, err = read_json_file(json_file, job.method()+'_search')

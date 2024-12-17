@@ -42,3 +42,14 @@ def about(request):
     page_title = 'COMER web server'
     return render(request, 'site/about.html', {'page_title': page_title})
 
+
+# GTalign server functions
+def gtalign_help(request):
+    pass
+
+def gtalign_tutorial(request):
+    pass
+
+def gtalign_about(request):
+    pass
+

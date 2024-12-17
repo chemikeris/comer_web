@@ -22,7 +22,7 @@ urlpatterns = [
         name='results_show_input'
         ),
     path(
-        'detailed/<slug:job_id>/<int:sequence_no>', views.detailed,
+        'detailed/<slug:job_id>/<int:result_no>', views.detailed,
         name='detailed'
         ),
     path(

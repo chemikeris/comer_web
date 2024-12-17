@@ -8,4 +8,7 @@ urlpatterns = [
     path('api_help/', views.api_help, name='api_help'),
     path('tutorial/', views.tutorial, name='tutorial'),
     path('about/', views.about, name="about"),
+    path('gtalign/help', views.gtalign_help, name='gtalign_help'),
+    path('gtalign/tutorial', views.gtalign_help, name='gtalign_tutorial'),
+    path('gtalign/about', views.gtalign_help, name='gtalign_about'),
 ]

@@ -86,6 +86,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'cookielaw.context_processors.cookielaw',
                 'comer_web.context_processors.google_analytics',
+                'comer_web.context_processors.program_info',
             ],
         },
     },

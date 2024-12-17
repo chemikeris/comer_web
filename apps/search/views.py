@@ -241,17 +241,17 @@ class ApiDetailedDownloadJSON(ApiResultsDownloadFile):
         return results_file
 
 
-def detailed(request, job_id, sequence_no):
+def detailed(request, job_id, result_no):
     job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
     print(job)
     results_files = job.read_results_lst()
     results_file = job.results_file_path(
-        results_files[sequence_no]['results_json']
+        results_files[result_no]['results_json']
         )
     results, json_error = utils.read_json_file(results_file)
     if results is None:
         return render(request, 'search/error.html', {'json_error': json_error})
-    input_file = job.results_file_path(results_files[sequence_no]['input'])
+    input_file = job.results_file_path(results_files[result_no]['input'])
     input_name, input_format, input_description = \
         models.read_input_name_and_type(input_file)
     page_title = '%s results - %s - %s' % (
@@ -261,15 +261,15 @@ def detailed(request, job_id, sequence_no):
         'job': job,
         'page_title': page_title,
         'recent_jobs': set_and_get_session_jobs(request, job),
-        'structure_models': job.get_structure_models(sequence_no),
-        'generated_msas': job.get_generated_msas().get(sequence_no, []),
-        'sequence_no': sequence_no,
+        'structure_models': job.get_structure_models(result_no),
+        'generated_msas': job.get_generated_msas().get(result_no, []),
+        'sequence_no': result_no,
         'sequences': job.sequence_headers(),
         'results': results,
         'input_name': input_name,
         'input_description': input_description,
         'input_format': '' if input_format is None else f' ({input_format})',
-        'has_msa': results_files[sequence_no]['msa'],
+        'has_msa': results_files[result_no]['msa'],
         'active': 'detailed',
         }
     return render(request, 'search/results.html', context)

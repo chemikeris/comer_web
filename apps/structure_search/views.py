@@ -23,15 +23,19 @@ def input(request):
     return render(request, 'structure_search/input.html', context)
 
 
-def results(request, job_id, redirect_to_first=False):
+def results(request, job_id):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
     finished, removed, status_msg, errors, refresh = job.status_info()
+    summary = job.results_summary()
     if finished and not removed:
         context = {
             'job': job,
-            'results_summary': job.results_summary(),
+            'results_summary': summary,
+            'sequences': [r.input_description for r in summary],
+            'sequence_no': None,
             'job_options': job.read_input_file('options'),
+            'active': 'summary',
             }
         return render(request, 'structure_search/results_all.html', context)
     else:
@@ -42,21 +46,26 @@ def results(request, job_id, redirect_to_first=False):
             'log': job.calculation_log,
             'errors': errors,
             'job_options': job.read_input_file('options'),
+            'sequences': [],
             }
         return render(request, 'jobs/not_finished_or_removed.html', context)
 
 
-def detailed(request, job_id, structure_no):
+def detailed(request, job_id, result_no):
     job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
     print(job)
     results_file = job.results_file_path(
-        job.read_results_lst()[structure_no]['results_json']
+        job.read_results_lst()[result_no]['results_json']
         )
     results, json_error = utils.read_json_file(results_file)
     processed_results = models.prepare_results_json(results)
     context = {
         'job': job,
         'results': processed_results,
+        'sequences': job.structure_headers(),
+        'sequence_no': result_no,
+        'active': 'detailed',
+        'structure_models': None,
         }
     return render(request, 'structure_search/results.html', context)
 
