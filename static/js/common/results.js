@@ -39,6 +39,7 @@ function showResults(results) {
         var row = document.createElement('tr');
         row.classList.add('results_table_row');
         row.classList.add('results_table_row_part_'+resultsPartNo(i));
+        row.classList.add('text-center');
 
         // 0th column is a checkbox
         row.appendChild(createTableData('<input type="checkbox" id="table_row_checkbox' + i + '" value="' + i + '" name="process" class="table_checkbox form-check-input">'));
