@@ -7,7 +7,7 @@ directory="/opt/comer_web/"
 cd $directory/src
 
 echo 'Creating virtual environment.'
-python3 -m venv virtualenv
+python3.12 -m venv virtualenv
 
 echo 'Activating virtual environment.'
 source virtualenv/bin/activate
@@ -27,6 +27,7 @@ python manage.py makemigrations search
 python manage.py makemigrations model_structure
 python manage.py makemigrations msa
 python manage.py makemigrations website
+python manage.py makemigrations structure_search
 python manage.py migrate
 python manage.py collectstatic --noinput
 
