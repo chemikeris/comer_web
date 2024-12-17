@@ -35,9 +35,10 @@
             - git
             - mc
             - vim-enhanced
-            - python3-devel
-            - python3-virtualenv
-            - python3-mod_wsgi
+            - python3.12
+            - python3.12-devel
+            - python3.12-virtualenv
+            - python3.12-mod_wsgi
             - mariadb
             - mariadb-server
             - mariadb-devel
