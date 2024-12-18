@@ -31,6 +31,8 @@ except ImportError:
 BASE_URL = 'https://bioinformatics.lt/comer'
 ALLOWED_HOSTS = ['.ibt.lt', '.bioinformatics.lt', '.bioinfo.lt', 'localhost']
 
+CSRF_TRUSTED_ORIGINS = ['https://bioinformatics.lt',]
+
 EMAIL_HOST = 'mailrelay.vu.lt'
 DEFAULT_FROM_EMAIL = 'comer@bti.vu.lt'
 

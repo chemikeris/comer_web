@@ -130,7 +130,7 @@ def results(request, job_id, redirect_to_first=False):
     if finished and not removed:
         if job.number_of_input_queries == 1 and redirect_to_first:
             print('Single-sequence job, redirecting.')
-            return redirect('detailed', job_id=job_id, sequence_no=0)
+            return redirect('detailed', job_id=job_id, result_no=0)
 
         summary = job.results_summary()
         sequences = [r.input_name for r in summary]

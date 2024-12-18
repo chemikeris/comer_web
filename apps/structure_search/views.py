@@ -27,8 +27,8 @@ def results(request, job_id):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
     finished, removed, status_msg, errors, refresh = job.status_info()
-    summary = job.results_summary()
     if finished and not removed:
+        summary = job.results_summary()
         context = {
             'job': job,
             'results_summary': summary,

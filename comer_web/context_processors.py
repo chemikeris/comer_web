@@ -6,8 +6,7 @@ def google_analytics(request):
 
 
 def program_info(request):
-    gtalign_server = request.path.startswith('/gtalign') \
-        or request.path.startswith('gtalign')
+    gtalign_server = 'gtalign' in request.path
     if gtalign_server:
         base_context = {
             'program': 'GTalign',
