@@ -137,13 +137,21 @@ function addStyleForSummary(summary_element, query_length, query_starts, query_e
     var color_value = colorSummary(coloring_value);
     summary_element.style.background = 'hsl(' + color_value + ', 100%, 40%)';
 }
-function createTableHeader(column_names) {
+function createTableHeader(column_names, colspan=null) {
     var table_head = document.createElement('thead');
     table_head.classList.add('align-middle');
     table_head.classList.add('text-center');
     var table_header_row = document.createElement('tr');
     for (var i = 0; i < column_names.length; i++) {
-        table_header_row.appendChild(createTableData(column_names[i]));
+        var td = createTableData(column_names[i]);
+        try {
+            var cspan = colspan[i];
+        }
+        catch (TypeError) {
+            var cspan = 1;
+        }
+        td.colSpan = cspan;
+        table_header_row.appendChild(td);
     }
     table_head.append(table_header_row);
     return table_head;
@@ -151,6 +159,13 @@ function createTableHeader(column_names) {
 function createTableData(text) {
     var td = document.createElement('td'); td.innerHTML = text;
     return td;
+}
+function createTableRow(row_data) {
+    var tr = document.createElement('tr');
+    for (var i = 0; i < row_data.length; i++ ) {
+        tr.appendChild(createTableData(row_data[i]));
+    }
+    return tr;
 }
 function createLinkToAlignment(result_no, description) {
     var a = document.createElement('a');

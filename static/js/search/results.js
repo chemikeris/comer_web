@@ -61,15 +61,9 @@ function formatAlignmentFooter(alignment_div, hit_record) {
     parameters_table.classList.add('table', 'w-auto');
     var parameters_table_header = createTableHeader(['', 'K', 'Lambda']);
     var parameters_table_tbody = document.createElement('tbody');
-    var r1 = document.createElement('tr');
-    r1.appendChild(createTableData('Computed ungapped'));
-    r1.appendChild(createTableData(hit_record.alignment.computed_K_ungapped.toString()));
-    r1.appendChild(createTableData(hit_record.alignment.computed_lambda_ungapped.toString()));
+    var r1 = createTableRow(['Computed ungapped', hit_record.alignment.computed_K_ungapped.toString(), hit_record.alignment.computed_lambda_ungapped.toString()]);
     parameters_table_tbody.append(r1);
-    var r2 = document.createElement('tr');
-    r2.appendChild(createTableData('Estimated gapped'));
-    r2.appendChild(createTableData(hit_record.alignment.estimated_K_gapped.toString()));
-    r2.appendChild(createTableData(hit_record.alignment.estimated_lambda_gapped.toString()));
+    var r2 = createTableRow(['Estimated gapped', hit_record.alignment.estimated_K_gapped.toString(), hit_record.alignment.estimated_lambda_gapped.toString()]);
     parameters_table_tbody.append(r2);
     // Finished parameters table
     parameters_table.appendChild(parameters_table_header);
