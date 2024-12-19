@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import FileResponse
+from django.urls import reverse
 
 from . import models
 from apps.core import utils
@@ -67,6 +69,32 @@ def detailed(request, job_id, result_no):
         'active': 'detailed',
         'structure_models': None,
         'generated_msas': job.get_generated_msas().get(result_no, []),
+        'aligned_structures_url_pattern': reverse(
+            'gtalign_aligned_structures_without_hit',
+            kwargs={'job_id': job.name, 'result_no': result_no,}
+            ),
         }
     return render(request, 'structure_search/results.html', context)
+
+
+def aligned_structures(request, job_id, result_no, hit_no):
+    job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
+    context = {
+        'job': job,
+        'sequences': job.structure_headers(),
+        'generated_msas': job.get_generated_msas().get(result_no, []),
+        'result_no': result_no,
+        'hit_no': hit_no,
+        }
+    return render(
+            request,
+            'structure_search/aligned_structures.html',
+            context
+            )
+
+
+def download_aligned_structures(request, job_id, result_no, hit_no):
+    job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
+    structures_file = models.prepare_aligned_structures(job, result_no, hit_no)
+    return FileResponse(open(structures_file, 'rb'))
 

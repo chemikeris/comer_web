@@ -17,7 +17,10 @@ function colorSummary(p) {
     }
     return color_value;
 }
-function fillSummaryTableRowData(row, hit_record) {
+function generateLinkToStructureAlignment(i, button) {
+    return '';
+}
+function fillSummaryTableRowData(row, hit_record, unused_i) {
     // ID
     row.appendChild(createTableData(createLink(shortDescription(hit_record.target_description))));
     // Description

@@ -49,7 +49,7 @@ function showResults(results) {
         number_column.appendChild(createLinkToAlignment(i, i+1));
         row.appendChild(number_column);
         // Fill row with data.
-        fillSummaryTableRowData(row, hit_record);
+        fillSummaryTableRowData(row, hit_record, i);
         // Finished table row.
         results_table_body.appendChild(row);
 
@@ -251,6 +251,7 @@ function formatAlignment(result_no, hit_record, structure_search) {
     header.innerHTML += ' ';
     header.innerHTML += createLink(short_description);
     header.innerHTML += ' ' + other_description.join(' ');
+    header.innerHTML += generateLinkToStructureAlignment(result_no, true);
     header.id = 'alignment_' + result_no;
     alignment_div.appendChild(header);
 

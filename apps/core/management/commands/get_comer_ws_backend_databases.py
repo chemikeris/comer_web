@@ -23,8 +23,10 @@ class Command(BaseCommand):
         backend_software = ['comer', 'gtalign']
         for software in backend_software:
             backend_config = retrieve_calculation_server_config(software)
-            databases_info = parse_comer_ws_backend_config(backend_config)
-            write_or_update(databases_info)
+            databases_info, paths = parse_comer_ws_backend_config(
+                backend_config
+                )
+            write_or_update(databases_info, paths)
 
 
 def retrieve_calculation_server_config(software='comer'):
@@ -84,6 +86,7 @@ def parse_comer_ws_backend_config(backend_config):
     databases['hmmer'] = {}
     databases['hhsuite'] = {}
     databases['gtalign'] = {}
+    paths = {}
     version_not_necessary = []
     for setting, value in c['values'].items():
         s, v = setting, value
@@ -108,18 +111,33 @@ def parse_comer_ws_backend_config(backend_config):
             databases['gtalign'][v] = db_name_and_version(
                 s, v, for_gtalign=True
                 )
+        elif s.startswith('pathstrdb_'):
+            parts = s.split('_')
+            if len(parts) > 2:
+                continue
+            else:
+                logging.info('%s = %s', s, v)
+                if parts[1] == 'pdb':
+                    desc = 'pdb_mmcif'
+                else:
+                    desc = parts[1]
+                paths[desc] = v.strip("'")
         else:
             continue
-    return databases
+    return databases, paths
 
 
-def write_or_update(databases_info):
+def write_or_update(databases_info, paths):
     "Write databases info to web server DB"
     for program, db_info in databases_info.items():
         if db_info:
             logging.info('Saving search databases for %s.', program)
         for backend_name, info in db_info.items():
             db, version = info
+            try:
+                path = paths[db]
+            except KeyError:
+                path = None
             logging.info(
                 'DB %s, version %s, description %s', db, version, backend_name
                 )
@@ -128,7 +146,8 @@ def write_or_update(databases_info):
                 db=db,
                 defaults={
                     'calculation_server_description': backend_name,
-                    'version': version
+                    'version': version,
+                    'remote_directory': path
                     }
                 )
 

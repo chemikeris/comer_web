@@ -10,3 +10,4 @@
 --speed=13
 --dev-max-length=4000
 --dev-min-length=20
+--referenced

@@ -25,7 +25,7 @@ def set_server_config_file():
 SERVER_CONFIG_FILE = set_server_config_file()
 
 
-def read_config_file(config_file):
+def read_config_file(config_file=SERVER_CONFIG_FILE):
     config = configparser.ConfigParser()
     config.read(config_file)
     return config

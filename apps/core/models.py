@@ -8,7 +8,6 @@ from django.db import models
 from django.db.utils import OperationalError
 from django.conf import settings
 
-from comer_web import calculation_server
 from . import utils
 
 class ComerWebServerJob(models.Model):
@@ -357,6 +356,7 @@ class Databases(models.Model):
         )
     calculation_server_description = models.CharField(max_length=160)
     version = models.CharField(max_length=160, null=True)
+    remote_directory = models.CharField(max_length=255, null=True)
 
     class Meta:
         constraints = [

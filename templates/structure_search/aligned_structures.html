@@ -1,0 +1,13 @@
+{% extends 'base_results.html' %}
+{% load static %}
+{% block results %}
+<script src="{% static 'ngl.js' %}"></script>
+<script src="{% static 'js/model_structure/show_structure.js' %}"></script>
+{% url 'download_gtalign_aligned_structures' job_id=job.name result_no=result_no hit_no=hit_no as structures_url %}
+<h1>Aligned structures</h1>
+<p>Chain A: query structure, chain B: reference structure.</p>
+<p><a href="{{ structures_url }}" download>Dowload aligned structures</a></p>
+<div id="aligned_structure" class="structure_viewer">
+    <script>show_structure("{{ structures_url }}", "aligned_structure");</script>
+</div>
+{% endblock %}

@@ -1,14 +1,21 @@
 'use sctrict';
 function getResultsTableColumns() {
-    return ['', 'No.', 'ID', 'TM-score (query)', 'TM-score (reference)', 'RMSD', 'd0 (query)', 'd0 (reference)', '2TM-score (query)', '2TM-score (reference)', 'Aligned residues', 'Reference length'];
+    return ['', 'No.', 'ID', 'TM-score (query)', 'TM-score (reference)', 'RMSD', 'd0 (query)', 'd0 (reference)', '2TM-score (query)', '2TM-score (reference)', 'Aligned residues', 'Reference length', ''];
 }
 function colorSummary(tm_score) {
     return '42'
 }
-function resultDescription(hit_record) {
+function resultDescription(hit_record, button) {
     return hit_record.reference_description;
 }
-function fillSummaryTableRowData(row, hit_record) {
+function generateLinkToStructureAlignment(i, button) {
+    href = aligned_structures_link_pattern + '/' + i;
+    a = '<a href="' + href + '" target=_blank ';
+    if (button) a += 'class="btn btn-secondary"';
+    a += '>Superpose</a>';
+    return a;
+}
+function fillSummaryTableRowData(row, hit_record, i) {
     // ID
     row.appendChild(createTableData(createLink(shortDescription(hit_record.reference_description))));
     // TM-score query
@@ -27,8 +34,11 @@ function fillSummaryTableRowData(row, hit_record) {
     row.appendChild(createTableData(hit_record.alignment['2tmscore_refn']));
     // Aligned residues
     row.appendChild(createTableData(hit_record.alignment.n_aligned - hit_record.alignment.n_gaps));
-    // Reference lengtha
+    // Reference length
     row.appendChild(createTableData(hit_record.reference_length));
+    // Superposition button.
+    a = generateLinkToStructureAlignment(i, true);
+    row.appendChild(createTableData(a));
 }
 function getTargetDescription(hit_record) {
     return hit_record.reference_description;

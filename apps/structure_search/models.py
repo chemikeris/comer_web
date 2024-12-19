@@ -3,12 +3,14 @@ import shutil
 import logging
 import tarfile
 import glob
+import subprocess
 
 from django.db import models
+from django.conf import settings
 
-from apps.core.models import SearchJob, generate_job_name
+from apps.core.models import SearchJob, generate_job_name, Databases
 from apps.core.utils import read_json_file, format_gtalign_description
-
+from comer_web import calculation_server
 
 class Job(SearchJob):
     "GTalign search job"
@@ -42,6 +44,14 @@ class Job(SearchJob):
             s = self.summarize_results_for_query(rf)
             structures.append(s.input_description)
         return structures
+
+    def aligned_structures_subdirectory(self):
+        aligned_structures_subdirectory = os.path.join(
+            self.get_directory(), 'aligned_structures'
+            )
+        if not os.path.isdir(aligned_structures_subdirectory):
+            os.makedirs(aligned_structures_subdirectory)
+        return aligned_structures_subdirectory
 
 
 class StructureSearchResultsSummary:
@@ -116,3 +126,99 @@ def prepare_results_json(results_json):
         res['search_summary'][i]['summary_entry']['description'] = description
     return results_json
 
+
+def prepare_aligned_structures(job, result_no, hit_no):
+    result_file_path = os.path.join(
+        job.aligned_structures_subdirectory(),
+        '%s_%s_%s.pdb' % (job.name, result_no, hit_no)
+        )
+    # Using already prepared file, if it exists.
+    if os.path.isfile(result_file_path):
+        logging.info('Using already aligned structure file %s',
+                     result_file_path)
+        return result_file_path
+    print(
+        'Creating GTalign aligned structures for %s, result %s, hit %s.' % \
+        (job.name, result_no, hit_no)
+        )
+    # It it is the first time when alignment is called, processing it.
+    # Reading data.
+    results_file = job.results_file_path(
+        job.read_results_lst()[result_no]['results_json']
+        )
+    results, json_error = read_json_file(results_file)
+    results = results['gtalign_search']
+    hit_record = results['search_results'][hit_no]['hit_record']
+    config = calculation_server.read_config_file()
+    # Preparing query structure data.
+    query_structure_description = results['query']['description']
+    query_remote_dir = config['comer-ws-backend_path']['jobs_directory']
+    query_dir = job.get_directory()
+    query = structure_data(
+        query_structure_description, query_remote_dir, query_dir+'/',
+        ('%s.tar:' % job.name, 'input/')
+        )
+    # Preparing result structure data.
+    reference_description = hit_record['reference_description']
+    reference_remote_dir = database_remote_directory(reference_description)
+    reference_dir = config['local_paths']['structures_directory']
+    reference = structure_data(
+        reference_description, reference_remote_dir, reference_dir,
+        (':', '/')
+        )
+    # Reading transformation data.
+    matrix = ','.join(map(str, hit_record['rotation_matrix_rowmajor']))
+    vector = ','.join(map(str, hit_record['translation_vector']))
+    aligner = os.path.join(
+        config['local_paths']['gtalign_backend'], 'bin', 'superpose1.py'
+        )
+    alignment_command = [
+        os.path.join(settings.BASE_DIR, 'virtualenv', 'bin', 'python'),
+        aligner,
+        '--i1', query['file'],
+        '--c1', query['chain'],
+        '--m1', str(query['model']),
+        '--i2', reference['file'],
+        '--c2', reference['chain'],
+        '--m2', str(reference['model']),
+        '-r', matrix,
+        '-t', vector,
+        '-o', result_file_path,
+        '-2',
+        ]
+    subprocess.run(alignment_command)
+    return result_file_path
+
+
+def structure_data(description, old_dir, new_dir, tar_replacement=None):
+    parts = description.split()
+    remote_path = parts[0]
+    chain = parts[1].split(':')[1]
+    try:
+        model = parts[2][1:-1].split(':')[1]
+    except IndexError:
+        model = 1
+    local_path = remote_path.replace(old_dir, new_dir)
+    if tar_replacement:
+        local_path = local_path.replace(tar_replacement[0], tar_replacement[1])
+    output = {'file': local_path, 'chain': chain, 'model': model}
+    return output
+
+
+def database_remote_directory(gtalign_structure_result_file):
+    identifier = os.path.basename(gtalign_structure_result_file)
+    if identifier.startswith('ecod'):
+        db_name = 'ecod'
+    elif identifier.startswith('scope'):
+        db_name = 'scop'
+    elif identifier.startswith('swissprot'):
+        db_name = 'swissprot'
+    elif identifier.startswith('uniref'):
+        db_name = 'uniref30'
+    elif identifier.startswith('UP'):
+        db_name = 'proteomes'
+    else:
+        db_name = 'pdb_mmcif'
+    db = Databases.objects.get(program='gtalign', db=db_name)
+    return db.remote_directory
+        

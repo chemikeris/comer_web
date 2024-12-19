@@ -5,6 +5,7 @@
 <h1>GTalign results</h1>
 {{ results|json_script:"raw_results" }}
 <script>const results = JSON.parse(document.getElementById('raw_results').textContent);</script>
+<script>const aligned_structures_link_pattern = "{{ aligned_structures_url_pattern }}";</script>
 
 <form method="post">{% csrf_token %}
 <h2>Results summary</h2>
