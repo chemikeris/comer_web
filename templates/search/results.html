@@ -20,7 +20,7 @@
 <p class="bg-light pt-2 ps-2">
     <input type="hidden" name="job_id" value="{{ job.name }}">
     <label for="id_modeller_key">MODELLER key:</label> <input type="text" name="modeller_key" id="id_modeller_key" class="form-control w-auto d-inline">
-    <input type="hidden" name="sequence_no" value="{{ sequence_no }}">
+    <input type="hidden" name="result_no" value="{{ sequence_no }}">
     <input type="submit" formaction="{% url 'submit_single_template_structure_model' %}" name="model" value="Generate single-template 3D models" id="submit_single_template" class="results_button btn btn-secondary my-2">
     <input type="submit" formaction="{% url 'submit_multiple_templates_structure_model' %}" name="model" value="Generate multi-template 3D model" id="submit_multi_template" class="results_button btn btn-secondary my-2">
     <input type="submit" formaction="{% url 'submit_msa' %}" name="msa" value="Construct MSA" id="submit_msa" class="results_button btn btn-secondary my-2">

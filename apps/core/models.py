@@ -290,6 +290,22 @@ class SearchJob(ComerWebServerJob):
             summary.append(self.summarize_results_for_query(rf))
         return summary
 
+    def get_generated_msas(self, filter_jobs_for_example=None):
+        if self.name == 'example':
+            example_jobs = ['example_msa_%s' % i for i in range(1,5)]
+            if not filter_jobs_for_example is None:
+                example_jobs.append(filter_jobs_for_example)
+            msa_results = self.msa_job.filter(name__in=example_jobs)
+        else:
+            msa_results = self.msa_job.all()
+        grouped_msas = {}
+        for m in msa_results:
+            try:
+                grouped_msas[m.result_no].append(m)
+            except KeyError:
+                grouped_msas[m.result_no] = [m]
+        return grouped_msas
+
 
 class SearchSubJob:
     "Class for defining common methods for jobs derived from SearchJob"
@@ -303,7 +319,7 @@ class SearchSubJob:
     def read_search_json(self):
         search_files = self.search_job.read_results_lst()
         search_json_file = self.search_job.results_file_path(
-            search_files[self.sequence_no]['results_json']
+            search_files[self.result_no]['results_json']
             )
         search_results, unused_json_err = utils.read_json_file(
             search_json_file, filter_key='%s_search' % self.search_job.method()

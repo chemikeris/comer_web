@@ -37,10 +37,12 @@ def track_jobs():
     modeling_jobs = retrieve_unfinished_jobs(structure_models.Job)
     msa_jobs = retrieve_unfinished_jobs(msa_models.Job)
     structure_search_jobs = retrieve_unfinished_jobs(struct_search_models.Job)
+    structure_msa_jobs = retrieve_unfinished_jobs(msa_models.StructureBasedJob)
     all_jobs = list(search_jobs) \
         + list(modeling_jobs) \
         + list(msa_jobs) \
-        + list(structure_search_jobs)
+        + list(structure_search_jobs) \
+        + list(structure_msa_jobs)
     if all_jobs:
         connection = calculation_server.Connection()
     for j in all_jobs:

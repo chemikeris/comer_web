@@ -1,8 +1,9 @@
 {% extends 'base_results.html' %}
 {% load static %}
+{% load program_names %}
 {% block results %}
-<h1>Profile-profile-based Multiple Sequence Alignment</h1>
-<p><a href="{% url 'download_msa' msa_job_id=msa_job_id %}">Download</a></p>
+<h1>{% if sequence_search %}Profile-profile-based {% else %}Structure-based {% endif %}Multiple Sequence Alignment</h1>
+<p><a href="{% url 'download_msa'|add_program_if_necessary:program msa_job_id=msa_job_id %}">Download</a></p>
 <div id="display_msa"></div>
 <script src="{% static 'msa.min.js' %}"></script>
 <script>
@@ -17,7 +18,7 @@ var opts = {
     colorscheme: {scheme: "clustal"}
 };
 var m = new msa.msa(opts);
-m.u.file.importURL("{% url 'download_msa' msa_job_id=msa_job_id  %}", function(){m.render();}); 
+m.u.file.importURL("{% url 'download_msa'|add_program_if_necessary:program msa_job_id=msa_job_id  %}", function(){m.render();}); 
 </script>
 {% if errors %}
 <h2>Error log:</h2>

@@ -7,7 +7,7 @@ import glob
 from django.db import models
 
 from apps.core.models import SearchJob, generate_job_name
-from apps.core.utils import read_json_file
+from apps.core.utils import read_json_file, format_gtalign_description
 
 
 class Job(SearchJob):
@@ -57,7 +57,7 @@ class StructureSearchResultsSummary:
             self.model = model_desc.lstrip('(').rstrip(')').split(':')[-1]
         except IndexError:
             self.model = 1
-        self.input_description = '%s Chain:%s Model:%s' % (
+        self.input_description = '%s Chain:%s M:%s' % (
             self.structure_file, self.chain, self.model)
         self.input_length = r['structure_length']
         json_file = job.results_file_path(r['results_json'])
@@ -111,51 +111,8 @@ def prepare_results_json(results_json):
     res = results_json['gtalign_search']
     for i, hit_record in enumerate(res['search_results']):
         hr = hit_record['hit_record']
-        description = format_description(hr['reference_description'])
+        description = format_gtalign_description(hr['reference_description'])
         hr['reference_description'] = description
         res['search_summary'][i]['summary_entry']['description'] = description
     return results_json
-
-
-def format_description(description):
-    "Parse description from GTalign JSON"
-    def parse_chain(chain_data):
-        return chain_data.split(':')[1]
-    def parse_model(model_data):
-        return model_data[1:-1].split(':')[1]
-    def trim_id(i):
-        if i.endswith('.cif.gz'):
-            return i.split('.')[0]
-        elif i.endswith('.pdb.gz'):
-            return i.split('.')[0]
-        elif i.endswith('.ent'):
-            return i.split('.')[0]
-        elif i.endswith('.tar'):
-            return i.split('.')[0]
-        else:
-            return i
-    def afdb_id_to_uniprot(i):
-        uniprot_ac = i.split('-')[1]
-        return uniprot_ac
-    def after_colon(i):
-        return i.split(':')[1]
-    parts = description.split()
-    identifier = os.path.basename(parts[0])
-    if identifier.startswith('ecod'):
-        return identifier
-    elif identifier.startswith('scope'):
-        identifier = trim_id(after_colon(identifier))
-        return identifier
-    elif identifier.startswith('swissprot') or identifier.startswith('uniref'):
-        return afdb_id_to_uniprot(after_colon(identifier))
-    elif identifier.startswith('UP'):
-        id_parts = identifier.split(':')
-        identifier = afdb_id_to_uniprot(id_parts[1])
-        return '%s %a' % (identifier, trim_id(id_parts[0]))
-    else:
-        # Assuming PDB here
-        identifier = trim_id(identifier)
-        chain = parse_chain(parts[1])
-        model = parse_model(parts[2])
-        return '%s_%s_%s' % (identifier, chain, model)
 

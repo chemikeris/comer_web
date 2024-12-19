@@ -3,6 +3,8 @@ import os
 
 from django.conf import settings
 
+from .utils import format_gtalign_description
+
 
 def format(input_str):
     "Check input format"
@@ -59,12 +61,14 @@ def length_is_the_same(sequences):
     return all_lengths_equal
 
 
-def hit_alignment_starts_and_ends(hit_alignment):
+def hit_alignment_starts_and_ends(hit_alignment, from_gtalign=False):
     "Get positions where alignment starts on query and target sequences"
-    query_starts = hit_alignment['query_from']
-    query_ends = hit_alignment['query_to']
-    target_starts = hit_alignment['target_from']
-    target_ends = hit_alignment['target_to']
+    query = 'query'
+    target = 'refn' if from_gtalign else 'target'
+    query_starts = hit_alignment[f'{query}_from']
+    query_ends = hit_alignment[f'{query}_to']
+    target_starts = hit_alignment[f'{target}_from']
+    target_ends = hit_alignment[f'{target}_to']
     return query_starts, query_ends, target_starts, target_ends
 
 
@@ -73,14 +77,23 @@ def alignment_description(description, starts, ends):
     return '%s (ALN:%s-%s)' % (description, starts, ends)
 
 
-def comer_json_hit_record_to_alignment(query_description, hit_record_json):
+def comer_json_hit_record_to_alignment(query_description, hit_record_json,
+                                       from_gtalign=False):
     "Convert COMER results JSON (parsed into Python format) to FASTA"
-    aligned_query = hit_record_json['alignment']['query_aln']
-    target_description = hit_record_json['target_description']
-    aligned_target = hit_record_json['alignment']['target_aln']
+    query = 'query_aln'
+    target = 'refrn_aln' if from_gtalign else 'target_aln'
+    aligned_query = hit_record_json['alignment'][query]
+    if from_gtalign:
+        target_description = format_gtalign_description(
+            hit_record_json['reference_description']
+            )
+    else:
+        target_description = hit_record_json['target_description']
+    aligned_target = hit_record_json['alignment'][target]
 
     query_starts, query_ends, target_starts, target_ends = \
-        hit_alignment_starts_and_ends(hit_record_json['alignment'])
+        hit_alignment_starts_and_ends(hit_record_json['alignment'],
+                                      from_gtalign)
 
     query_fasta = fasta_format(
         alignment_description(query_description, query_starts, query_ends),

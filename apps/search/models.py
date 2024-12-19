@@ -114,22 +114,6 @@ class Job(SearchJob):
             )
         return sorted_models
 
-    def get_generated_msas(self, filter_jobs_for_example=None):
-        if self.name == 'example':
-            example_jobs = ['example_msa_%s' % i for i in range(1,5)]
-            if not filter_jobs_for_example is None:
-                example_jobs.append(filter_jobs_for_example)
-            msa_results = self.msa_job.filter(name__in=example_jobs)
-        else:
-            msa_results = self.msa_job.all()
-        grouped_msas = {}
-        for m in msa_results:
-            try:
-                grouped_msas[m.sequence_no].append(m)
-            except KeyError:
-                grouped_msas[m.sequence_no] = [m]
-        return grouped_msas
-
 
 class SearchResultsSummary:
     "Search result summary info"

@@ -66,6 +66,7 @@ def detailed(request, job_id, result_no):
         'sequence_no': result_no,
         'active': 'detailed',
         'structure_models': None,
+        'generated_msas': job.get_generated_msas().get(result_no, []),
         }
     return render(request, 'structure_search/results.html', context)
 

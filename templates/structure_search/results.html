@@ -6,13 +6,25 @@
 {{ results|json_script:"raw_results" }}
 <script>const results = JSON.parse(document.getElementById('raw_results').textContent);</script>
 
+<form method="post">{% csrf_token %}
 <h2>Results summary</h2>
 <div id="schematic_sequences"></div>
 <h2>Results table</h2>
-<div id="results_table"></div>
+<p>
+    <button class="btn btn-secondary my-2" onclick="select_all_results(true)" type="button">Select all</button>
+    <button class="btn btn-secondary my-2" onclick="select_all_results(false)" type="button">Deselect all</button>
+    {% comment %}
+    <button class="btn btn-secondary my-2" onclick="select_by_Evalue()" type="button">Select by E-value</button>
+    <label for="id_min_evalue">Minimum E-value:</label> <input type="text" id="id_min_evalue" class="form-control d-inline">
+    <label for="id_max_evalue">Maximum E-value:</label> <input type="text" id="id_max_evalue" class="form-control d-inline">
+    {% endcomment %}
+    <input type="hidden" name="job_id" value="{{ job.name }}">
+    <input type="hidden" name="result_no" value="{{ sequence_no }}">
+    <input type="submit" formaction="{% url 'submit_structural_msa' %}" name="msa" value="Construct MSA" id="submit_msa" class="results_button btn btn-secondary my-2">
+</p><div id="results_table"></div>
 <h2>Alignments</h2>
 <div id="alignments"></div>
-
+</form>
 <script src="{% static 'js/common/results.js' %}"></script>
 <script src="{% static 'js/structure_search/results.js' %}"></script>
 <script src="{% static 'js/common/results_postprocess.js' %}"></script>

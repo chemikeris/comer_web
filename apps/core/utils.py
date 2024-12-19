@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 
@@ -95,4 +96,52 @@ def get_object_or_404_for_removed_also(model, **kwargs):
         raise Http404
     else:
         return m
+
+
+def format_gtalign_description(description):
+    "Parse description from GTalign JSON"
+    def parse_chain(chain_data):
+        return chain_data.split(':')[1]
+    def parse_model(model_data):
+        return model_data[1:-1].split(':')[1]
+    def trim_id(i):
+        if i.endswith('.cif.gz'):
+            return i.split('.')[0]
+        elif i.endswith('.pdb.gz'):
+            return i.split('.')[0]
+        elif i.endswith('.ent'):
+            return i.split('.')[0]
+        elif i.endswith('.tar'):
+            return i.split('.')[0]
+        else:
+            return i
+    def afdb_id_to_uniprot(i):
+        uniprot_ac = i.split('-')[1]
+        return uniprot_ac
+    def after_colon(i):
+        return i.split(':')[1]
+    parts = description.split()
+    identifier = os.path.basename(parts[0])
+    if identifier.startswith('ecod'):
+        return identifier
+    elif identifier.startswith('scope'):
+        identifier = trim_id(after_colon(identifier))
+        return identifier
+    elif identifier.startswith('swissprot') or identifier.startswith('uniref'):
+        return afdb_id_to_uniprot(after_colon(identifier))
+    elif identifier.startswith('UP'):
+        id_parts = identifier.split(':')
+        identifier = afdb_id_to_uniprot(id_parts[1])
+        return '%s %a' % (identifier, trim_id(id_parts[0]))
+    else:
+        # Assuming PDB here
+        if ':' in identifier:
+            identifier = identifier.split(':')[1]
+        identifier = trim_id(identifier)
+        chain = parse_chain(parts[1])
+        try:
+            model = parse_model(parts[2])
+        except IndexError:
+            model = 1
+        return '%s_%s_%s' % (identifier, chain, model)
 
