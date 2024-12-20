@@ -12,7 +12,7 @@ function generateLinkToStructureAlignment(i, button) {
     href = aligned_structures_link_pattern + '/' + i;
     a = '<a href="' + href + '" target=_blank ';
     if (button) a += 'class="btn btn-secondary"';
-    a += '>Superpose</a>';
+    a += '>Superposition</a>';
     return a;
 }
 function fillSummaryTableRowData(row, hit_record, i) {

@@ -19,8 +19,11 @@ def submit_structural_alignments(request):
 def show(request, msa_job_id, structural=False):
     job = models.get_msa_job(msa_job_id, structural)
     finished, removed, status_msg, errors, refresh = job.status_info()
-    page_title = '%s-based multiple sequence alignment' % \
-        job.search_job.method().upper()
+    if structural:
+        title = 'GTalign'
+    else:
+        title = job.search_job.method().upper()
+    page_title = '%s-based multiple sequence alignment' % title
     if structural:
         session_jobs = []
         result_headers = job.search_job.structure_headers(),

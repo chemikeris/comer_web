@@ -28,15 +28,16 @@ Supported extensions are:
 </ul>
 <p>
 For multiple queries, the same format and extension rules apply.
+{% comment %}
 Additionally, multiple files must be archived (without compression) into a single .tar file using the tar utility.
 For example, to submit two queries named my_structure1.pdb.gz and my_structure2.cif.gz, archive them, e.g., using the command:
-
 </p>
 <code>tar -cf my_structures.tar my_structure1.pdb.gz my_structure2.cif.gz</code>
 </p>
 <p>
 The resulting file, my_structures.tar, can then be uploaded.
 The .tar extension is mandatory.
+{% endcomment %}
 </p>
 <p>
 Results will be generated for each query individually.
@@ -158,7 +159,7 @@ A0A7S2FSH7          100               42               30          1262
 
 A0A357HZ95          200               41               32          1282     
 A0A225V1N4          200               38               26          1264     
-A0A7S2WTE7          200               39 (*)           29          1271     
+A0A7S2WTE7          200               39               29          1271     
 
 K1Z1K8              500               71               48          1802     
 A0A447Y1L5          500               64               43          1736     

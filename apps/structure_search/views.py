@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import FileResponse
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from . import models
 from apps.core import utils
@@ -21,6 +22,8 @@ def input(request):
         form = StructureInputForm()
     context = {
         'form': form,
+        'page_title': 'GTalign-web',
+        'example_str': mark_safe(models.read_example_structure())
         }
     return render(request, 'structure_search/input.html', context)
 
@@ -29,10 +32,12 @@ def results(request, job_id):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
     finished, removed, status_msg, errors, refresh = job.status_info()
+    page_title = 'GTalign results - %s' % job.nice_name()
     if finished and not removed:
         summary = job.results_summary()
         context = {
             'job': job,
+            'page_title': page_title,
             'results_summary': summary,
             'sequences': [r.input_description for r in summary],
             'sequence_no': None,
@@ -43,6 +48,7 @@ def results(request, job_id):
     else:
         context = {
             'job': job,
+            'page_title': page_title,
             'status_msg': status_msg,
             'reload': refresh,
             'log': job.calculation_log,
@@ -61,8 +67,13 @@ def detailed(request, job_id, result_no):
         )
     results, json_error = utils.read_json_file(results_file)
     processed_results = models.prepare_results_json(results)
+    query_desc = utils.format_gtalign_description(
+        results['gtalign_search']['query']['description']
+        )
+    page_title = 'GTalign results - %s - %s' % (job.nice_name(), query_desc)
     context = {
         'job': job,
+        'page_title': page_title,
         'results': processed_results,
         'sequences': job.structure_headers(),
         'sequence_no': result_no,
@@ -79,8 +90,10 @@ def detailed(request, job_id, result_no):
 
 def aligned_structures(request, job_id, result_no, hit_no):
     job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
+    page_title = 'GTalign results - structure superposition'
     context = {
         'job': job,
+        'page_title': page_title,
         'sequences': job.structure_headers(),
         'generated_msas': job.get_generated_msas().get(result_no, []),
         'result_no': result_no,

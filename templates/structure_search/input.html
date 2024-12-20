@@ -1,9 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load static %}
+<script src="{% static 'js/structure_search/input.js' %}"></script>
+<script>const example_data={{ example_str|stringformat:"r" }};</script>
 <h1>GTalign web server</h1>
 <p>A server for structure-based structure search.</p>
+<p>This server is free and open to all users and there is no login requirement.</p>
 <form action="." method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
 {{ form }}
 <input class="btn btn-secondary" type="submit" value="Submit">
 </form>
+<p><button class="btn btn-secondary me-2 mt-2" onclick="add_example_query()" type="button">Load example structure</button></p>
 {% endblock %}
