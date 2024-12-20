@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 <div class="help_page">
 <h1>GTalign web server help</h1>
@@ -98,9 +99,12 @@ The entry point to GTalign-web's services is job submission, where users search 
 Once the computations are completed, GTalign-web displays a list of links to the results for each query structure.
 Clicking a link directs the user to a detailed results page for the individual query (Fig. 1).
 </p>
-Figure 1. View of a results page generated for an individual query structure
+<figure>
+    <img src="{% static 'img/help/gtalign_results.png' %}" alt="GTalign-web results" class="img-fluid border">
+    <figcaption>Figure 1. View of a results page generated for an individual query structure</figcaption>
+</figure>
 <p>
-The results page provides a list of GTalign-generated pairwise structure alignments sorted by structural similarity.
+The results page provides a list of GTalign-generated pairwise structure alignments sorted by structural similarity (Fig. 2).
 Each identified structure is linked to its original database entry.
 Each alignment represents a match between the query and a database entry, including aligned secondary structure sections to help assess topological similarity.
 Secondary structure elements are denoted by the following letters:
@@ -132,6 +136,10 @@ Each structure alignment is accompanied by the following statistics:
 Rotation matrices and translation vectors (transformation matrices) for superimposing the reference structure onto the query structure are also provided.
 GTalign-web enables interactive visual analysis of superimposed structures.
 </p>
+<figure>
+    <img src="{% static 'img/gtalign_tutorial/8_alignment.png' %}" alt="Alignment" class="img-fluid border">
+    <figcaption>Figure 2. Structure-based sequence alignment</figcaption>
+</figure>
 <p>
 Additionally, GTalign-web offers functionality for constructing multiple structure alignments based on selected pairwise alignments.
 Users can either select alignments individually or specify a TM-score range to filter alignments.
