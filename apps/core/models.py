@@ -429,7 +429,8 @@ def get_databases_for(program, db=None):
         databases = Databases.objects\
             .filter(program=program).order_by('pk').all()
         if db:
-            databases = databases.filter(db__in=[db])
+            # db should be a list of database names
+            databases = databases.filter(db__in=db)
         descriptions = []
         for d in databases:
             if program == 'gtalign':

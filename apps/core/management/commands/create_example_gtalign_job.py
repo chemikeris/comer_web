@@ -26,7 +26,7 @@ class Command(BaseCommand):
                 else:
                     s = default_setting
                 form_data[s] = value
-            dbs =  get_databases_for('gtalign', 'pdb_mmcif')[0]
+            dbs =  get_databases_for('gtalign', ['pdb_mmcif'])[0]
             form_data['database'] = dbs[0]
             form_data['email'] = ''
             form_data['description'] = 'GTalign-web example'
