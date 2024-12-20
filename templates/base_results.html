@@ -54,6 +54,7 @@
 	</div>
 </nav>
 {% comment %}Showing recent jobs if there is more than one job, or single job can be shown when example job is loaded. Currently loaded job is not shown in this menu.{% endcomment %}
+{% if sequence_search %}
 {% if recent_jobs|length > 1 or recent_jobs.0.name != job.name %}
 <br>
 <nav>
@@ -66,6 +67,7 @@
     </ul>
 </div>
 </nav>
+{% endif %}
 {% endif %}
 </div>
 <div id="results" class="col">{% block results %}{% endblock %}</div>

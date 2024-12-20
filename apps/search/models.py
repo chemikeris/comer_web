@@ -4,7 +4,6 @@ import logging
 
 from django.db import models
 from django.urls import reverse
-from django.core.mail import send_mail
 from django.core.files.uploadedfile import UploadedFile
 
 
