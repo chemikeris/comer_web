@@ -403,6 +403,26 @@ class Databases(models.Model):
         else:
             return self.get_db_display()
 
+    def get_db_display_gtalign(self):
+        if self.db == 'pdb_mmcif':
+            return 'PDB mmCIF'
+        elif self.db == 'scop':
+            return 'SCOPe40'
+        elif self.db == 'ecod':
+            return 'ECOD_F70'
+        elif self.db == 'swissprot':
+            return 'UniProtKB/SwissProt'
+        elif self.db == 'uniref30':
+            return 'UniRef30'
+        elif self.db == 'proteomes':
+            return 'UniProt Reference Proteomes'
+        elif self.db == 'pdb_scop_ecod':
+            return 'PDB mmCIF|SCOPe40|ECOD_F70'
+        elif self.db == 'pdb_scop_ecod_sw_prot':
+            return 'PDB mmCIF|SCOPe40|ECOD_F70|SwissProt|Reference Proteomes' 
+        else:
+            raise ValueError('Unknown database name: %s' % self.db)
+
 
 def get_databases_for(program, db=None):
     try:
@@ -413,7 +433,7 @@ def get_databases_for(program, db=None):
         descriptions = []
         for d in databases:
             if program == 'gtalign':
-                desc = d.calculation_server_description
+                desc = d.get_db_display_gtalign()
             else:
                 desc = str(d)
             descriptions.append([d.calculation_server_description, desc])
