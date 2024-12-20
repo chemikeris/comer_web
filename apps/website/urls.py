@@ -9,6 +9,6 @@ urlpatterns = [
     path('tutorial/', views.tutorial, name='tutorial'),
     path('about/', views.about, name="about"),
     path('gtalign/help', views.gtalign_help, name='gtalign_help'),
-    path('gtalign/tutorial', views.gtalign_help, name='gtalign_tutorial'),
-    path('gtalign/about', views.gtalign_help, name='gtalign_about'),
+    path('gtalign/tutorial', views.gtalign_tutorial, name='gtalign_tutorial'),
+    path('gtalign/about', views.gtalign_about, name='gtalign_about'),
 ]

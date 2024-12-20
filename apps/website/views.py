@@ -46,12 +46,14 @@ def about(request):
 # GTalign server functions
 def gtalign_help(request):
     context = {}
-    context['page_title'] = 'GTalign web server help'
+    context['page_title'] = 'GTalign-web help'
     return render(request, 'site/gtalign_help.html', context)
 
 def gtalign_tutorial(request):
-    pass
+    page_title = 'GTalign-web tutorial'
+    return render(request, 'site/gtalign_tutorial.html', {'page_title': page_title})
 
 def gtalign_about(request):
-    pass
+    page_title = 'GTalign-web'
+    return render(request, 'site/gtalign_about.html', {'page_title': page_title})
 

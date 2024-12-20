@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<h1>Tutorial: Using GTalign-web</h1>
+<p>
+Users are encouraged to refer to the <a href="{% url 'gtalign_help' %}">Help page</a> for a detailed overview of the services provided by GTalign-web, the GTalign web server.
+This tutorial provides step-by-step instructions for performing structure searches, reviewing results, and constructing multiple structure alignments.
+</p>
+<h2>Step 1: Upload input data</h2>
+<p>
+On the GTalign-web main page, upload your input data by clicking the "Upload Structures" button.
+</p>
+<p>
+For multiple query structures, upload files or a .tar file containing the individual structure files.
+For a single query structure, upload a file with one of the following extensions: .ent[.gz], .pdb[.gz], or .cif[.gz].
+</p>
+<>
+<h2>Step 2: Select target structure databases</h2>
+<p>
+Choose structure databases (e.g., PDB, SCOPe40, UniRef30) to search against.
+</p>
+<>
+<h2>Step 3: Configure search options</h2>
+<p>
+Adjust additional search parameters such as the minimum TM-score threshold, sorting options, or structure/sequence similarity filters.
+</p>
+<>
+<h2>Step 4: Submit the job</h2>
+<p>
+Click the "Submit" button to place your job in the queue.
+</p>
+<>
+<h2>Step 5: Check job progress</h2>
+<p>
+As the job runs, you can monitor its progress through the displayed status updates.
+</p>
+<>
+<h2>Step 6: View results</h2>
+<p>
+Once the job is complete, links to individual results pages for each query chain and/or model will appear.
+</p>
+<>
+<h2>Step 7: Choose alignments to analyze</h2>
+<p>
+For each query, a results summary and a detailed table are displayed.
+Clicking on the schematic alignment or a row number in the table helps access the corresponding pairwise alignment.
+</p>
+<>
+<h2>Step 8: Analyze pairwise alignments</h2>
+<p>
+Each results page provides the following information:
+</p>
+<ul>
+	<li>Structural alignments with visual representations of secondary structure elements to assess topological similarity.
+		<ul>
+			<li>h: alpha helix</li>
+			<li>e: beta strand</li>
+			<li>t: turn</li>
+		  </ul>
+	</li>
+	<li>Alignment statistics, including:
+		<ul>
+			<li>TM-scores (length-normalized) for the reference and query.</li>
+			<li>2TM-scores to account for unmatched helices.</li>
+			<li>RMSD, identity percentage, and the number of aligned residues.</li>
+		</ul>
+	</li>
+	<li>Transformation data, rotation matrices and translation vectors, for superimposing the reference structure onto the query.</li>
+</ul>
+<>
+<h2>Step 9: Select pairwise alignments</h2>
+<p>
+Select pairwise alignments from the results, either manually or by specifying criteria such as a range of TM-scores.
+</p>
+<>
+<h2>Step 10: Construct a Multiple Sequence Alignment (MSA) from structure alignments:</h2>
+<p>
+Based on the selected pairwise alignments, construct an MSA. The resulting MSA will be displayed and can be analyzed interactively.
+</p>
+<>
+{% endblock %}
