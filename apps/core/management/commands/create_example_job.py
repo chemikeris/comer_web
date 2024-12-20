@@ -3,7 +3,6 @@ import copy
 import time
 
 from django.core.management.base import BaseCommand, CommandError
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import QueryDict
 

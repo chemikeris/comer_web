@@ -83,7 +83,7 @@ class StructureSearchResultsSummary:
         self.number_of_results = len(results_json['search_results'])
 
 
-def process_input_data(input_data, input_files):
+def process_input_data(input_data, input_files, example=False):
     "Process input data for GTalign search"
     structure_str = input_data.pop('structure')
     email = input_data.pop('email')
@@ -91,10 +91,10 @@ def process_input_data(input_data, input_files):
     database = input_data.pop('database')
     try:
         input_query_files = input_files.getlist('input_query_files')
-    except KeyError:
+    except (KeyError, AttributeError):
         input_query_files = []
     del input_data['input_query_files']
-    job_name = generate_job_name()
+    job_name = example or generate_job_name()
     new_job = Job.objects.create(
         name=job_name, email=email, description=description
         )
@@ -242,4 +242,13 @@ def database_remote_directory(gtalign_structure_result_file):
         db_name = 'pdb_mmcif'
     db = Databases.objects.get(program='gtalign', db=db_name)
     return db.remote_directory
-        
+
+
+def read_example_structure():
+    example_structure_fname = 'AF-A0A7S2WTE7-F1-model_v4.pdb'
+    example_structure_file = os.path.join(
+        settings.BASE_DIR, 'doc', example_structure_fname
+        )
+    with open(example_structure_file) as f:
+        return f.read()
+

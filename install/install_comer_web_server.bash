@@ -48,6 +48,7 @@ service comer restart
 
 echo 'Creating example job, if necessary.'
 su comerws sh -c 'python manage.py create_example_job'
+su comerws sh -c 'python manage.py create_example_gtalign_job'
 
 echo 'Deactivating virtual environment.'
 deactivate
