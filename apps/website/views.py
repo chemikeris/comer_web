@@ -45,7 +45,9 @@ def about(request):
 
 # GTalign server functions
 def gtalign_help(request):
-    pass
+    context = {}
+    context['page_title'] = 'GTalign web server help'
+    return render(request, 'site/gtalign_help.html', context)
 
 def gtalign_tutorial(request):
     pass

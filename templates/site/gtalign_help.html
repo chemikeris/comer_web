@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="help_page">
+<h1>GTalign web server help</h1>
+<h2 id="help_introduction">Introduction</h2>
+<p>
+The GTalign webserver (GTalign-web) is designed to harness the capabilities of the GTalign protein structure alignment and search tool [1].
+Powered by spatial structure indexing, GTalign achieves high accuracy by thoroughly exploring the superposition space while maintaining high speed.
+</p>
+<p>
+GTalign-web is engineered to handle large-scale structure alignment and search tasks.
+It supports both single-query and batch alignment modes, allowing users to input multiple structures in diverse formats.
+Pairwise alignments resulting from searches against large structure databases can be analyzed using interactive visualization tools.
+GTalign-web also provides functionality for constructing multiple structure alignments based on identified hits.
+</p>
+<h2 id ="help_input">Input</h2>
+<p>
+GTalign-web allows users to input single or multiple structure queries in various formats, with submissions requiring a single file.
+The maximum file size for upload is 50 MB.
+</p>
+<p>
+For a single query, the input file can be optionally gzipped and must be in either PDB or PDBx/mmCIF format with appropriate extensions.
+Supported extensions are:
+</p>
+<ul>
+	<li>PDB: .pdb, .ent, .pdb.gz, .ent.gz</li>
+	<li>PDBx/mmCIF: .cif, .cif.gz</li>
+</ul>
+<p>
+For multiple queries, the same format and extension rules apply.
+Additionally, multiple files must be archived (without compression) into a single .tar file using the tar utility.
+For example, to submit two queries named my_structure1.pdb.gz and my_structure2.cif.gz, archive them, e.g., using the command:
+
+</p>
+<code>tar -cf my_structures.tar my_structure1.pdb.gz my_structure2.cif.gz</code>
+</p>
+<p>
+The resulting file, my_structures.tar, can then be uploaded.
+The .tar extension is mandatory.
+</p>
+<p>
+Results will be generated for each query individually.
+If any of the structure files, whether single or multiple queries, contain multiple chains and/or models, each chain and model will be treated as a separate query and processed independently for results.
+</p>
+<p>
+Queries shorter than 20 residues or longer than 4000 residues will be ignored.
+</p>
+<h2>Databases</h2>
+<p>
+GTalign-web provides access to the following structure databases for search:
+</p>
+<ul>
+<li>PDB: RCSB Protein Data Bank [2]</li>
+<li>SCOPe40: Structural Classification of Proteins (extended), filtered to 40% sequence identity [3]</li>
+<li>ECOD-F70: Evolutionary Classification of protein Domains [4]</li>
+<li>UniProtKB/Swiss-Prot: Reviewed entries from the UniProt Knowledgebase [5,6]</li>
+<li>Reference proteomes: A collection of 48 representative proteomes [5,6]</li>
+<li>UniRef30: UniProt entries clustered at 30% sequence identity [5,6]</li>
+</ul>
+<h2>Search options</h2>
+<p>
+GTalign-web offers a variety of customizable options to control the search process:
+</p>
+<p>
+<ul>
+	<li>TM-score threshold: Users can set a minimum TM-score threshold (default = 0.5). Alignments with lower TM-scores will not be shown.</li>
+	<li>Sorting options: Results can be sorted using the following criteria:
+		<ul>
+			<li>0: Greater TM-score of the two structures</li>
+			<li>1: Reference length-normalized TM-score</li>
+			<li>2: Query length-normalized TM-score (default)</li>
+			<li>3: Harmonic mean of the two TM-scores</li>
+			<li>4: RMSD</li>
+			<li>5: Greater 2TM-score</li>
+			<li>6: Reference length-normalized 2TM-score</li>
+			<li>7: Query length-normalized 2TM-score</li>
+			<li>8: Harmonic mean of the two 2TM-scores</li>
+		</ul>
+	</li>
+	<li>By default (option value 2), sorting emphasizes structural similarities spanning larger portions of the query structure.</li>
+	<li>Number of alignments: The number of results displayed is capped at 2,000 by default, with a maximum limit of 10,000.</li>
+	<li>Gaps removal: Users can opt to exclude deletion positions (gaps in the query) from alignments, which is particularly useful for evolutionary analyses when constructing multiple structure alignments.</li>
+	<li>Similarity pre-screening:
+		<ul>
+			<li>Pairwise sequence similarity score: Filter structures based on minimum sequence similarity (default = 0 / not used; maximum = 100).</li>
+			<li>Provisional structural TM-score: Filter structures based on a minimum TM-score (default = 0.4).</li>
+		</ul>
+	</li>
+	<li>Search speed optimization: Users can adjust the GTalign algorithm to balance speed and alignment optimality.
+		Larger values result in faster computations but reduced accuracy.
+		The default value of 13 corresponds to the fastest setting, ideal for large databases like UniRef30.
+		Note that searches using the most accurate setting (value 0) may take up to 10 times longer compared to the fastest setting.
+	</li>
+</ul>
+<h2>Description of results and services</h2>
+<p>
+The entry point to GTalign-web's services is job submission, where users search selected protein structure databases for structural similarities.
+Once the computations are completed, GTalign-web displays a list of links to the results for each query structure.
+Clicking a link directs the user to a detailed results page for the individual query (Fig. 1).
+</p>
+Figure 1. View of a results page generated for an individual query structure
+<p>
+The results page provides a list of GTalign-generated pairwise structure alignments sorted by structural similarity.
+Each identified structure is linked to its original database entry.
+Each alignment represents a match between the query and a database entry, including aligned secondary structure sections to help assess topological similarity.
+Secondary structure elements are denoted by the following letters:
+</p>
+<ul>
+	<li>h: alpha helix</li>
+	<li>e: beta strand</li>
+	<li>t: turn</li>
+</ul>
+<p>
+The + symbol in the middle line indicates pairs of aligned residues within 5 angstroms.
+</p>
+<p>
+Each structure alignment is accompanied by the following statistics:
+</p>
+<ul>
+	<li>TM-score (Refn./Query): Length-normalized TM-scores for the reference (database entry) and the query [7].</li>
+	<li>A TM-score of 1 indicates a perfect match.</li>
+	<li>2TM-score: Secondary TM-score that excludes unmatched helices [1].</li>
+	<li>A 2TM-score of 1 also indicates a perfect match.</li>
+	<li>d0 (Refn./Query): Normalizing inter-residue distance (d0) for the reference and query [7].</li>
+	<li>RMSD: Root-mean-square deviation in angstroms (A).</li>
+	<li>
+		Identities, Matched, and Gaps: These indicate the number of identical aligned residues, residues aligned within 5 angstroms, and unaligned residues, respectively.
+		Their percentages sum to 100%.
+	</li>
+</ul>
+<p>
+Rotation matrices and translation vectors (transformation matrices) for superimposing the reference structure onto the query structure are also provided.
+GTalign-web enables interactive visual analysis of superimposed structures.
+</p>
+<p>
+Additionally, GTalign-web offers functionality for constructing multiple structure alignments based on selected pairwise alignments.
+Users can either select alignments individually or specify a TM-score range to filter alignments.
+The resulting multiple structure alignments are presented in the form of a multiple sequence alignment and are compatible with interactive visual analysis tools.
+</p>
+<h2>Runtimes</h2>
+<p>
+The table below shows the runtimes of GTalign searches against the PDB, UniProtKB/Swiss-Prot, and UniRef30 structure databases for query structures of varying lengths, using default server settings.
+These runtimes were measured using the server's API.
+A dozen of seconds would be required to render the results in the graphical user interface.
+</p>
+<p>
+For shorter query structures (<500 residues) against the UniRef30 database, runtimes appear similar due to the bottleneck caused by slower data retrieval compared to computation. A potential solution to this issue is upgrading to faster storage systems, which will be considered in future updates.
+</p>
+<pre>
+##                                           Runtime (s)
+##                               --------------------------------------
+## Structure_ID  Length              PDB       Swiss-Prot      UniRef30     
+##                       (981,249 chains) (541,741 strs.) (25,348,391 strs.)
+##                         (avg_len: 216)  (avg_len: 354)     (avg_len: 223)
+##
+A0A0H1RF20          100               39               29          1257     
+A0A7S2FVF0          100               39               30          1255     
+A0A7S2FSH7          100               42               30          1262     
+
+A0A357HZ95          200               41               32          1282     
+A0A225V1N4          200               38               26          1264     
+A0A7S2WTE7          200               39 (*)           29          1271     
+
+K1Z1K8              500               71               48          1802     
+A0A447Y1L5          500               64               43          1736     
+A0A6P0TGX7          500               69               47          1786     
+
+A0A2V9DNX9         1000              126               85          2845     
+A0A1I8J5K6         1000              120               84          2809     
+A0A524N3P2         1000              127               88          3058     
+
+A0A1C1D0Y4         2004              223              155          5517     
+A0A158Q3Q4         2005              213              146          5248     
+A0A175WFP4         2006              227              159          5760     
+
+7k17_A             3629              395              282          9952     
+8j07_g1            3939              415              278         10419     
+7k5b_C             3947              421              287         10692     
+</pre>
+<h2>Limits</h2>
+<ul>
+	<li>File size: The maximum upload size for input files is 50 MB.</li>
+	<li>Residue length: Query structures shorter than 20 residues or longer than 4000 residues will not be processed.</li>
+	<li>
+		Job duration: The maximum runtime for a job is 24 hours.
+		If a job exceeds this limit, it will be canceled, and the user will be notified.
+	</li>
+</ul>
+<p>
+If some queries in a job fail, an error log will provide a brief description of the problem, visible to the user.
+Results for successfully completed queries within the same job will remain available for analysis as usual.
+</p>
+<h2>References</h2>
+<ol>
+	{# 1 #}<li>Margelevicius M. GTalign: spatial index-driven protein structure alignment, superposition, and search. <a href="https://doi.org/10.1038/s41467-024-51669-z">Nature Communications 15, 7305 (2024)</a>.</li>
+	{# 2 #}<li>Burley S et al. RCSB Protein Data Bank: powerful new tools for exploring 3D structures of biological macromolecules for basic and applied research and education in fundamental biology, biomedicine, biotechnology, bioengineering and energy sciences. <a href="https://doi.org/10.1093/nar/gkaa1038">Nucleic Acids Res. 49, D437-D451 (2021)</a>.</li>
+	{# 3 #}<li>Chandonia J, Fox N, Brenner S. SCOPe: classification of large macromolecular structures in the structural classification of proteins-extended database. <a href="https://doi.org/10.1093/nar/gky1134">Nucleic Acids Res. 47, D475-D481 (2019)</a>.</li>
+	{# 4 #}<li>Schaeffer R, Liao Y, Cheng H, Grishin N. ECOD: new developments in the evolutionary classification of domains. <a href="https://doi.org/10.1093/nar/gkw1137">Nucleic Acids Res. 45, D296-D302 (2017)</a>.</li>
+	{# 5 #}<li>UniProt Consortium. UniProt: the universal protein knowledgebase in 2021. <a href="https://doi.org/10.1093/nar/gkaa1100">Nucleic Acids Res. 49, D480-D489 (2021)</a>.</li>
+	{# 6 #}<li>Varadi M. et al. AlphaFold Protein Structure Database in 2024: providing structure coverage for over 214 million protein sequences. <a href="https://doi.org/10.1093/nar/gkad1011">Nucleic Acids Res 52, D368-D375 (2024)</a>.</li>
+	{# 7 #}<li>Zhang, Y. and Skolnick, J. Scoring function for automated assessment of protein structure template quality. <a href="https://doi.org/10.1002/prot.20264">Proteins 57, 702-710 (2004)</a>.</li>
+</ol>
+{% endblock %}
