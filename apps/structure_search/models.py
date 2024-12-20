@@ -7,6 +7,7 @@ import subprocess
 
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 
 from apps.core.models import SearchJob, generate_job_name, Databases
 from apps.core.utils import read_json_file, format_gtalign_description
@@ -17,11 +18,18 @@ class Job(SearchJob):
     def method(self):
         return 'gtalign'
 
+    def server(self):
+        return 'GTalign-web'
+
     def query_suffix(self):
         return 'tar'
 
     def process(self):
         return 'gtalign'
+
+    def uri(self):
+        uri = reverse('gtalign_results', args=[self.name])
+        return settings.BASE_URL+uri
 
     def write_sequences(self):
         logging.error('Structure search job cannot write sequences!')

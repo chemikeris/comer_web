@@ -23,6 +23,9 @@ class Job(SearchJob):
     number_of_successful_queries = models.IntegerField(null=True)
     is_cother_search = models.BooleanField()
 
+    def server(self):
+        return 'COMER web server'
+
     def task(self):
         app_label = self._meta.app_label
         if self.is_cother_search:
@@ -52,30 +55,6 @@ class Job(SearchJob):
     def uri(self):
         uri = reverse('results', args=[self.name])
         return BASE_URL+uri
-
-    def send_confirmation_email(self, status):
-        if self.email:
-            print('Sending confirmation email to %s.' % self.email)
-            message = ''
-            message += 'COMER web server search job "%s" has %s.\n' % (
-                self.nice_name(), status
-                )
-            message += '\n'
-            message += 'To see the results, please go to website:\n'
-            message += self.uri()
-            message += '\n'
-            try:
-                send_mail(
-                    subject='COMER web server job "%s"' % self.nice_name(),
-                    message=message,
-                    from_email=None,
-                    recipient_list=[self.email]
-                    )
-            except:
-                print('Sending confirmation email failed.')
-                import traceback
-                traceback.print_exc()
-            return
 
     def sequence_headers(self, sequence_no=None):
         sequences = []

@@ -7,6 +7,7 @@ import csv
 from django.db import models
 from django.db.utils import OperationalError
 from django.conf import settings
+from django.core.mail import send_mail
 
 from . import utils
 
@@ -69,6 +70,9 @@ class ComerWebServerJob(models.Model):
         return self._meta.app_label
 
     def method(self):
+        raise NotImplementedError
+
+    def server(self):
         raise NotImplementedError
 
     def query_suffix(self):
@@ -262,6 +266,9 @@ class SearchJob(ComerWebServerJob):
     number_of_input_queries = models.IntegerField(null=True)
     number_of_successful_queries = models.IntegerField(null=True)
 
+    def server(self):
+        raise NotImplementedError
+
     def get_directory(self):
         self.directory = os.path.join(
             settings.JOBS_DIRECTORY, str(self.date), self.name
@@ -304,6 +311,30 @@ class SearchJob(ComerWebServerJob):
             except KeyError:
                 grouped_msas[m.result_no] = [m]
         return grouped_msas
+
+    def send_confirmation_email(self, status):
+        if self.email:
+            print('Sending confirmation email to %s.' % self.email)
+            message = ''
+            message += '%s search job "%s" has %s.\n' % (
+                self.server(), self.nice_name(), status
+                )
+            message += '\n'
+            message += 'To see the results, please go to website:\n'
+            message += self.uri()
+            message += '\n'
+            try:
+                send_mail(
+                    subject='%s job "%s"' % (self.server(), self.nice_name()),
+                    message=message,
+                    from_email=None,
+                    recipient_list=[self.email]
+                    )
+            except:
+                print('Sending confirmation email failed.')
+                import traceback
+                traceback.print_exc()
+            return
 
 
 class SearchSubJob:
