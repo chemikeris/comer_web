@@ -102,7 +102,11 @@ def process_input_data(input_data, input_files):
     input_directory = os.path.join(new_job.get_directory(), job_name, 'input')
     os.makedirs(input_directory)
     if structure_str:
-        fname = os.path.join(input_directory, job_name)
+        if structure_str.startswith('data_'):
+            extension = '.cif'
+        else:
+            extension = '.pdb'
+        fname = os.path.join(input_directory, job_name+extension)
         with open(fname, 'w') as f:
             f.write(structure_str)
     for query_file in input_query_files:
