@@ -93,6 +93,7 @@ def process_input_data(input_data, input_files):
         input_query_files = input_files.getlist('input_query_files')
     except KeyError:
         input_query_files = []
+    del input_data['input_query_files']
     job_name = generate_job_name()
     new_job = Job.objects.create(
         name=job_name, email=email, description=description
@@ -112,16 +113,24 @@ def process_input_data(input_data, input_files):
     with tarfile.open(input_archive_file, 'w') as tf:
         for fname in os.listdir(input_directory):
             tf.add(os.path.join(input_directory, fname), arcname=fname)
-    save_gtalign_settings(new_job.get_input_file('options'), database)
+    save_gtalign_settings(
+        new_job.get_input_file('options'), database, input_data
+        )
     return new_job
 
 
-def save_gtalign_settings(settings_file, database):
+def save_gtalign_settings(settings_file, database, input_settings):
     default_settings_file = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), 'default_settings.txt')
     shutil.copy(default_settings_file, settings_file)
     with open(settings_file, 'a') as f:
-        f.write('gtalign_db = %s' % database)
+        for setting, value in input_settings.items():
+            if setting.startswith('pre'):
+                s = setting.replace('pre', 'pre-')
+            else:
+                s = setting
+            f.write(f'--{s}={value}\n')
+        f.write('gtalign_db = %s\n' % database)
 
 
 def prepare_results_json(results_json):

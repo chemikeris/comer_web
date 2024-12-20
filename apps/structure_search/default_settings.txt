@@ -1,13 +1,6 @@
---s=0.5
 --2tm-score
---sort=2
---nhits=2000
---nalns=2000
 --hetatm
---pre-similarity=0.0
---pre-score=0.4
---add-search-by-ss
---speed=13
+--referenced
 --dev-max-length=4000
 --dev-min-length=20
---referenced
+--add-search-by-ss
