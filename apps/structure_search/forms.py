@@ -98,7 +98,8 @@ class StructureInputForm(forms.Form):
         if not cleaned_data['structure'] and not self.files:
             raise ValidationError('No query structure input!')
         structure_lines = cleaned_data['structure'].splitlines()
-        cleaned_data['structure'] = '\n'.join(structure_lines)+'\n'
+        if structure_lines:
+            cleaned_data['structure'] = '\n'.join(structure_lines)+'\n'
         if 'nogaps' in cleaned_data:
             pass
         else:
