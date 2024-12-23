@@ -73,14 +73,9 @@ class StructureInputForm(forms.Form):
         min_value=1, max_value=1000,
         initial=default.settings['nhits']
         )
-    nalns = forms.IntegerField(
-        label='Number of structure alignments',
-        min_value=1, max_value=1000,
-        initial=default.settings['nalns']
-        )
     presimilarity = forms.FloatField(
         label='Sequence similarity pre-screening threshold',
-        min_value=0,
+        min_value=0, max_value=100,
         initial=default.settings['pre-similarity']
         )
     prescore = forms.FloatField(
@@ -93,6 +88,10 @@ class StructureInputForm(forms.Form):
         min_value=0, max_value=13,
         initial=default.settings['speed']
         )
+    nogaps = forms.BooleanField(
+        label='Remove deletion positions',
+        required=False
+        )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -100,5 +99,9 @@ class StructureInputForm(forms.Form):
             raise ValidationError('No query structure input!')
         structure_lines = cleaned_data['structure'].splitlines()
         cleaned_data['structure'] = '\n'.join(structure_lines)+'\n'
+        if 'nogaps' in cleaned_data:
+            pass
+        else:
+            cleaned_data['nogaps'] = False
 
 

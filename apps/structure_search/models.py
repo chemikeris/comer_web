@@ -131,9 +131,18 @@ def save_gtalign_settings(settings_file, database, input_settings):
         for setting, value in input_settings.items():
             if setting.startswith('pre'):
                 s = setting.replace('pre', 'pre-')
+            elif setting == 'nhits':
+                s = setting
+                f.write(f'--nalns={value}\n')
+            elif setting == 'nogaps':
+                s = 'no-deletions'
             else:
                 s = setting
-            f.write(f'--{s}={value}\n')
+            if isinstance(value, bool):
+                if value:
+                    f.write(f'--{s}\n')
+            else:
+                f.write(f'--{s}={value}\n')
         f.write('gtalign_db = %s\n' % database)
 
 

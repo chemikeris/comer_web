@@ -1,14 +1,71 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
+{% load input_form %}
+<script src="{% static 'js/common/input.js' %}"></script>
 <script src="{% static 'js/structure_search/input.js' %}"></script>
 <script>const example_data={{ example_str|stringformat:"r" }};</script>
 <h1>GTalign web server</h1>
-<p>A server for structure-based structure search.</p>
+<p>High-performance search and alignment for protein structures.</p>
 <p>This server is free and open to all users and there is no login requirement.</p>
 <form action="." method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
-{{ form }}
+<div>{{ form.non_field_errors }}</div>
+<div>Paste structure: {{ 'input_structure_help'|help_tooltip_questionmark }}
+    {{ 'input_structure_help'|help_tooltip:'Enter your structures in PDB and/or mmCIF format (max size: 2 MB).' }}
+</div>
+<div>{{ form.structure.errors }}{{ form.structure }}</div>
+<p><button class="btn btn-secondary me-2 mt-2" onclick="add_example_query()" type="button">Load example structure</button></p>
+<div class="row align-items-center" id="query_file_input">
+    <div class="col-12">{{ form.input_query_files.errors }}</div>
+    <div class="col-sm-3">{{ form.input_query_files.label_tag }}{{ 'input_file_help'|help_tooltip_questionmark }}</div>
+    <div class="col-sm-9">{{ form.input_query_files }}</div>
+    {{ 'input_file_help'|help_tooltip:'Upload one or more PDB and PDBx/mmCIF files, optionally gzipped (max: 50 MB).' }}
+</div>
+<div class="row my-2 align-items-center">
+    {# Database field #}
+    <div class="col-12">{{ form.database.errors }}</div>
+    <div class="col-xxl-2 col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.database.label_tag }} {{ 'database_help'|help_tooltip_questionmark }}</div><div class="col-auto">{{ form.database }}</div>
+    {{ 'database_help'|help_tooltip:'Select structure database(s) for GTalign search.' }}    
+    {# Email and description fields #}
+    <div class="col-12">{{ form.email.errors }}</div>
+    <div class="col-xxl-2 col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.email.label_tag }} {{ 'email_help'|help_tooltip_questionmark }} </div><div class="col-xxl-10 col-lg-9 col-md-8 col-sm-6">{{ form.email }}</div>
+    {{ 'email_help'|help_tooltip:'Optionally, provide an email address to receive a notification upon job completion.' }}
+    <div class="col-xxl-2 col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.description.label_tag }} {{ 'description_help'|help_tooltip_questionmark }} </div><div class="col-xxl-10 col-lg-9 col-md-8 col-sm-6">{{ form.description }}</div>
+    {{ 'description_help'|help_tooltip:'Optionally, provide a custom job description.' }}
+</div>
+{# GTalign options #}
+<h2 class="dropdown-toggle link-dark" data-bs-toggle="collapse" data-bs-target="#search_options">Search and alignment options</h2>
+<div class="row my-2 align-items-center collapse" id="search_options">
+    {# TM-score threshold #}
+    <div class="col-12">{{ form.s.errors }}</div>
+    <div class="col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.s.label_tag }} {{ 's_help'|help_tooltip_questionmark }}</div><div class="col-auto">{{ form.s }}</div>
+    {{ 's_help'|help_tooltip:'Report results down to this TM-score limit. Possible values range from 0 to 1 (exclusive).' }}
+    {# Sort options #}
+    <div class="col-12">{{ form.sort.errors }}</div>
+    <div class="col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.sort.label_tag }} {{ 'sort_help'|help_tooltip_questionmark }}</div><div class="col-auto">{{ form.sort }}</div>
+    {{ 'sort_help'|help_tooltip:'Specify your alignment sorting preferences.' }}
+    {# No. of results #}
+    <div class="col-12">{{ form.nhits.errors }}</div>
+    <div class="col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.nhits.label_tag }} {{ 'nhits_help'|help_tooltip_questionmark }}</div><div class="col-auto">{{ form.nhits }}</div>
+    {{ 'nhits_help'|help_tooltip:'Number of highest-scoring structure alignments and superpositions to output for each query (maximum: 1000).' }}
+    {# Pre-similarity #}
+    <div class="col-12">{{ form.presimilarity.errors }}</div>
+    <div class="col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.presimilarity.label_tag }} {{ 'presimilarity_help'|help_tooltip_questionmark }}</div><div class="col-auto">{{ form.presimilarity }}</div>
+    {{ 'presimilarity_help'|help_tooltip:'Minimum pairwise sequence similarity score for conducting structure comparison. Values ≥10 significantly impact speed. A value of 0 means all pairs are subject to further processing. The maximum value is 100.' }}
+    {# Pre-score #}
+    <div class="col-12">{{ form.prescore.errors }}</div>
+    <div class="col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.prescore.label_tag }} {{ 'prescore_help'|help_tooltip_questionmark }}</div><div class="col-auto">{{ form.prescore }}</div>
+    {{ 'prescore_help'|help_tooltip:'Minimum provisional TM-score, ranging from 0 to 1 (exclusive), for structure pairs to proceed to further stages. A value of 0 means all pairs are subject to further processing.' }}
+    {# Speed #}
+    <div class="col-12">{{ form.speed.errors }}</div>
+    <div class="col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.speed.label_tag }} {{ 'speed_help'|help_tooltip_questionmark }}</div><div class="col-auto">{{ form.speed }}</div>
+    {{ 'speed_help'|help_tooltip:'Increase the speed of the GTalign alignment algorithm by reducing optimality. Higher values result in faster computation, with a maximum of 13.' }}
+    {# No-deletions #}
+    <div class="col-12">{{ form.nogaps.errors }}</div>
+    <div class="col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.nogaps.label_tag }} {{ 'nogaps_help'|help_tooltip_questionmark }}</div><div class="col-auto">{{ form.nogaps }}</div>
+    {{ 'nogaps_help'|help_tooltip:'Remove deletion positions (gaps in the query) from the generated alignments.' }}
+</div>
 <input class="btn btn-secondary" type="submit" value="Submit">
 </form>
-<p><button class="btn btn-secondary me-2 mt-2" onclick="add_example_query()" type="button">Load example structure</button></p>
+<script>add_bootstrap_for_form()</script>
 {% endblock %}
