@@ -6,7 +6,7 @@ from apps.core.utils import search_input_files_exist
 from . import default
 
 
-MAX_STRUCTURE_TEXT_INPUT = 5242880
+MAX_STRUCTURE_TEXT_INPUT = 2097152
 MAX_INPUT_FILE_SIZE_IN_MB = 50
 
 
@@ -40,7 +40,7 @@ class StructureInputForm(forms.Form):
         )
     database = forms.ChoiceField(
         choices=get_databases_for('gtalign'),
-        initial=get_databases_for('gtalign', ['pdb_mmcif']),
+        initial=get_databases_for('gtalign', ['pdb_mmcif'])[0],
         label='Database'
         )
     email = forms.EmailField(required=False, label='E-mail (optional)')
