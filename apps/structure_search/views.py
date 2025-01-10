@@ -43,6 +43,7 @@ def results(request, job_id):
             'sequence_no': None,
             'job_options': job.read_input_file('options'),
             'active': 'summary',
+            'errors': errors,
             }
         return render(request, 'structure_search/results_all.html', context)
     else:
