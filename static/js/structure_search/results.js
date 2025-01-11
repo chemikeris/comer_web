@@ -1,6 +1,6 @@
 'use sctrict';
 function getResultsTableColumns() {
-    return ['', 'No.', 'ID', 'TM-score (query)', 'TM-score (reference)', 'RMSD', 'd0 (query)', 'd0 (reference)', '2TM-score (query)', '2TM-score (reference)', 'Aligned residues', 'Reference length', ''];
+    return ['', 'No.', 'ID', 'TM-score (query)', 'TM-score (reference)', 'RMSD', 'd0 (query)', 'd0 (reference)', '2TM-score (query)', '2TM-score (reference)', 'Aligned residues', 'Query length', 'Reference length', ''];
 }
 function colorSummary(tm_score) {
     return '42'
@@ -34,6 +34,8 @@ function fillSummaryTableRowData(row, hit_record, i) {
     row.appendChild(createTableData(hit_record.alignment['2tmscore_refn']));
     // Aligned residues
     row.appendChild(createTableData(hit_record.alignment.n_aligned - hit_record.alignment.n_gaps));
+    // Query length
+    row.appendChild(createTableData(hit_record.query_length));
     // Reference length
     row.appendChild(createTableData(hit_record.reference_length));
     // Superposition button.
@@ -51,6 +53,12 @@ function formatAlignmentDescription(alignment_div, hit_record) {
     alignment_description.innerText = 'TM-score(query)=' + hit_record.alignment.tmscore_query;
     alignment_description.innerText += ', TM-score(reference)=' + hit_record.alignment.tmscore_refn;
     alignment_description.innerText += ', RMSD=' + hit_record.alignment.rmsd;
+    alignment_description.innerText += ', d0(query)=' + hit_record.alignment.d0_query;
+    alignment_description.innerText += ', d0(reference)=' + hit_record.alignment.d0_refn;
+    alignment_description.innerText += ', 2TM-score(query)=' + hit_record.alignment['2tmscore_query'];
+    alignment_description.innerText += ', 2TM-score(reference)=' + hit_record.alignment['2tmscore_refn'];
+    alignment_description.innerText += ', Length(query)=' + hit_record.query_length;
+    alignment_description.innerText += ', Length(reference)=' + hit_record.reference_length;
     alignment_description.innerText += ', Identities=' + percentageDisplay(hit_record.alignment.n_identities, hit_record.alignment.n_aligned);
     alignment_description.innerText += ', Matched=' + percentageDisplay(hit_record.alignment.n_matched, hit_record.alignment.n_aligned);
     alignment_description.innerText += ', Gaps=' + percentageDisplay(hit_record.alignment.n_gaps, hit_record.alignment.n_aligned) + '.';
