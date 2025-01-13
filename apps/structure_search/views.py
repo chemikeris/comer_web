@@ -34,6 +34,7 @@ def results(request, job_id):
     finished, removed, status_msg, errors, refresh = job.status_info()
     page_title = 'GTalign results - %s' % job.nice_name()
     input_url = job.input_file_download_url()
+    input_url_a = mark_safe(f'<a href="{input_url}">Download input</a>')
     if finished and not removed:
         summary = job.results_summary()
         context = {
@@ -42,8 +43,7 @@ def results(request, job_id):
             'results_summary': summary,
             'sequences': [r.input_description for r in summary],
             'sequence_no': None,
-            'job_input': \
-                mark_safe(f'<a href="{input_url}">Download input</a>'),
+            'job_input': input_url_a,
             'job_options': job.read_input_file('options'),
             'active': 'summary',
             'errors': errors,
@@ -58,6 +58,7 @@ def results(request, job_id):
             'log': job.calculation_log,
             'errors': errors,
             'job_options': job.read_input_file('options'),
+            'job_input': input_url_a,
             'sequences': [],
             }
         return render(request, 'jobs/not_finished_or_removed.html', context)
