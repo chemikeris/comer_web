@@ -61,6 +61,9 @@ class Job(SearchJob):
             os.makedirs(aligned_structures_subdirectory)
         return aligned_structures_subdirectory
 
+    def input_file_download_url(self):
+        return reverse('gtalign_download_input', args=[self.name])
+
 
 class StructureSearchResultsSummary:
     def __init__(self, job, results_data):
@@ -147,7 +150,7 @@ def save_gtalign_settings(settings_file, database, input_settings):
 
 
 def prepare_results_json(results_json):
-    "Remove unnecessary data from GTalign results JSON"
+    "Remove unnecessary and add additional data from GTalign results JSON"
     res = results_json['gtalign_search']
     for i, hit_record in enumerate(res['search_results']):
         hr = hit_record['hit_record']

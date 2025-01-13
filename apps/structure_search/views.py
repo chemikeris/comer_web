@@ -33,6 +33,7 @@ def results(request, job_id):
     print(job)
     finished, removed, status_msg, errors, refresh = job.status_info()
     page_title = 'GTalign results - %s' % job.nice_name()
+    input_url = job.input_file_download_url()
     if finished and not removed:
         summary = job.results_summary()
         context = {
@@ -41,6 +42,8 @@ def results(request, job_id):
             'results_summary': summary,
             'sequences': [r.input_description for r in summary],
             'sequence_no': None,
+            'job_input': \
+                mark_safe(f'<a href="{input_url}">Download input</a>'),
             'job_options': job.read_input_file('options'),
             'active': 'summary',
             'errors': errors,
@@ -111,4 +114,10 @@ def download_aligned_structures(request, job_id, result_no, hit_no):
     job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
     structures_file = models.prepare_aligned_structures(job, result_no, hit_no)
     return FileResponse(open(structures_file, 'rb'))
+
+
+def download_input(request, job_id):
+    job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
+    fname = job.get_input_file(job.query_suffix())
+    return FileResponse(open(fname, 'rb'))
 

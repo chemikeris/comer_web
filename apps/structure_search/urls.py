@@ -36,4 +36,9 @@ urlpatterns = [
         views.download_aligned_structures,
         name='download_gtalign_aligned_structures'
         ),
+    path(
+        'download/input/<slug:job_id>',
+        views.download_input,
+        name='gtalign_download_input'
+        ),
 ]
