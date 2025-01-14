@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'cookielaw',
+    'apps.databases',
     'apps.core',
     'apps.search',
     'apps.model_structure',

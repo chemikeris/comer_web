@@ -22,6 +22,7 @@ echo "DEBUG = False" > comer_web/settings/debug.py
 
 echo 'Setting up Django.'
 python manage.py makemigrations
+python manage.py makemigrations databases
 python manage.py makemigrations core
 python manage.py makemigrations search
 python manage.py makemigrations model_structure
