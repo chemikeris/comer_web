@@ -26,7 +26,7 @@ def show(request, msa_job_id, structural=False):
     page_title = '%s-based multiple sequence alignment' % title
     if structural:
         session_jobs = []
-        result_headers = job.search_job.structure_headers(),
+        result_headers = job.search_job.structure_headers()
         structure_models = []
     else:
         session_jobs = set_and_get_session_jobs(request, job.search_job)
