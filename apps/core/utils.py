@@ -5,6 +5,7 @@ import logging
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 
+from apps.databases.models import ECOD
 
 def read_json_file(fname, filter_key=None):
     "Read JSON file contents into Python format"
@@ -118,12 +119,17 @@ def format_gtalign_description(description):
     def afdb_id_to_uniprot(i):
         uniprot_ac = i.split('-')[1]
         return uniprot_ac
+    def ecod_identifier_to_domain_name(i):
+        ecod_uid = after_colon(i).split('.')[0]
+        ecod_data = ECOD.objects.filter(uid=int(ecod_uid))[0]
+        return ecod_data.ecod_domain_id
     def after_colon(i):
         return i.split(':')[1]
     parts = description.split()
     identifier = os.path.basename(parts[0])
     if identifier.startswith('ecod'):
-        return identifier
+        ecod_domain_name = ecod_identifier_to_domain_name(identifier)
+        return ecod_domain_name
     elif identifier.startswith('scope'):
         identifier = trim_id(after_colon(identifier))
         return identifier
