@@ -33,7 +33,7 @@ class Command(BaseCommand):
             now = datetime.datetime.now()
             old_jobs = SearchJob.objects\
                 .exclude(status=SearchJob.REMOVED)\
-                .filter(date__lt=(now-datetime.timedelta(weeks=2)))
+                .filter(date__lt=(now-datetime.timedelta(weeks=13)))
         calculation_server_connection = Connection()
         for j in old_jobs:
             print('Removing job: %s (%s, %s).' % (j.job_id, j.name, j.date))
