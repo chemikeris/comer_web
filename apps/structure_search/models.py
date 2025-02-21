@@ -113,9 +113,13 @@ def process_input_data(input_data, input_files, example=False):
         with open(fname, 'w') as f:
             f.write(structure_str)
     for query_file in input_query_files:
-        fname = os.path.join(input_directory, query_file.name)
-        with open(fname, 'wb') as f:
-            f.write(query_file.read())
+        if tarfile.is_tarfile(query_file):
+            tar = tarfile.open(fileobj=query_file)
+            tar.extractall(input_directory)
+        else:
+            fname = os.path.join(input_directory, query_file.name)
+            with open(fname, 'wb') as f:
+                f.write(query_file.read())
     input_archive_file = os.path.join(new_job.get_directory(), job_name+'.tar')
     with tarfile.open(input_archive_file, 'w') as tf:
         for fname in os.listdir(input_directory):
