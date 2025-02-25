@@ -57,6 +57,7 @@ def track_status(job, connection):
         # Submitting new job to calculation server.
         try:
             job.submit_to_calculation(connection)
+            time.sleep(5)
         except Exception as e:
             logging.error(e)
             job.status = job.FAILED
