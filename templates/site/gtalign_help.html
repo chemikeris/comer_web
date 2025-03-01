@@ -27,10 +27,8 @@ Supported extensions are:
 	<li>PDB: .pdb, .ent, .pdb.gz, .ent.gz</li>
 	<li>PDBx/mmCIF: .cif, .cif.gz</li>
 </ul>
-<p>
-For multiple queries, the same format and extension rules apply.
-{% comment %}
-Additionally, multiple files must be archived (without compression) into a single .tar file using the tar utility.
+<p>For multiple queries, the same format and extension rules apply.</p>
+<p>Additionally, multiple files may be archived (without compression) into a single .tar file using the tar utility.
 For example, to submit two queries named my_structure1.pdb.gz and my_structure2.cif.gz, archive them, e.g., using the command:
 </p>
 <code>tar -cf my_structures.tar my_structure1.pdb.gz my_structure2.cif.gz</code>
@@ -38,7 +36,6 @@ For example, to submit two queries named my_structure1.pdb.gz and my_structure2.
 <p>
 The resulting file, my_structures.tar, can then be uploaded.
 The .tar extension is mandatory.
-{% endcomment %}
 </p>
 <p>
 Results will be generated for each query individually.
