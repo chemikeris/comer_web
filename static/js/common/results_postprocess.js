@@ -42,6 +42,11 @@ function select_all_results(on) {
         syncCheckboxes(table_checkboxes[i], 'table_row_checkbox', 'alignment_checkbox');
     }
 }
+function select_checkboxes(selectable_checkboxes) {
+    for (var i = 0; i < selectable_checkboxes.length; i++) {
+        document.getElementById(selectable_checkboxes[i]).checked = true;
+    }
+}
 function select_by_Evalue() {
     select_all_results(false);
     var min_evalue = document.getElementById("id_min_evalue").value;
@@ -62,7 +67,37 @@ function select_by_Evalue() {
             selectable_checkboxes.push('alignment_checkbox'+i);
         }
     }
-    for (var i = 0; i < selectable_checkboxes.length; i++) {
-        document.getElementById(selectable_checkboxes[i]).checked = true;
+    select_checkboxes(selectable_checkboxes);
+}
+function select_by_TMscore(query_or_reference) {
+    select_all_results(false);
+    var min_tmscore = document.getElementById("id_min_tmscore").value;
+    var max_tmscore = document.getElementById("id_max_tmscore").value;
+    if (min_tmscore || max_tmscore) {
+        min_tmscore = min_tmscore == '' ? -1 : parseFloat(min_tmscore);
+        max_tmscore = max_tmscore == '' ? Infinity : parseFloat(max_tmscore);
     }
+    else {
+        return;
+    }
+    if (query_or_reference == 'query') {
+        field = 'tmscore_query';
+    }
+    else if (query_or_reference == 'reference') {
+        field = 'tmscore_refn';
+    }
+    else
+    {
+        return;
+    }
+    var search_hits = resultsParts(results, true)[1];
+    var selectable_checkboxes = [];
+    for (var i = 0; i < search_hits.length; i++) {
+        var hit_tmscore = parseFloat(search_hits[i].hit_record.alignment[field])
+        if (hit_tmscore > min_tmscore && hit_tmscore < max_tmscore) {
+            selectable_checkboxes.push('table_row_checkbox'+i);
+            selectable_checkboxes.push('alignment_checkbox'+i);
+        }
+    }
+    select_checkboxes(selectable_checkboxes);
 }

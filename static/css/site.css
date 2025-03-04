@@ -24,6 +24,9 @@ html {
 #id_min_evalue, #id_max_evalue {
     width: 5em!important;
 }
+#id_min_tmscore, #id_max_tmscore {
+    width: 5em!important;
+}
 .resK, .resR {
     color: blue;
 }

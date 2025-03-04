@@ -14,11 +14,10 @@
 <p>
     <button class="btn btn-secondary my-2" onclick="select_all_results(true)" type="button">Select all</button>
     <button class="btn btn-secondary my-2" onclick="select_all_results(false)" type="button">Deselect all</button>
-    {% comment %}
-    <button class="btn btn-secondary my-2" onclick="select_by_Evalue()" type="button">Select by E-value</button>
-    <label for="id_min_evalue">Minimum E-value:</label> <input type="text" id="id_min_evalue" class="form-control d-inline">
-    <label for="id_max_evalue">Maximum E-value:</label> <input type="text" id="id_max_evalue" class="form-control d-inline">
-    {% endcomment %}
+    <label for="id_min_evalue">Minimum TM-score:</label> <input type="text" id="id_min_tmscore" class="form-control d-inline">
+    <label for="id_max_evalue">Maximum TM-score:</label> <input type="text" id="id_max_tmscore" class="form-control d-inline">
+    <button class="btn btn-secondary my-2" onclick="select_by_TMscore('query')" type="button">Select by query TM-score</button>
+    <button class="btn btn-secondary my-2" onclick="select_by_TMscore('reference')" type="button">Select by reference TM-score</button>
     <input type="hidden" name="job_id" value="{{ job.name }}">
     <input type="hidden" name="result_no" value="{{ sequence_no }}">
     <input type="submit" formaction="{% url 'submit_structural_msa' %}" name="msa" value="Construct MSA" id="submit_msa" class="results_button btn btn-secondary my-2">
