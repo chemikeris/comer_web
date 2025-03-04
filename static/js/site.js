@@ -11,3 +11,6 @@ function showScrollButton() {
 function goToTop() {
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
+function clearField(field_id) {
+    document.getElementById(field_id).value = '';
+}

@@ -14,7 +14,10 @@
     {{ 'input_structure_help'|help_tooltip:'Enter your structures in PDB and/or mmCIF format (max size: 2 MB).' }}
 </div>
 <div>{{ form.structure.errors }}{{ form.structure }}</div>
-<p><button class="btn btn-secondary me-2 mt-2" onclick="add_example_query()" type="button">Load example structure</button></p>
+<p>
+<button class="btn btn-secondary me-2 mt-2" onclick="add_example_query()" type="button">Load example structure</button>
+<button class="btn btn-secondary me-2 mt-2" onclick="clearField('id_structure')" type="button">Clear input field</button>
+</p>
 <div class="row align-items-center" id="query_file_input">
     <div class="col-12">{{ form.input_query_files.errors }}</div>
     <div class="col-sm-3">{{ form.input_query_files.label_tag }}{{ 'input_file_help'|help_tooltip_questionmark }}</div>
