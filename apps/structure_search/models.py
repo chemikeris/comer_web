@@ -1,9 +1,12 @@
+import sys
 import os
 import shutil
 import logging
 import tarfile
 import glob
 import subprocess
+
+from Bio import PDB
 
 from django.db import models
 from django.conf import settings
@@ -60,6 +63,23 @@ class Job(SearchJob):
         if not os.path.isdir(aligned_structures_subdirectory):
             os.makedirs(aligned_structures_subdirectory)
         return aligned_structures_subdirectory
+
+    def aligned_structure_file_exists(self, result_no, hit_no=None):
+        if hit_no is None:
+            # Input structure is necessary, that is selected from input file
+            # according to model number and chain name.
+            aligned_file_name = '%s_input_%s.pdb' % (self.name, result_no)
+        else:
+            aligned_file_name = '%s_%s_%s.pdb' % (self.name, result_no, hit_no)
+        result_file_path = os.path.join(
+            self.aligned_structures_subdirectory(), aligned_file_name
+            )
+        if os.path.isfile(result_file_path):
+            logging.info('Using already aligned structure file %s',
+                         result_file_path)
+            return True, result_file_path
+        else:
+            return False, result_file_path
 
     def input_file_download_url(self):
         return reverse('gtalign_download_input', args=[self.name])
@@ -164,20 +184,11 @@ def prepare_results_json(results_json):
     return results_json
 
 
-def prepare_aligned_structures(job, result_no, hit_no):
-    result_file_path = os.path.join(
-        job.aligned_structures_subdirectory(),
-        '%s_%s_%s.pdb' % (job.name, result_no, hit_no)
-        )
-    # Using already prepared file, if it exists.
-    if os.path.isfile(result_file_path):
-        logging.info('Using already aligned structure file %s',
-                     result_file_path)
+def prepare_aligned_structure(job, result_no, hit_no):
+    exists, result_file_path = job.aligned_structure_file_exists(result_no, hit_no)
+    if exists:
+        # Using existing file.
         return result_file_path
-    print(
-        'Creating GTalign aligned structures for %s, result %s, hit %s.' % \
-        (job.name, result_no, hit_no)
-        )
     # It it is the first time when alignment is called, processing it.
     # Reading data.
     results_file = job.results_file_path(
@@ -185,7 +196,6 @@ def prepare_aligned_structures(job, result_no, hit_no):
         )
     results, json_error = read_json_file(results_file)
     results = results['gtalign_search']
-    hit_record = results['search_results'][hit_no]['hit_record']
     config = calculation_server.read_config_file()
     # Preparing query structure data.
     query_structure_description = results['query']['description']
@@ -195,35 +205,68 @@ def prepare_aligned_structures(job, result_no, hit_no):
         query_structure_description, query_remote_dir, query_dir+'/',
         ('%s.tar:' % job.name, 'input/')
         )
-    # Preparing result structure data.
-    reference_description = hit_record['reference_description']
-    reference_remote_dir = database_remote_directory(reference_description)
-    reference_dir = config['local_paths']['structures_directory']
-    reference = structure_data(
-        reference_description, reference_remote_dir, reference_dir,
-        (':', '/')
+    gtalign_backend_directory = os.path.join(
+        config['local_paths']['gtalign_backend'], 'bin'
         )
-    # Reading transformation data.
-    matrix = ','.join(map(str, hit_record['rotation_matrix_rowmajor']))
-    vector = ','.join(map(str, hit_record['translation_vector']))
-    aligner = os.path.join(
-        config['local_paths']['gtalign_backend'], 'bin', 'superpose1.py'
-        )
-    alignment_command = [
-        os.path.join(settings.BASE_DIR, 'virtualenv', 'bin', 'python'),
-        aligner,
-        '--i1', query['file'],
-        '--c1', query['chain'],
-        '--m1', str(query['model']),
-        '--i2', reference['file'],
-        '--c2', reference['chain'],
-        '--m2', str(reference['model']),
-        '-r', matrix,
-        '-t', vector,
-        '-o', result_file_path,
-        '-2',
-        ]
-    subprocess.run(alignment_command)
+    if hit_no is None:
+        print(
+            'Creating GTalign query structure file for %s, result %s.' % \
+                (job.name, result_no)
+            )
+        # Using code from calculation backend module.
+        try:
+            from superpose1 import GetStructureModelChain
+        except ImportError:
+            sys.path.append(gtalign_backend_directory)
+            from superpose1 import GetStructureModelChain
+        code, chain1 = GetStructureModelChain(
+            [query['file']], query['chain'], int(query['model'])
+            )
+        chain1.id = 'A'
+        builder = PDB.StructureBuilder.StructureBuilder()
+        builder.init_structure('Sup')
+        builder.init_model(0,0)
+        outstr = builder.get_structure()
+        chain1.id = 'A'
+        outstr[0].add(chain1)
+        io = PDB.PDBIO()
+        io.set_structure(outstr)
+        io.save(result_file_path)
+    else:
+        print(
+            'Creating GTalign aligned structures for %s, result %s, hit %s.' % \
+            (job.name, result_no, hit_no)
+            )
+        # Preparing result structure data.
+        hit_record = results['search_results'][hit_no]['hit_record']
+        reference_description = hit_record['reference_description']
+        reference_remote_dir = database_remote_directory(reference_description)
+        reference_dir = config['local_paths']['structures_directory']
+        reference = structure_data(
+            reference_description, reference_remote_dir, reference_dir,
+            (':', '/')
+            )
+        # Reading transformation data.
+        matrix = ','.join(map(str, hit_record['rotation_matrix_rowmajor']))
+        vector = ','.join(map(str, hit_record['translation_vector']))
+        aligner = os.path.join(
+            gtalign_backend_directory,  'superpose1.py'
+            )
+        alignment_command = [
+            os.path.join(settings.BASE_DIR, 'virtualenv', 'bin', 'python'),
+            aligner,
+            '--i1', query['file'],
+            '--c1', query['chain'],
+            '--m1', str(query['model']),
+            '--i2', reference['file'],
+            '--c2', reference['chain'],
+            '--m2', str(reference['model']),
+            '-r', matrix,
+            '-t', vector,
+            '-o', result_file_path,
+            '-2'
+            ]
+        subprocess.run(alignment_command)
     return result_file_path
 
 

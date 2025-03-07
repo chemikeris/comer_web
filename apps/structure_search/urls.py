@@ -32,13 +32,23 @@ urlpatterns = [
         name='gtalign_aligned_structures_without_hit'
         ),
     path(
-        'download/aligned_structures/<slug:job_id>/<int:result_no>/<int:hit_no>',
-        views.download_aligned_structures,
-        name='download_gtalign_aligned_structures'
+        'download/aligned_structures_reference/<slug:job_id>/<int:result_no>/<int:hit_no>',
+        views.download_aligned_structure,
+        name='download_gtalign_aligned_structure_reference'
+        ),
+    path(
+        'download/aligned_structures_query/<slug:job_id>/<int:result_no>',
+        views.download_input,
+        name='download_gtalign_aligned_structure_query'
         ),
     path(
         'download/input/<slug:job_id>',
         views.download_input,
         name='gtalign_download_input'
+        ),
+    path(
+        'download/aligned_structures_multiple/',
+        views.download_aligned_structures_multiple,
+        name='gtalign_download_aligned_structures_multiple'
         ),
 ]

@@ -18,9 +18,12 @@
     <label for="id_max_evalue">Maximum TM-score:</label> <input type="text" id="id_max_tmscore" class="form-control d-inline">
     <button class="btn btn-secondary my-2" onclick="select_by_TMscore('query')" type="button">Select by query TM-score</button>
     <button class="btn btn-secondary my-2" onclick="select_by_TMscore('reference')" type="button">Select by reference TM-score</button>
+</p>
+<p>
     <input type="hidden" name="job_id" value="{{ job.name }}">
     <input type="hidden" name="result_no" value="{{ sequence_no }}">
     <input type="submit" formaction="{% url 'submit_structural_msa' %}" name="msa" value="Construct MSA" id="submit_msa" class="results_button btn btn-secondary my-2">
+    <input type="submit" formaction="{% url 'gtalign_download_aligned_structures_multiple' %}" name="model" value="Download selected superpositions" id="submit_download_superpositions" class="results_button btn btn-secondary my-2">
 </p><div id="results_table"></div>
 <h2>Alignments</h2>
 <div id="alignments"></div>

@@ -2,12 +2,13 @@
 {% load static %}
 {% block results %}
 <script src="{% static 'ngl.js' %}"></script>
-<script src="{% static 'js/model_structure/show_structure.js' %}"></script>
-{% url 'download_gtalign_aligned_structures' job_id=job.name result_no=result_no hit_no=hit_no as structures_url %}
+<script src="{% static 'js/structure_search/show_superposition.js' %}"></script>
+{% url 'download_gtalign_aligned_structure_query' job_id=job.name result_no=result_no as input_structure_url %}
+{% url 'download_gtalign_aligned_structure_reference' job_id=job.name result_no=result_no hit_no=hit_no as aligned_structure_url %}
 <h1>Aligned structures</h1>
-<p>Chain A: query structure, chain B: reference structure.</p>
-<p><a href="{{ structures_url }}" download>Dowload aligned structures</a></p>
+<p><span style="display:inline-block; background-color:red; width:1em; height:1em"></span> Query structure (<a href="{{ input_structure_url }}" download>download</a>)</p>
+<p><span style="display:inline-block; background-color:blue; width:1em; height:1em"></span> Reference structure (<a href="{{ aligned_structure_url }}" download>download</a>.)</p>
 <div id="aligned_structure" class="structure_viewer">
-    <script>show_structure("{{ structures_url }}", "aligned_structure");</script>
+    <script>show_structures("{{ input_structure_url }}", "{{ aligned_structure_url }}", "aligned_structure");</script>
 </div>
 {% endblock %}

@@ -1,5 +1,8 @@
+import os
+
+import zipfile
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import FileResponse
+from django.http import FileResponse, Http404, HttpResponse
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
@@ -111,14 +114,41 @@ def aligned_structures(request, job_id, result_no, hit_no):
             )
 
 
-def download_aligned_structures(request, job_id, result_no, hit_no):
+def download_aligned_structure(request, job_id, result_no, hit_no):
     job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
-    structures_file = models.prepare_aligned_structures(job, result_no, hit_no)
+    structures_file = models.prepare_aligned_structure(job, result_no, hit_no)
     return FileResponse(open(structures_file, 'rb'))
 
 
-def download_input(request, job_id):
+def download_input(request, job_id, result_no=None):
     job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
-    fname = job.get_input_file(job.query_suffix())
+    if result_no is None:
+        fname = job.get_input_file(job.query_suffix())
+    else:
+        fname = models.prepare_aligned_structure(job, result_no, None)
     return FileResponse(open(fname, 'rb'))
+
+
+def download_aligned_structures_multiple(request):
+    if request.method != 'POST':
+        raise Http404
+    job = utils.get_object_or_404_for_removed_also(
+        models.Job, name=request.POST['job_id']
+        )
+    result_no = int(request.POST['result_no'])
+    hits = sorted([int(t) for t in request.POST.getlist('process')])
+    superposed_structures_filenames = [
+        models.prepare_aligned_structure(job, result_no, None)
+        ]
+    for h in hits:
+        fname = models.prepare_aligned_structure(job, result_no, h)
+        superposed_structures_filenames.append(fname)
+    response = HttpResponse(content_type='application/zip')
+    zip_file = zipfile.ZipFile(response, 'w')
+    for fname in superposed_structures_filenames:
+        dirname, filename = os.path.split(fname)
+        zip_file.write(fname, filename)
+    zip_file.close()
+    response['Content-Disposition'] = 'attachment; filename=superposition.zip'
+    return response
 
