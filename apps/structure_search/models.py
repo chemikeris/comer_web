@@ -191,14 +191,15 @@ def prepare_aligned_structure(job, result_no, hit_no):
         return result_file_path
     # It it is the first time when alignment is called, processing it.
     # Reading data.
-    results_file = job.results_file_path(
+    results_json_file = job.results_file_path(
         job.read_results_lst()[result_no]['results_json']
         )
-    results, json_error = read_json_file(results_file)
+    results, json_error = read_json_file(results_json_file)
     results = results['gtalign_search']
+    results_lst = job.read_results_lst()
     config = calculation_server.read_config_file()
     # Preparing query structure data.
-    query_structure_description = results['query']['description']
+    query_structure_description = results_lst[result_no]['structure_description']
     query_remote_dir = config['comer-ws-backend_path']['jobs_directory']
     query_dir = job.get_directory()
     query = structure_data(
