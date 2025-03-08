@@ -11,7 +11,14 @@ from apps.model_structure.models import Job as StructureModelingJob
 from apps.model_structure.models import Template
 from apps.msa.models import Job as MSAJob
 
-PERMANENT_JOBS = ['benchmark2', 'benchmark3']
+PERMANENT_JOBS = [
+    # Permanent COMER jobs:
+    'benchmark2', 'benchmark3',
+    # Permanent GTalign jobs:
+    'benchmark13_p1', 'benchmark13_p2', 'benchmark13_p3',
+    'benchmark9_p1', 'benchmark9_p2', 'benchmark9_p3',
+    'example_uniref30', 'example_uniref30_raw',
+    ]
 
 class Command(BaseCommand):
     help = 'Remove old COMER web server jobs'
