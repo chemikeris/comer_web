@@ -18,6 +18,7 @@
     <label for="id_max_evalue">Maximum TM-score:</label> <input type="text" id="id_max_tmscore" class="form-control d-inline">
     <button class="btn btn-secondary my-2" onclick="select_by_TMscore('query')" type="button">Select by query TM-score</button>
     <button class="btn btn-secondary my-2" onclick="select_by_TMscore('reference')" type="button">Select by reference TM-score</button>
+    <button class="btn btn-secondary my-2" onclick="select_by_TMscore_both()" type="button">Select by both TM-scores</button>
 </p>
 <p>
     <input type="hidden" name="job_id" value="{{ job.name }}">
