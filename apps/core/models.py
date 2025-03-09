@@ -356,6 +356,15 @@ class SearchSubJob:
             )
         return search_results
 
+    def create_input_data(self, *args, **kwargs):
+        raise NotImplementedError
+
+
+class Base3DJob(SearchSubJob):
+    "Base class for common methods related to 3D structure jobs"
+    def get_output_name(self):
+        return '%s__3d_out' % self.name
+
 
 class Databases(models.Model):
     "COMER web server databases"

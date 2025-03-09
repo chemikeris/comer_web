@@ -5,22 +5,19 @@ import logging
 from django.db import models
 
 from apps.core import utils, sequences
-from apps.core.models import ComerWebServerJob, SearchSubJob, generate_job_name
+from apps.core.models import ComerWebServerJob, Base3DJob, generate_job_name
 from apps.search.models import Job as SearchJob
 
 
 MAX_TEMPLATES_IN_ONE_MODEL = 7
 
 
-class Job(SearchSubJob, ComerWebServerJob):
+class Job(Base3DJob, ComerWebServerJob):
     search_job = models.ForeignKey(
         SearchJob, on_delete=models.CASCADE, related_name='modeling_job'
         )
     result_no = models.IntegerField()
     number_of_templates = models.IntegerField()
-
-    def get_output_name(self):
-        return '%s__3d_out' % self.name
 
     def create_settings_file(self, modeller_key, model_all_pairs):
         directory = self.get_directory()
@@ -304,7 +301,6 @@ def save_structure_modeling_job(
         result_no=result_no,
         number_of_templates=len(templates) if use_multiple_templates else 1,
         )
-    modeling_job
     model_all_pairs = not use_multiple_templates
     modeling_necessary, first_model = modeling_job.create_input_data(
         templates, model_all_pairs, modeller_key

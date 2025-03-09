@@ -151,3 +151,20 @@ def format_gtalign_description(description):
             model = 1
         return '%s_%s_%s' % (identifier, chain, model)
 
+
+def correct_structure_file_path(
+        description, old_dir, new_dir, tar_replacement=None
+        ):
+    parts = description.split()
+    remote_path = parts[0]
+    chain = parts[1].split(':')[1]
+    try:
+        model = parts[2][1:-1].split(':')[1]
+    except IndexError:
+        model = 1
+    local_path = remote_path.replace(old_dir, new_dir)
+    if tar_replacement:
+        local_path = local_path.replace(tar_replacement[0], tar_replacement[1])
+    output = {'file': local_path, 'chain': chain, 'model': model}
+    return output
+

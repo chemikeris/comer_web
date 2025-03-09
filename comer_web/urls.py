@@ -24,4 +24,5 @@ urlpatterns = [
     #path('admin/', admin.site.urls),
     path('msa/', include('apps.msa.urls')),
     path('gtalign/', include('apps.structure_search.urls')),
+    path('gtalign/superposition/', include('apps.superposition.urls')),
 ]

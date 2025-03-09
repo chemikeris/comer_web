@@ -90,34 +90,10 @@ def detailed(request, job_id, result_no):
         'generated_msas': job.get_generated_msas().get(result_no, []),
         'aligned_structures_url_pattern': reverse(
             'gtalign_aligned_structures_without_hit',
-            kwargs={'job_id': job.name, 'result_no': result_no,}
+            kwargs={'structure_search_job_id': job.name, 'result_no': result_no,}
             ),
         }
     return render(request, 'structure_search/results.html', context)
-
-
-def aligned_structures(request, job_id, result_no, hit_no):
-    job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
-    page_title = 'GTalign results - structure superposition'
-    context = {
-        'job': job,
-        'page_title': page_title,
-        'sequences': job.structure_headers(),
-        'generated_msas': job.get_generated_msas().get(result_no, []),
-        'result_no': result_no,
-        'hit_no': hit_no,
-        }
-    return render(
-            request,
-            'structure_search/aligned_structures.html',
-            context
-            )
-
-
-def download_aligned_structure(request, job_id, result_no, hit_no):
-    job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
-    structures_file = models.prepare_aligned_structure(job, result_no, hit_no)
-    return FileResponse(open(structures_file, 'rb'))
 
 
 def download_input(request, job_id, result_no=None):
@@ -125,30 +101,6 @@ def download_input(request, job_id, result_no=None):
     if result_no is None:
         fname = job.get_input_file(job.query_suffix())
     else:
-        fname = models.prepare_aligned_structure(job, result_no, None)
+        fname = job.input_structure_file_for_result(result_no)
     return FileResponse(open(fname, 'rb'))
-
-
-def download_aligned_structures_multiple(request):
-    if request.method != 'POST':
-        raise Http404
-    job = utils.get_object_or_404_for_removed_also(
-        models.Job, name=request.POST['job_id']
-        )
-    result_no = int(request.POST['result_no'])
-    hits = sorted([int(t) for t in request.POST.getlist('process')])
-    superposed_structures_filenames = [
-        models.prepare_aligned_structure(job, result_no, None)
-        ]
-    for h in hits:
-        fname = models.prepare_aligned_structure(job, result_no, h)
-        superposed_structures_filenames.append(fname)
-    response = HttpResponse(content_type='application/zip')
-    zip_file = zipfile.ZipFile(response, 'w')
-    for fname in superposed_structures_filenames:
-        dirname, filename = os.path.split(fname)
-        zip_file.write(fname, filename)
-    zip_file.close()
-    response['Content-Disposition'] = 'attachment; filename=superposition.zip'
-    return response
 

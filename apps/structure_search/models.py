@@ -13,7 +13,8 @@ from django.conf import settings
 from django.urls import reverse
 
 from apps.core.models import SearchJob, generate_job_name, Databases
-from apps.core.utils import read_json_file, format_gtalign_description
+from apps.core.utils import read_json_file, format_gtalign_description, \
+        correct_structure_file_path
 from comer_web import calculation_server
 
 class Job(SearchJob):
@@ -83,6 +84,50 @@ class Job(SearchJob):
 
     def input_file_download_url(self):
         return reverse('gtalign_download_input', args=[self.name])
+
+    def input_structure_file_for_result(self, result_no):
+        "Generate name of file with input structure (exact model and chain)"
+        exists, result_file_path = self.aligned_structure_file_exists(result_no)
+        if exists:
+            return result_file_path
+        # Reading config file
+        config = calculation_server.read_config_file()
+        results_lst = self.read_results_lst()
+        # Preparing query structure data.
+        query_structure_description = results_lst[result_no]['structure_description']
+        query_remote_dir = config['comer-ws-backend_path']['jobs_directory']
+        query_dir = self.get_directory()
+        query = correct_structure_file_path(
+            query_structure_description, query_remote_dir, query_dir+'/',
+            ('%s.tar:' % self.name, 'input/')
+        )
+        print(
+            'Creating GTalign query structure file for %s, result %s.' % \
+                (self.name, result_no)
+            )
+        # Using code from calculation backend module.
+        try:
+            from superpose1 import GetStructureModelChain
+        except ImportError:
+            gtalign_backend_directory = os.path.join(
+                config['local_paths']['gtalign_backend'], 'bin'
+                )
+            sys.path.append(gtalign_backend_directory)
+            from superpose1 import GetStructureModelChain
+        code, chain1 = GetStructureModelChain(
+            [query['file']], query['chain'], int(query['model'])
+            )
+        chain1.id = 'A'
+        builder = PDB.StructureBuilder.StructureBuilder()
+        builder.init_structure('Sup')
+        builder.init_model(0,0)
+        outstr = builder.get_structure()
+        chain1.id = 'A'
+        outstr[0].add(chain1)
+        io = PDB.PDBIO()
+        io.set_structure(outstr)
+        io.save(result_file_path)
+        return result_file_path
 
 
 class StructureSearchResultsSummary:
@@ -182,126 +227,6 @@ def prepare_results_json(results_json):
         hr['reference_description'] = description
         res['search_summary'][i]['summary_entry']['description'] = description
     return results_json
-
-
-def prepare_aligned_structure(job, result_no, hit_no):
-    exists, result_file_path = job.aligned_structure_file_exists(result_no, hit_no)
-    if exists:
-        # Using existing file.
-        return result_file_path
-    # It it is the first time when alignment is called, processing it.
-    # Reading data.
-    results_json_file = job.results_file_path(
-        job.read_results_lst()[result_no]['results_json']
-        )
-    results, json_error = read_json_file(results_json_file)
-    results = results['gtalign_search']
-    results_lst = job.read_results_lst()
-    config = calculation_server.read_config_file()
-    # Preparing query structure data.
-    query_structure_description = results_lst[result_no]['structure_description']
-    query_remote_dir = config['comer-ws-backend_path']['jobs_directory']
-    query_dir = job.get_directory()
-    query = structure_data(
-        query_structure_description, query_remote_dir, query_dir+'/',
-        ('%s.tar:' % job.name, 'input/')
-        )
-    gtalign_backend_directory = os.path.join(
-        config['local_paths']['gtalign_backend'], 'bin'
-        )
-    if hit_no is None:
-        print(
-            'Creating GTalign query structure file for %s, result %s.' % \
-                (job.name, result_no)
-            )
-        # Using code from calculation backend module.
-        try:
-            from superpose1 import GetStructureModelChain
-        except ImportError:
-            sys.path.append(gtalign_backend_directory)
-            from superpose1 import GetStructureModelChain
-        code, chain1 = GetStructureModelChain(
-            [query['file']], query['chain'], int(query['model'])
-            )
-        chain1.id = 'A'
-        builder = PDB.StructureBuilder.StructureBuilder()
-        builder.init_structure('Sup')
-        builder.init_model(0,0)
-        outstr = builder.get_structure()
-        chain1.id = 'A'
-        outstr[0].add(chain1)
-        io = PDB.PDBIO()
-        io.set_structure(outstr)
-        io.save(result_file_path)
-    else:
-        print(
-            'Creating GTalign aligned structures for %s, result %s, hit %s.' % \
-            (job.name, result_no, hit_no)
-            )
-        # Preparing result structure data.
-        hit_record = results['search_results'][hit_no]['hit_record']
-        reference_description = hit_record['reference_description']
-        reference_remote_dir = database_remote_directory(reference_description)
-        reference_dir = config['local_paths']['structures_directory']
-        reference = structure_data(
-            reference_description, reference_remote_dir, reference_dir,
-            (':', '/')
-            )
-        # Reading transformation data.
-        matrix = ','.join(map(str, hit_record['rotation_matrix_rowmajor']))
-        vector = ','.join(map(str, hit_record['translation_vector']))
-        aligner = os.path.join(
-            gtalign_backend_directory,  'superpose1.py'
-            )
-        alignment_command = [
-            os.path.join(settings.BASE_DIR, 'virtualenv', 'bin', 'python'),
-            aligner,
-            '--i1', query['file'],
-            '--c1', query['chain'],
-            '--m1', str(query['model']),
-            '--i2', reference['file'],
-            '--c2', reference['chain'],
-            '--m2', str(reference['model']),
-            '-r', matrix,
-            '-t', vector,
-            '-o', result_file_path,
-            '-2'
-            ]
-        subprocess.run(alignment_command)
-    return result_file_path
-
-
-def structure_data(description, old_dir, new_dir, tar_replacement=None):
-    parts = description.split()
-    remote_path = parts[0]
-    chain = parts[1].split(':')[1]
-    try:
-        model = parts[2][1:-1].split(':')[1]
-    except IndexError:
-        model = 1
-    local_path = remote_path.replace(old_dir, new_dir)
-    if tar_replacement:
-        local_path = local_path.replace(tar_replacement[0], tar_replacement[1])
-    output = {'file': local_path, 'chain': chain, 'model': model}
-    return output
-
-
-def database_remote_directory(gtalign_structure_result_file):
-    identifier = os.path.basename(gtalign_structure_result_file)
-    if identifier.startswith('ecod'):
-        db_name = 'ecod'
-    elif identifier.startswith('scope'):
-        db_name = 'scop'
-    elif identifier.startswith('swissprot'):
-        db_name = 'swissprot'
-    elif identifier.startswith('uniref'):
-        db_name = 'uniref30'
-    elif identifier.startswith('UP'):
-        db_name = 'proteomes'
-    else:
-        db_name = 'pdb_mmcif'
-    db = Databases.objects.get(program='gtalign', db=db_name)
-    return db.remote_directory
 
 
 def read_example_structure():
