@@ -32,7 +32,7 @@ def submit_multiple_templates_structure_model(request):
     if first_model is None:
         return redirect(
                 'detailed', job_id=search_job.name,
-                sequence_no=request.POST['sequence_no']
+                sequence_no=request.POST['result_no']
                 )
     else:
         return redirect(
@@ -46,7 +46,7 @@ def show_model(request, search_job_id, structure_model_id):
     structure_model = get_object_or_404(
         models.StructureModel, id=structure_model_id
         )
-    sequence_no = structure_model.modeling_job.sequence_no
+    sequence_no = structure_model.modeling_job.result_no
     finished, removed, status_msg, errors, refresh = \
         structure_model.modeling_job.status_info()
     page_title = '%s-based structure model - %s -%s' % (

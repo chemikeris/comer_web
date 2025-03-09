@@ -16,7 +16,7 @@ class Job(SearchSubJob, ComerWebServerJob):
     search_job = models.ForeignKey(
         SearchJob, on_delete=models.CASCADE, related_name='modeling_job'
         )
-    sequence_no = models.IntegerField()
+    result_no = models.IntegerField()
     number_of_templates = models.IntegerField()
 
     def get_output_name(self):
@@ -55,7 +55,7 @@ class Job(SearchSubJob, ComerWebServerJob):
                     )
             template, created = Template.objects.get_or_create(
                 search_job=self.search_job,
-                sequence_no=self.sequence_no,
+                sequence_no=self.result_no,
                 template_name=utils.standard_result_name(template_name),
                 result_no=t,
                 query_starts=q_starts, query_ends=q_ends,
@@ -220,8 +220,12 @@ class Job(SearchSubJob, ComerWebServerJob):
 
 class Template(models.Model):
     search_job = models.ForeignKey(SearchJob, on_delete=models.CASCADE)
-    sequence_no = models.IntegerField()
-    result_no = models.IntegerField()
+    sequence_no = models.IntegerField() # Corresponds to result_no of parent,
+                                        # having in mind the index of results
+                                        # from all results
+    result_no = models.IntegerField() # Differently as in other places, this
+                                      # coresponds to the index of results for
+                                      # a particular sequence.
     template_name = models.CharField(max_length=140)
     query_starts = models.IntegerField()
     query_ends = models.IntegerField()
@@ -291,13 +295,13 @@ def save_structure_modeling_job(
         job_name = example_name
     else:
         job_name = generate_job_name()
-    sequence_no = int(post_data['sequence_no'])
+    result_no = int(post_data['result_no'])
     templates = sorted([int(t) for t in post_data.getlist('process')])
     modeller_key = post_data['modeller_key']
     # First, creating temporary modeling job that is not saved in the DB.
     modeling_job = Job(
         name=job_name, search_job=search_job,
-        sequence_no=sequence_no,
+        result_no=result_no,
         number_of_templates=len(templates) if use_multiple_templates else 1,
         )
     modeling_job

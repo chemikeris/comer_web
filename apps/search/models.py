@@ -80,7 +80,7 @@ class Job(SearchJob):
         return results_file
 
     def get_structure_models(self, sequence_no):
-        modelings = self.modeling_job.filter(sequence_no=sequence_no)
+        modelings = self.modeling_job.filter(result_no=sequence_no)
         structure_models = []
         for m in modelings:
             structure_models += m.structure_model\
