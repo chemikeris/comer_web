@@ -24,7 +24,7 @@
     <input type="hidden" name="job_id" value="{{ job.name }}">
     <input type="hidden" name="result_no" value="{{ sequence_no }}">
     <input type="submit" formaction="{% url 'submit_structural_msa' %}" name="msa" value="Construct MSA" id="submit_msa" class="results_button btn btn-secondary my-2">
-    <input type="submit" formaction="{% url 'gtalign_download_aligned_structures_multiple' %}" name="model" value="Download selected superpositions" id="submit_download_superpositions" class="results_button btn btn-secondary my-2">
+    <input type="submit" formaction="{% url 'gtalign_submit_multiple_superpositions' %}" name="model" value="Download selected superpositions" id="submit_multiple_superpositions" class="results_button btn btn-secondary my-2" formtarget="_blank">
 </p><div id="results_table"></div>
 <h2>Alignments</h2>
 <div id="alignments"></div>

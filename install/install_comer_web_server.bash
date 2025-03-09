@@ -29,6 +29,7 @@ python manage.py makemigrations model_structure
 python manage.py makemigrations msa
 python manage.py makemigrations website
 python manage.py makemigrations structure_search
+python manage.py makemigrations superposition
 python manage.py migrate
 python manage.py collectstatic --noinput
 

@@ -112,6 +112,7 @@ class ComerWebServerJob(models.Model):
             self.get_results_files(connection)
             results_files = self.read_results_lst()
             self.number_of_successful_queries = len(results_files)
+            print('WILL NOW POSTPROCESS')
             self.postprocess_calculation_results(results_files)
             self.status = getattr(self, 'FINISHED')
             self.send_confirmation_email('finished')
@@ -150,6 +151,12 @@ class ComerWebServerJob(models.Model):
     def get_error_file(self, connection):
         "Retrieve error file for failed job"
         error_filename = self.name + '.err'
+        if connection is None:
+            local_error_file = os.path.join(
+                self.get_directory(), error_filename
+                )
+            open(local_error_file, 'w').close()
+            return
         local_error_file = self.get_remote_file(connection, error_filename)
         # Truncating two last lines which provide error code.
         with open(local_error_file, 'r+') as f:

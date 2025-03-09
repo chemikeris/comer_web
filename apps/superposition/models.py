@@ -1,5 +1,8 @@
 import os
 import subprocess
+import json
+import errno
+import shutil
 
 from django.db import models
 from django.conf import settings
@@ -11,25 +14,6 @@ from apps.core.utils import read_json_file, correct_structure_file_path
 from apps.structure_search.models import Job as StructureSearchJob
 
 
-class Job(Base3DJob, ComerWebServerJob):
-    search_job = models.ForeignKey(
-        StructureSearchJob, on_delete=models.CASCADE,
-        related_name='superposition_job'
-        )
-    result_no = models.IntegerField()
-    NEW = 0
-    RUNNING = 1
-    FINISHED = 2
-    FAILED = 3
-    possible_model_statuses = (
-        (NEW, 'new'),
-        (RUNNING, 'running'),
-        (FINISHED, 'finished'),
-        (FAILED, 'failed')
-        )
-    status = models.IntegerField(choices=possible_model_statuses, default=NEW)
-
-
 class Superposition(models.Model):
     search_job = models.ForeignKey(
         StructureSearchJob, on_delete=models.CASCADE,
@@ -37,7 +21,6 @@ class Superposition(models.Model):
         )
     result_no = models.IntegerField()
     hit_no = models.IntegerField()
-    jobs = models.ManyToManyField(Job)
 
     class Meta:
         constraints = [
@@ -53,11 +36,15 @@ class Superposition(models.Model):
                 self.result_no, self.hit_no
                 )
 
-    def prepare_aligned_structure(self):
+    def prepare_aligned_structure(self, do_not_generate=False):
+        "Prepare one aligned structure to show using web server"
         exists, result_file_path = self.reference_file_exists()
         if exists:
             # Using existing file.
             return result_file_path
+        elif do_not_generate:
+            raise FileNotFoundError(errno.ENOENT, str(errno.ENOENT),
+                                    result_file_path)
         # It it is the first time when alignment is called, processing it.
         # Reading data.
         results_json_file = self.search_job.results_file_path(
@@ -111,8 +98,161 @@ class Superposition(models.Model):
         return result_file_path
 
 
-def save_structure_superposition_job():
-    pass
+class Job(Base3DJob, ComerWebServerJob):
+    search_job = models.ForeignKey(
+        StructureSearchJob, on_delete=models.CASCADE,
+        related_name='superposition_job'
+        )
+    result_no = models.IntegerField()
+    superpositions = models.ManyToManyField(Superposition)
+
+    def query_suffix(self):
+        return 'json'
+
+    def process(self):
+        return 'gtalign'
+
+    def create_input_data(self, hit_ids):
+        job_exists = self.get_job_matching_hit_ids_set(hit_ids)
+        if job_exists is None:
+            config = calculation_server.read_config_file()
+            self.save()
+            all_results = self.read_search_json()
+            search_results = all_results['search_results']
+            hits_to_superpose = []
+            hit_records_to_superpose = []
+            for hit_id in hit_ids:
+                hit_id=int(hit_id)
+                superposition, created = Superposition.objects.get_or_create(
+                    search_job=self.search_job, result_no=self.result_no,
+                    hit_no=hit_id
+                    )
+                if created:
+                    process_this_hit = True
+                else:
+                    file_exists, fname = superposition.reference_file_exists()
+                    if file_exists:
+                        process_this_hit = False
+                    else:
+                        process_this_hit = True
+                if process_this_hit:
+                    hits_to_superpose.append(hit_id)
+                    search_hit = search_results[hit_id]
+                    # Changing path to file.
+                    desc = search_hit['hit_record']['reference_description']
+                    remote_dir = database_remote_directory(desc)
+                    new_remote_dir = \
+                        config['gtalign-ws-backend_path']['structures_directory']
+                    new_desc_data = correct_structure_file_path(
+                        desc,
+                        remote_dir,
+                        new_remote_dir,
+                        (':', '/')
+                        )
+                    new_desc = '%s Chn:%s (M:%s)' % (
+                        new_desc_data['file'], new_desc_data['chain'],
+                        new_desc_data['model']
+                        )
+                    search_hit['hit_record']['reference_description'] = \
+                        new_desc
+                    # Saving hit data.
+                    hit_records_to_superpose.append(search_hit['hit_record'])
+                self.superpositions.add(superposition)
+            if hits_to_superpose:
+                # Writing everything to files and creating new job to process.
+                out_data = []
+                for hr in hit_records_to_superpose:
+                    out_data.append(hr)
+                self.status = self.NEW
+                json_like_file = os.path.join(
+                    self.get_directory(), '%s.%s' % (self.name,
+                                                     self.query_suffix())
+                    )
+                # Writing JSON-like input for superposer
+                with open(json_like_file, 'w') as f:
+                    f.write('{\n')
+                    f.write(' "query": ')
+                    f.write(json.dumps(all_results['query'], indent=1))
+                    f.write(',\n')
+                    for oh in out_data:
+                        f.write(' {"hit_record": {\n')
+                        # reference description
+                        f.write(' "reference_description": "%s",\n' % oh['reference_description'])
+                        f.write(' "tfm_referenced": %s,\n' % oh['tfm_referenced'])
+                        f.write(' "rotation_matrix_rowmajor": %s,\n' % oh['rotation_matrix_rowmajor'])
+                        f.write(' "translation_vector": %s,\n' % oh['translation_vector'])
+                        f.write('}},\n')
+                    f.write('}\n')
+                options_file = os.path.join(
+                    self.get_directory(), '%s.options' % self.name
+                    )
+                with open(options_file, 'w') as f:
+                    f.write('\n'.join(map(str, hits_to_superpose)))
+                    f.write('\n')
+            else:
+                # Everything is already processed.
+                self.status = self.FINISHED
+                self.get_error_file(connection=None)
+            return True, self
+        else:
+            return False, job_exists
+
+    def get_job_matching_hit_ids_set(self, hit_ids):
+        existing_superposition_jobs = Job.objects\
+            .annotate(num_structures=models.Count('superpositions'))\
+            .filter(
+                search_job=self.search_job,
+                result_no=self.result_no,
+                num_structures=len(hit_ids)
+                )
+        ordered_hits = sorted([int(h) for h in hit_ids])
+        for j in existing_superposition_jobs:
+            j_superpositions = sorted(
+                [s.hit_no for s in j.superpositions.all()]
+                )
+            if ordered_hits == j_superpositions:
+                found_job = j
+                break
+        else:
+            found_job = None
+        return found_job
+    
+    def read_results_lst_files_line(self, files_line):
+        return {'aligned_file': files_line[0]}
+
+    def postprocess_calculation_results(self, results_files):
+        options_file = os.path.join(
+            self.get_directory(), '%s.options' % self.name
+            )
+        with open(options_file) as f:
+            newly_superposed_ids = f.read().rstrip().splitlines()
+        for superposed_id, rf in zip(newly_superposed_ids, results_files):
+            ff, output_file = self.search_job.aligned_structure_file_exists(
+                self.result_no, superposed_id
+                )
+            rf_full_path = os.path.join(
+                self.get_directory(), rf['aligned_file']
+                )
+            shutil.copy(rf_full_path, output_file)
+
+
+def save_structure_superposition_job(post_data):
+    search_job = StructureSearchJob.objects.get(name=post_data['job_id'])
+    result_no = int(post_data['result_no'])
+    job_name = generate_job_name()
+    # Creating temporary job to check if exactly the same request has been
+    # already performed.
+    new_superposition_job = Job(
+        name=job_name, search_job=search_job, result_no=result_no
+        )
+    run, found_old_job = new_superposition_job.create_input_data(
+        post_data.getlist('process')
+        )
+    if run:
+        new_superposition_job.save()
+        return new_superposition_job
+    else:
+        return found_old_job
 
 
 def database_remote_directory(gtalign_structure_result_file):

@@ -55,6 +55,9 @@ class StructureBasedJob(BaseMSAJob, ComerWebServerJob):
         )
     result_no = models.IntegerField()
 
+    def process(self):
+        return 'gtalign'
+
 
 def save_msa_job(post_data, example_name=None, structural=False):
     job_name = example_name or generate_job_name()

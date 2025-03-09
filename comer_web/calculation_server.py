@@ -78,7 +78,7 @@ class Connection:
     def get_file(self, remote_file, local_dir):
         self.connection.get(remote_file, local_dir)
 
-    def run_computation(self, job_id, job_directory, process,task):
+    def run_computation(self, job_id, job_directory, process, task):
         exe = self.config[process+'-ws-backend_path'][task+'_executable']
         command = ('%s -i %s -p %s' % (exe, job_id, job_directory))
         result = self.connection.run(command)

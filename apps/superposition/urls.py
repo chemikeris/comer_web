@@ -20,8 +20,19 @@ urlpatterns = [
         name='download_gtalign_aligned_reference_structure'
         ),
     path(
-        'download/aligned_structures_multiple/',
+        'aligned_structures_multiple/<slug:superposition_job_id>',
+        views.aligned_structures_multiple,
+        name='gtalign_aligned_structures_multiple'
+        ),
+
+    path(
+        'download/download_aligned_structures_multiple/<slug:superposition_job_id>',
         views.download_aligned_structures_multiple,
         name='gtalign_download_aligned_structures_multiple'
+        ),
+    path(
+        'submit_multiple_superpositions',
+        views.submit_multiple_superpositions,
+        name='gtalign_submit_multiple_superpositions'
         ),
 ]

@@ -8,6 +8,7 @@ from apps.search import models as search_models
 from apps.model_structure import models as structure_models
 from apps.msa import models as msa_models
 from apps.structure_search import models as struct_search_models
+from apps.superposition import models as superposition_models
 from comer_web import calculation_server
 
 
@@ -38,11 +39,13 @@ def track_jobs():
     msa_jobs = retrieve_unfinished_jobs(msa_models.Job)
     structure_search_jobs = retrieve_unfinished_jobs(struct_search_models.Job)
     structure_msa_jobs = retrieve_unfinished_jobs(msa_models.StructureBasedJob)
+    structure_superposition_jobs = retrieve_unfinished_jobs(superposition_models.Job)
     all_jobs = list(search_jobs) \
         + list(modeling_jobs) \
         + list(msa_jobs) \
         + list(structure_search_jobs) \
-        + list(structure_msa_jobs)
+        + list(structure_msa_jobs) \
+        + list(structure_superposition_jobs)
     if all_jobs:
         connection = calculation_server.Connection()
     for j in all_jobs:

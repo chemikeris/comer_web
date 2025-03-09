@@ -1,6 +1,5 @@
 import os
 
-import zipfile
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import FileResponse, Http404, HttpResponse
 from django.urls import reverse
