@@ -1,7 +1,7 @@
 import os
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import FileResponse, Http404, HttpResponse
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
@@ -105,11 +105,25 @@ def download_input(request, job_id, result_no=None):
     return FileResponse(open(fname, 'rb'))
 
 
-def download_results(request, job_id):
+def download_results(request, job_id, result_no=None):
     job = get_object_or_404(models.Job, name=job_id)
-    results_file = job.results_file_path(job.get_output_name()+'.tar.gz')
-    if os.path.isfile(results_file):
-        return FileResponse(open(results_file, 'rb'))
-    else:
+    if job.status != job.FINISHED:
         raise Http404
+    if result_no is None:
+        # Retrieving all results file
+        results_file = job.results_file_path(job.get_output_name()+'.tar.gz')
+        if os.path.isfile(results_file):
+            return FileResponse(open(results_file, 'rb'))
+        else:
+            raise Http404
+    else:
+        # Retrieving JSON for a result of specific query
+        results_file = job.results_file_path(
+            job.read_results_lst()[result_no]['results_json']
+            )
+        results, json_error = utils.read_json_file(results_file)
+        response = JsonResponse(results, json_dumps_params={'indent': 1})
+        response['Content-Disposition'] = \
+                'attachment; filename=%s_%s.json' % (job.name, result_no)
+        return response
 

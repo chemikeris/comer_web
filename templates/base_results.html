@@ -17,6 +17,9 @@
 					<ul class="nav nav-pills small" data-bs-parent="current_job_results_menu">
                         <li class="nav-item dropdown-item"><a class="nav-link {% if active == 'detailed' %} active{% endif %}" href="{% url 'detailed'|add_program_if_necessary:program job_id=job.name result_no=forloop.counter0 %}">Results</a></li>
                         {% if sequence_search %}<li class="nav-item dropdown-item"><a class="nav-link {% if active == 'query_summary' %} active{% endif %}" href="{% url 'detailed_summary' job_id=job.name sequence_no=forloop.counter0 %}">Summary</a></li>{% endif %}
+                        {% if structure_search %}
+                            <li class="nav-item dropdown-item"><a class="nav-link" href="{% url 'download_gtalign_results_json_for_query' job_id=job.name result_no=sequence_no %}" download>Download results JSON</a></li>
+                        {% endif %}
                         {% if structure_models %}
                         <li class="nav-item dropdown-item bg-transparent"><a href="#" class="nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#sequence{{sequence_no}}_models">Structure models</a>
                             <ul id="sequence{{sequence_no}}_models" class="collapse{% if active == 'structure_model' %} show{% endif %}">

@@ -35,4 +35,9 @@ urlpatterns = [
         views.download_results,
         name='download_gtalign_results_zip'
         ),
+    path(
+        'download/results/<slug:job_id>/<int:result_no>',
+        views.download_results,
+        name='download_gtalign_results_json_for_query'
+        ),
 ]
