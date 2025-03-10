@@ -43,6 +43,7 @@
             <li class="nav-item"><a class="nav-link" href="{% url 'help'|add_program_if_necessary:program %}">Help</a></li>
             {% if sequence_search %}<li class="nav-item"><a class="nav-link" href="{% url 'api_help' %}">API help</a></li>{% endif %}
             <li class="nav-item"><a class="nav-link" href="{% url 'tutorial'|add_program_if_necessary:program %}">Tutorial</a></li>
+            {% if structure_search %}<li class="nav-item"><a class="nav-link" href="{% url 'gtalign_api' %}">API</a></li>{% endif %}
             <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">About</a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="{% url 'about'|add_program_if_necessary:program %}">General information</a></li>

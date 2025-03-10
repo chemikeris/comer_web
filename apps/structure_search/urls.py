@@ -49,6 +49,6 @@ urlpatterns = [
     path(
         'api/available_databases',
         views.api_available_databases,
-        name='gtaling_api_databases'
+        name='gtalign_api_databases'
         ),
 ]

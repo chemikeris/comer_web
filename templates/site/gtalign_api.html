@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<script>nice_json = function(obj, div_id) {e = document.getElementById(div_id); e.innerHTML = JSON.stringify(obj, undefined, 4);}</script>
+<div class="help_page">
+<h1>GTalign-web API help</h1>
+<p>GTalign-web allows submitting queries and checking their status using command-line interface.</p>
+<h2>Submitting query structure(s)</h2>
+<p>One or more structure files can be submitted using the following command:</p>
+<p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_submit' %} -F input_query_files=@first_structure.pdb -F input_query_files=@second_structure.cif</code></p>
+<p>The server responds in JSON format:</p>
+<code><pre id='submit_json_success'></pre></code>
+<p>The field "success" indicates if there are any errors, and "job_id" is the identifier of the GTaling-web job.
+This identifier can be used in further requests or for opening the job in a browser.
+"MyJobID" will be used as job identifier in the following text.</p> 
+</p>If the submission of a job fails, a response string will indicate an error ("succcess": false) and contain a reason message:</p>
+<code><pre id='submit_json_failure'></pre></code>
+<script>
+    nice_json({"success": true, "job_id": "MyJobID"}, 'submit_json_success');
+    nice_json({"success": false, "form_errors": {"__all__": ["No query structure input!"]}}, 'submit_json_failure');
+</script>
+<h2>Specifying search databases</h2>
+<p>Search is possible using the same databases that are available in the web interface.
+The list if databases can be cheched using the following command:</p>
+<p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_databases' %}</code></p>
+<p>The response contains database descriptions and names for querying the server:</p>
+<code><pre id='databases_response'></pre></code>
+<script>nice_json({"databases": [{"description": "PDB mmCIF", "server_name": "mmCIF"}, {"description": "SCOPe40", "server_name": "scope40_208"}, {"description": "ECOD_F70", "server_name": "ecod_20240325_F70"}, {"description": "UniProtKB/SwissProt", "server_name": "swissprot_v4"}, {"description": "UniProt Reference Proteomes", "server_name": "selected_proteomes"}, {"description": "UniRef30", "server_name": "uniref30"}, {"description": "PDB mmCIF|SCOPe40|ECOD_F70", "server_name": "mmCIF|scope40_208|ecod_20240325_F70"}, {"description": "PDB mmCIF|SCOPe40|ECOD_F70|SwissProt|Reference Proteomes", "server_name": "mmCIF|scope40_208|ecod_20240325_F70|swissprot_v4|selected_proteomes"}]}, 'databases_response');</script>
+<p>For example, the following command submits a query to search in the UniProtKB/SwissProt database:</p>
+<p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_submit' %} -F input_query_files=@structure.pdb -F database=swissprot_v4</code></p>
+<h2>Specifying search settings</h2>
+<p>Search settings can be specified using the following keywords:</p>
+<ul>
+	<li>s: TM-score threshold [0, 1)</li>
+	<li>sort: sorting options (integer from 0 to 8)</li>
+	<li>nhits: number of reported hits (max 1000)</li>
+	<li>presimilarity: threshold for sequence similarity pre-screening [0, 100]</li>
+	<li>prescore: threshold for structure similarity pre-screening [0, 1)</li>
+	<li>speed: search speed optimization (integer from 0 to 13, the larger, the faster)</li>
+	<li>nogaps: possibility to exclude deletion positions (gaps in the query) from alignments (true, false)</li>
+</ul>
+<p>The following command runs a search using slower speed and pre-filtering of queries having sequence similarity of at least 20%, reporting only hits having TM-score > 0.6:</p>
+<p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_submit' %} -F input_query_files=@structure.pdb -F s=0.6 -F presimilarity=20 -F speed=9</code></p>
+<p>More details and the default parameters can be found in the <a href="{% url 'gtalign_help' %}#search_options">main Help page</a>.</p>
+<h3>Checking job status</h3>
+<p>The job status can be checked after submitting it:</p>
+<p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_job_status' job_id='MyJobID' %}</code></p>
+<p>The status of the job is reported in JSON format.
+First, the job is "new", the "queued", then "running":</p>
+<code><pre id='job_status_running'></pre></code>
+<p>For finished jobs, number of successful results is reported together with links to the job's web interface and for downloading of outputs:</p>
+<code><pre id='job_status_finished'></pre></code>
+<script>
+	nice_json({"job_id": "MyJobID", "success": true, "description": "", "job_status": "running", "error_log": null, "log": "Submitting...\nQueued.\nRunning...\nPreparing input...\n2 structure(s) in PDB format.\nSearching structures using GTalign...\n"}, 'job_status_running');
+	nice_json({"job_id": "MyJobID", "success": true, "description": "", "job_status": "finished", "error_log": "", "number_of_results": 2, "log": "Submitting...\nQueued.\nRunning...\nPreparing input...\n2 structure(s) in mmCIF format.\nSearching structures using GTalign...\nFinalizing results...\nFinished.\n", "web_url": "/comer/gtalign/results/MyJobID", "download_url": "/comer/gtalign/download/results/MyJobID", "download_input_url": "/gtalign/download/input/MyJobID"}, "job_status_finished");
+</script>
+<h2>Downloading the results</h2>
+<h3>Downloading results files</h3>
+<p>All job data (input and output) can be downloaded using the download URL:</p>
+<p><code>curl https://{{ request.get_host }}{% url 'download_gtalign_results_zip' job_id='MyJobID' %}</code></p>
+<p>The same URL can be used to download JSON outputs for particular queries by specifying the 0-based index of the query at the end:</p>
+<p><code>curl https://{{ request.get_host }}{% url 'download_gtalign_results_json_for_query' job_id='MyJobID' result_no=0 %}</code></p>
+<h3>Dowloading the input structures</h3>
+<p>All input structures in a TAR archive can be downloaded as follows:</p>
+<p><code>curl https://{{ request.get_host }}{% url 'gtalign_download_input' job_id='MyJobID' %}</code></p>
+<p>GTalign splits multi-chain and multi-model structures to separate querys.
+Similarly to results for a single query, it's input structure in PDB format can be also downloaded:</p>
+<p><code>curl https://{{ request.get_host }}{% url 'download_gtalign_input_given_result_no' job_id='MyJobID' result_no=0 %}</code></p>
+</div>
+{% endblock %}

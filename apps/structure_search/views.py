@@ -197,6 +197,9 @@ def api_job_status(request, job_id):
         result['download_url'] = reverse(
             'download_gtalign_results_zip', kwargs={'job_id': job_id}
             )
+        result['download_input_url'] = reverse(
+            'gtalign_download_input',  kwargs={'job_id': job_id}
+            )
     else:
         if job.status == job.FAILED:
             pass

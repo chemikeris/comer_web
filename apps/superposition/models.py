@@ -4,6 +4,7 @@ import json
 import errno
 import shutil
 import zipfile
+import logging
 
 from django.db import models
 from django.conf import settings

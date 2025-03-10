@@ -53,6 +53,10 @@ def gtalign_tutorial(request):
     page_title = 'GTalign-web tutorial'
     return render(request, 'site/gtalign_tutorial.html', {'page_title': page_title})
 
+def gtalign_api(request):
+    page_title = 'GTalign-web API help'
+    return render(request, 'site/gtalign_api.html', {'page_title': page_title})
+
 def gtalign_about(request):
     page_title = 'GTalign-web'
     return render(request, 'site/gtalign_about.html', {'page_title': page_title})
