@@ -3,6 +3,7 @@ import subprocess
 import json
 import errno
 import shutil
+import zipfile
 
 from django.db import models
 from django.conf import settings
@@ -193,6 +194,7 @@ class Job(Base3DJob, ComerWebServerJob):
                 # Everything is already processed.
                 self.status = self.FINISHED
                 self.get_error_file(connection=None)
+                self.zip_superpositions()
             return True, self
         else:
             return False, job_exists
@@ -234,6 +236,27 @@ class Job(Base3DJob, ComerWebServerJob):
                 self.get_directory(), rf['aligned_file']
                 )
             shutil.copy(rf_full_path, output_file)
+        self.zip_superpositions()
+
+    def zip_superpositions(self):
+        "Create zip archive with all superpositions"
+        all_superpositions_zip_file = os.path.join(
+            self.get_directory(), 'superposition_%s.zip' % self.name
+            )
+        if os.path.isfile(all_superpositions_zip_file):
+            pass
+        else:
+            zip_file = zipfile.ZipFile(all_superpositions_zip_file, 'w')
+            for s in self.superpositions.all():
+                try:
+                    fname = s.prepare_aligned_structure(do_not_generate=True)
+                except FileNotFoundError as err:
+                    logging.error('File %s not found! Generating it.', fname)
+                    fname = s.prepare_aligned_structure()
+                dirname, filename = os.path.split(fname)
+                zip_file.write(fname, filename)
+            zip_file.close()
+        return(all_superpositions_zip_file)
 
 
 def save_structure_superposition_job(post_data):

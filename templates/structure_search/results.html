@@ -21,6 +21,7 @@
     <button class="btn btn-secondary my-2" onclick="select_by_TMscore_both()" type="button">Select by both TM-scores</button>
 </p>
 <p>
+    Supplementary jobs:
     <input type="hidden" name="job_id" value="{{ job.name }}">
     <input type="hidden" name="result_no" value="{{ sequence_no }}">
     <input type="submit" formaction="{% url 'submit_structural_msa' %}" name="msa" value="Construct MSA" id="submit_msa" class="results_button btn btn-secondary my-2">

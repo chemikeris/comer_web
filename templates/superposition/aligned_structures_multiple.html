@@ -1,8 +1,10 @@
 {% extends 'base_results.html' %}
 {% load static %}
 {% block results %}
+{% url 'download_gtalign_input_given_result_no' job_id=job.name result_no=sequence_no as input_structure_url %}
 {% url 'gtalign_download_aligned_structures_multiple' superposition_job_id=superposition_job.name as download_url %}
-<h1>Multiple aligned structures</h1>
-<p>Generation of superpositions finished.<p>
-<p><a href="{{ download_url }}" download>Download aligned structures</a></p>
+<h1>Multiple superpositions</h1>
+<p>Superpositions finished.</p>
+<p><a href="{{ input_structure_url }}" download>Download input query structure</a></p>
+<p><a href="{{ download_url }}" download>Download superposed structures</a></p>
 {% endblock %}

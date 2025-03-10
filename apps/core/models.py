@@ -112,7 +112,6 @@ class ComerWebServerJob(models.Model):
             self.get_results_files(connection)
             results_files = self.read_results_lst()
             self.number_of_successful_queries = len(results_files)
-            print('WILL NOW POSTPROCESS')
             self.postprocess_calculation_results(results_files)
             self.status = getattr(self, 'FINISHED')
             self.send_confirmation_email('finished')

@@ -1,5 +1,4 @@
 import os
-import zipfile
 import logging
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -83,22 +82,9 @@ def download_aligned_structures_multiple(request, superposition_job_id):
     job = utils.get_object_or_404_for_removed_also(
         models.Job, name=superposition_job_id
         )
-    superposed_structures_filenames = [
-        job.search_job.input_structure_file_for_result(job.result_no)
-        ]
-    for s in job.superpositions.all():
-        try:
-            fname = s.prepare_aligned_structure(do_not_generate=True)
-        except FileNotFoundError as err:
-            logging.error('File %s not found! Generating it.', fname)
-            fname = s.prepare_aligned_structure()
-        superposed_structures_filenames.append(fname)
-    response = HttpResponse(content_type='application/zip')
-    zip_file = zipfile.ZipFile(response, 'w')
-    for fname in superposed_structures_filenames:
-        dirname, filename = os.path.split(fname)
-        zip_file.write(fname, filename)
-    zip_file.close()
+    superpositions_file = job.zip_superpositions()
+    zip_file = open(superpositions_file, 'rb')
+    response = HttpResponse(zip_file, content_type='application/zip')
     response['Content-Disposition'] = \
         'attachment; filename=superposition_%s.zip' % job.name
     return response
