@@ -76,12 +76,12 @@ class StructureInputForm(forms.Form):
     presimilarity = forms.FloatField(
         label='Sequence similarity pre-screening threshold',
         min_value=0, max_value=100,
-        initial=default.settings['pre-similarity']
+        initial=default.settings['presimilarity']
         )
     prescore = forms.FloatField(
         label='Minimal provisional TM-score',
         min_value=0, max_value=1,
-        initial=default.settings['pre-score']
+        initial=default.settings['prescore']
         )
     speed = forms.IntegerField(
         label='GTalign algorithm speed',

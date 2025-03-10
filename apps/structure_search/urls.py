@@ -40,4 +40,15 @@ urlpatterns = [
         views.download_results,
         name='download_gtalign_results_json_for_query'
         ),
+    path('api/submit', views.api_submit, name='gtalign_api_submit'),
+    path(
+        'api/job_status/<slug:job_id>',
+        views.api_job_status,
+        name='gtalign_api_job_status'
+        ),
+    path(
+        'api/available_databases',
+        views.api_available_databases,
+        name='gtaling_api_databases'
+        ),
 ]

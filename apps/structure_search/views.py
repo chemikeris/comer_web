@@ -1,12 +1,17 @@
 import os
+import copy
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import FileResponse, Http404, HttpResponse, JsonResponse
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse, \
+        QueryDict
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.views.decorators.csrf import csrf_exempt
 
 from . import models
+from . import default
 from apps.core import utils
+from apps.core.models import get_databases_for
 
 
 def input(request):
@@ -96,6 +101,7 @@ def detailed(request, job_id, result_no):
     return render(request, 'structure_search/results.html', context)
 
 
+# Download functions
 def download_input(request, job_id, result_no=None):
     job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
     if result_no is None:
@@ -126,4 +132,75 @@ def download_results(request, job_id, result_no=None):
         response['Content-Disposition'] = \
                 'attachment; filename=%s_%s.json' % (job.name, result_no)
         return response
+
+
+# API functions
+@csrf_exempt
+def api_submit(request):
+    if request.method == 'POST':
+        # Implemented in the same way as submitting to COMER web server
+        input_data_and_settings = QueryDict(mutable=True)
+        input_data_and_settings.update(copy.deepcopy(default.settings))
+        input_data_and_settings.update(request.POST)
+        input_data_and_settings.setdefault(
+            'database', get_databases_for('gtalign', ['pdb_mmcif'])[0][0]
+            )
+        from .forms import StructureInputForm
+        form = StructureInputForm(input_data_and_settings, request.FILES)
+        result = {}
+        if form.is_valid():
+            new_job = models.process_input_data(
+                form.cleaned_data, request.FILES
+                )
+            result['success'] = True
+            result['job_id'] = new_job.name
+        else:
+            result['success'] = False
+            result['form_errors'] = dict(form.errors.items())
+    else:
+        result = {'success': False}
+    return JsonResponse(result)
+
+
+def api_available_databases(request):
+    databases = get_databases_for('gtalign')
+    result = {'databases': []}
+    for (setting, description) in databases:
+        r = {}
+        r['description'] = description
+        r['server_name'] = setting
+        result['databases'].append(r)
+    return JsonResponse(result)
+
+
+def api_job_status(request, job_id):
+    result = {}
+    result['job_id'] = job_id
+    try:
+        job = utils.get_object_or_404_for_removed_also(models.Job, name=job_id)
+    except Http404:
+        result['success'] = False
+        return JsonResponse(result)
+    result['success'] = True
+    result['description'] = job.description
+    finished, removed, status_msg, errors, refresh = job.status_info()
+    result['job_status'] = status_msg
+    result['error_log'] = errors
+    if removed:
+        pass
+    elif finished:
+        result['number_of_results'] = job.number_of_successful_queries
+        result['log'] = job.calculation_log
+        result['web_url'] = reverse(
+            'gtalign_results', kwargs={'job_id': job_id}
+            )
+        result['download_url'] = reverse(
+            'download_gtalign_results_zip', kwargs={'job_id': job_id}
+            )
+    else:
+        if job.status == job.FAILED:
+            pass
+        else:
+            result['log'] = job.calculation_log
+    return JsonResponse(result)
 
