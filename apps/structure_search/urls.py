@@ -30,4 +30,9 @@ urlpatterns = [
         views.download_input,
         name='download_gtalign_input_given_result_no'
         ),
+    path(
+        'download/results/<slug:job_id>',
+        views.download_results,
+        name='download_gtalign_results_zip'
+        ),
 ]

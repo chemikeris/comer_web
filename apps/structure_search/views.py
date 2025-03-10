@@ -62,6 +62,7 @@ def results(request, job_id):
             'job_options': job.read_input_file('options'),
             'job_input': input_url_a,
             'sequences': [],
+            'active': 'not_finished',
             }
         return render(request, 'jobs/not_finished_or_removed.html', context)
 
@@ -102,4 +103,13 @@ def download_input(request, job_id, result_no=None):
     else:
         fname = job.input_structure_file_for_result(result_no)
     return FileResponse(open(fname, 'rb'))
+
+
+def download_results(request, job_id):
+    job = get_object_or_404(models.Job, name=job_id)
+    results_file = job.results_file_path(job.get_output_name()+'.tar.gz')
+    if os.path.isfile(results_file):
+        return FileResponse(open(results_file, 'rb'))
+    else:
+        raise Http404
 

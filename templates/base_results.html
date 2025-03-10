@@ -9,6 +9,7 @@
 	<ul class="nav-pills list-unstyled" id="current_job_results_menu">
         <li class="nav-item"><a class="{% if sequence_no != None %}link-dark {% endif %}nav-link dropdown-item{% if active == 'summary' %} active bg-secondary{% endif %}" href="{% url 'results_summary'|add_program_if_necessary:program job_id=job.name %}">Summary</a></li>
         {% if sequence_search %}<li class="nav-item"><a class="nav-link link-dark{% if active == 'not_finished' %} disabled{% endif %}" href="{% url 'api_results_zip' job_id=job.name %}">Download</a></li>{% endif %}
+        {% if structure_search %}<li class="nav-item"><a class="nav-link link-dark{% if active == 'not_finished' %} disabled{% endif %}" href="{% url 'download_gtalign_results_zip' job_id=job.name %}">Download</a></li>{% endif %}
         <br>
 		{% for s in sequences %}
 			{% if forloop.counter0 == sequence_no %}
