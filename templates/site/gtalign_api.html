@@ -4,8 +4,16 @@
 <script>nice_json = function(obj, div_id) {e = document.getElementById(div_id); e.innerHTML = JSON.stringify(obj, undefined, 4);}</script>
 <div class="help_page">
 <h1>GTalign-web API help</h1>
+<h2>Table of contents</h2>
+<ol>
+    <li><a href="#gtalign_api_help_submit">Submitting query structure(s)</a></li>
+    <li><a href="#gtalign_api_help_databases">Specifying search databases</a></li>
+    <li><a href="#gtalign_api_help_settings">Specifying search settings</a></li>
+    <li><a href="#gtalign_api_help_job_status">Checking job status</a></li>
+    <li><a href="#gtalign_api_help_download">Downloading the results</a></li>
+</ol>
 <p>GTalign-web allows submitting queries and checking their status using command-line interface.</p>
-<h2>Submitting query structure(s)</h2>
+<h2 id="gtalign_api_help_submit">Submitting query structure(s)</h2>
 <p>One or more structure files can be submitted using the following command:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_submit' %} -F input_query_files=@first_structure.pdb -F input_query_files=@second_structure.cif</code></p>
 <p>The server responds in JSON format:</p>
@@ -19,7 +27,7 @@ This identifier can be used in further requests or for opening the job in a brow
     nice_json({"success": true, "job_id": "MyJobID"}, 'submit_json_success');
     nice_json({"success": false, "form_errors": {"__all__": ["No query structure input!"]}}, 'submit_json_failure');
 </script>
-<h2>Specifying search databases</h2>
+<h2 id="gtalign_api_help_databases">Specifying search databases</h2>
 <p>Search is possible using the same databases that are available in the web interface.
 The list if databases can be cheched using the following command:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_databases' %}</code></p>
@@ -28,7 +36,7 @@ The list if databases can be cheched using the following command:</p>
 <script>nice_json({"databases": [{"description": "PDB mmCIF", "server_name": "mmCIF"}, {"description": "SCOPe40", "server_name": "scope40_208"}, {"description": "ECOD_F70", "server_name": "ecod_20240325_F70"}, {"description": "UniProtKB/SwissProt", "server_name": "swissprot_v4"}, {"description": "UniProt Reference Proteomes", "server_name": "selected_proteomes"}, {"description": "UniRef30", "server_name": "uniref30"}, {"description": "PDB mmCIF|SCOPe40|ECOD_F70", "server_name": "mmCIF|scope40_208|ecod_20240325_F70"}, {"description": "PDB mmCIF|SCOPe40|ECOD_F70|SwissProt|Reference Proteomes", "server_name": "mmCIF|scope40_208|ecod_20240325_F70|swissprot_v4|selected_proteomes"}]}, 'databases_response');</script>
 <p>For example, the following command submits a query to search in the UniProtKB/SwissProt database:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_submit' %} -F input_query_files=@structure.pdb -F database=swissprot_v4</code></p>
-<h2>Specifying search settings</h2>
+<h2 id="gtalign_api_help_settings">Specifying search settings</h2>
 <p>Search settings can be specified using the following keywords:</p>
 <ul>
 	<li>s: TM-score threshold [0, 1)</li>
@@ -42,7 +50,7 @@ The list if databases can be cheched using the following command:</p>
 <p>The following command runs a search using slower speed and pre-filtering of queries having sequence similarity of at least 20%, reporting only hits having TM-score > 0.6:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_submit' %} -F input_query_files=@structure.pdb -F s=0.6 -F presimilarity=20 -F speed=9</code></p>
 <p>More details and the default parameters can be found in the <a href="{% url 'gtalign_help' %}#search_options">main Help page</a>.</p>
-<h3>Checking job status</h3>
+<h2 id="gtalign_api_help_job_status">Checking job status</h2>
 <p>The job status can be checked after submitting it:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_job_status' job_id='MyJobID' %}</code></p>
 <p>The status of the job is reported in JSON format.
@@ -54,7 +62,7 @@ First, the job is "new", the "queued", then "running":</p>
 	nice_json({"job_id": "MyJobID", "success": true, "description": "", "job_status": "running", "error_log": null, "log": "Submitting...\nQueued.\nRunning...\nPreparing input...\n2 structure(s) in PDB format.\nSearching structures using GTalign...\n"}, 'job_status_running');
 	nice_json({"job_id": "MyJobID", "success": true, "description": "", "job_status": "finished", "error_log": "", "number_of_results": 2, "log": "Submitting...\nQueued.\nRunning...\nPreparing input...\n2 structure(s) in mmCIF format.\nSearching structures using GTalign...\nFinalizing results...\nFinished.\n", "web_url": "/comer/gtalign/results/MyJobID", "download_url": "/comer/gtalign/download/results/MyJobID", "download_input_url": "/gtalign/download/input/MyJobID"}, "job_status_finished");
 </script>
-<h2>Downloading the results</h2>
+<h2 id="gtalign_api_help_download">Downloading the results</h2>
 <h3>Downloading results files</h3>
 <p>All job data (input and output) can be downloaded using the download URL:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'download_gtalign_results_zip' job_id='MyJobID' %}</code></p>

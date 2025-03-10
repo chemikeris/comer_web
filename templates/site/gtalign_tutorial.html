@@ -25,28 +25,28 @@ Choose structure databases (e.g., PDB, SCOPe40, UniRef30) to search against.
 <p>
 If necessary, expand the "Search and alignment options" section and adjust additional search parameters such as the minimum TM-score threshold, sorting options, or structure/sequence similarity filters.
 </p>
-<p><img src="{% static 'img/gtalign_tutorial/3_parameters.png' %}" alt="DBs" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/gtalign_tutorial/3_parameters.png' %}" alt="Search parameters" class="img-fluid border border-dark"></p>
 <h2>Step 4: Submit the job</h2>
 <p>
 Click the "Submit" button to place your job in the queue.
 </p>
-<p><img src="{% static 'img/gtalign_tutorial/4_submit.png' %}" alt="DBs" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/gtalign_tutorial/4_submit.png' %}" alt="Submit" class="img-fluid border border-dark"></p>
 <h2>Step 5: Check job progress</h2>
 <p>
 As the job runs, you can monitor its progress through the displayed status updates.
 </p>
-<p><img src="{% static 'img/gtalign_tutorial/5_job_progress.png' %}" alt="DBs" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/gtalign_tutorial/5_job_progress.png' %}" alt="Progress" class="img-fluid border border-dark"></p>
 <h2>Step 6: View results</h2>
 <p>
 Once the job is complete, links to individual results pages for each query chain and/or model will appear.
 </p>
-<p><img src="{% static 'img/gtalign_tutorial/6_results_summary.png' %}" alt="DBs" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/gtalign_tutorial/6_results_summary.png' %}" alt="Results summary" class="img-fluid border border-dark"></p>
 <h2>Step 7: Choose alignments to analyze</h2>
 <p>
 For each query, a results summary and a detailed table are displayed.
 Clicking on the schematic alignment or a row number in the table helps access the corresponding pairwise alignment.
 </p>
-<p><img src="{% static 'img/gtalign_tutorial/7_results.png' %}" alt="DBs" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/gtalign_tutorial/7_results.png' %}" alt="Results" class="img-fluid border border-dark"></p>
 <h2>Step 8: Analyze pairwise alignments</h2>
 <p>
 Each results page provides the following information:
@@ -68,23 +68,28 @@ Each results page provides the following information:
 	</li>
 	<li>Transformation data, rotation matrices and translation vectors, for superimposing the reference structure onto the query.</li>
 </ul>
-<p><img src="{% static 'img/gtalign_tutorial/8_alignment.png' %}" alt="DBs" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/gtalign_tutorial/8_alignment.png' %}" alt="Alignment" class="img-fluid border border-dark"></p>
 <h2>Step 9: Select pairwise alignments</h2>
 <p>
 View structure superposition after clicking on "Superposition" buttons in results table or next to alignments.
 </p>
-<p><img src="{% static 'img/gtalign_tutorial/9a_table_superposition.png' %}" alt="DBs" class="img-fluid border border-dark"></p>
-<p><img src="{% static 'img/gtalign_tutorial/9b_alignment_superposition.png' %}" alt="DBs" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/gtalign_tutorial/9a_table_superposition.png' %}" alt="Superposition button" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/gtalign_tutorial/9b_alignment_superposition.png' %}" alt="Superposition button" class="img-fluid border border-dark"></p>
 <p>Structure superposition opens in a new tab.</p>
-<p><img src="{% static 'img/gtalign_tutorial/9c_superposition.png' %}" alt="DBs" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/gtalign_tutorial/9c_superposition.png' %}" alt="Superposed structures" class="img-fluid border border-dark"></p>
 <h2>Step 10: Select pairwise alignments</h2>
 <p>
 Select pairwise alignments from the results, either manually or by specifying criteria such as a range of TM-scores.
 </p>
-<p><img src="{% static 'img/gtalign_tutorial/10_select.png' %}" alt="DBs" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/gtalign_tutorial/10_select.png' %}" alt="Select results" class="img-fluid border border-dark"></p>
 <h2>Step 11: Construct a Multiple Sequence Alignment (MSA) from structure alignments</h2>
 <p>
 Based on the selected pairwise alignments, construct an MSA. The resulting MSA will be displayed and can be analyzed interactively.
 </p>
-<p><img src="{% static 'img/gtalign_tutorial/11_msa.png' %}" alt="DBs" class="img-fluid border border-dark"></p>
+<p><img src="{% static 'img/gtalign_tutorial/11_msa.png' %}" alt="MSA" class="img-fluid border border-dark"></p>
+<h2>Step 12: Download selected superpositions</h2>
+<p>By clicking on "Download selected superpositons" button on the results page, you can download multiple superposed structures.</p>
+<p><img src="{% static 'img/gtalign_tutorial/12a_download_superpositions_button.png' %}" alt="Superpositions button" class="img-fluid border border-dark"></p>
+<p>Superpositions download page opens in a new tab, and after some time it is possible to download them in one ZIP file.</p>
+<p><img src="{% static 'img/gtalign_tutorial/12b_download_superpositions.png' %}" alt="Superpositions button" class="img-fluid border border-dark"></p>
 {% endblock %}
