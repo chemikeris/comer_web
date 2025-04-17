@@ -3,7 +3,8 @@ function getResultsTableColumns() {
     return ['', 'No.', 'ID', 'TM-score (query)', 'TM-score (reference)', 'RMSD', 'd0 (query)', 'd0 (reference)', '2TM-score (query)', '2TM-score (reference)', 'Aligned residues', 'Query length', 'Reference length', ''];
 }
 function colorSummary(tm_score) {
-    return '42'
+    color_value = 240 / (1 + Math.exp((12 * tm_score - 5)));
+    return color_value;
 }
 function resultDescription(hit_record, button) {
     return hit_record.reference_description;
