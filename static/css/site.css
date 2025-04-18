@@ -5,6 +5,9 @@ html {
     margin-left: 1em;
     margin-right: 1em;
 }
+.alignment_header_table {
+    white-space: pre;
+}
 .sequence_scheme {
     text-align: center;
     border-bottom: solid 0.2em white;

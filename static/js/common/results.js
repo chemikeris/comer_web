@@ -328,10 +328,11 @@ function colorSS(ss) {
     }
     return colored_ss;
 }
-function percentageDisplay(a, b) {
+function percentageDisplay(a, b, sep=' ') {
     percentage_display = '';
     percentage_display += a + '/' + b;
-    percentage_display += ' (' + Math.round(100 * a / b) + '%)';
+    percentage_display += sep;
+    percentage_display += '(' + Math.round(100 * a / b) + '%)';
     return percentage_display;
 }
 function countGaps(sequence) {

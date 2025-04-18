@@ -50,19 +50,44 @@ function getAlignmentLength(hit_record) {
     return hit_record.alignment.n_aligned;
 }
 function formatAlignmentDescription(alignment_div, hit_record) {
-    var alignment_description = document.createElement('p');
-    alignment_description.innerText = 'TM-score(query)=' + hit_record.alignment.tmscore_query;
-    alignment_description.innerText += ', TM-score(reference)=' + hit_record.alignment.tmscore_refn;
-    alignment_description.innerText += ', RMSD=' + hit_record.alignment.rmsd;
-    alignment_description.innerText += ', d0(query)=' + hit_record.alignment.d0_query;
-    alignment_description.innerText += ', d0(reference)=' + hit_record.alignment.d0_refn;
-    alignment_description.innerText += ', 2TM-score(query)=' + hit_record.alignment['2tmscore_query'];
-    alignment_description.innerText += ', 2TM-score(reference)=' + hit_record.alignment['2tmscore_refn'];
-    alignment_description.innerText += ', Length(query)=' + hit_record.query_length;
-    alignment_description.innerText += ', Length(reference)=' + hit_record.reference_length;
-    alignment_description.innerText += ', Identities=' + percentageDisplay(hit_record.alignment.n_identities, hit_record.alignment.n_aligned);
-    alignment_description.innerText += ', Matched=' + percentageDisplay(hit_record.alignment.n_matched, hit_record.alignment.n_aligned);
-    alignment_description.innerText += ', Gaps=' + percentageDisplay(hit_record.alignment.n_gaps, hit_record.alignment.n_aligned) + '.';
+    var alignment_description = document.createElement('table');
+    alignment_description.classList.add('table', 'w-auto', 'text-center', 'align-middle', 'alignment_header_table');
+    var header = createTableHeader(
+        [
+            'TM-score\n(query)',
+            'TM-score\n(reference)',
+            'RMSD',
+            'd0\n(query)',
+            'd0\n(reference)',
+            '2TM-score\n(query)',
+            '2TM-score\n(reference)',
+            'Length\n(query)',
+            'Length\n(reference)',
+            'Identities',
+            'Matched',
+            'Gaps'
+        ]
+    );
+    var table_body = document.createElement('tbody');
+    var row = createTableRow(
+        [
+            hit_record.alignment.tmscore_query,
+            hit_record.alignment.tmscore_refn,
+            hit_record.alignment.rmsd,
+            hit_record.alignment.d0_query,
+            hit_record.alignment.d0_refn,
+            hit_record.alignment['2tmscore_query'],
+            hit_record.alignment['2tmscore_refn'],
+            hit_record.query_length,
+            hit_record.reference_length,
+            percentageDisplay(hit_record.alignment.n_identities, hit_record.alignment.n_aligned, '\n'),
+            percentageDisplay(hit_record.alignment.n_matched, hit_record.alignment.n_aligned, '\n'),
+            percentageDisplay(hit_record.alignment.n_gaps, hit_record.alignment.n_aligned, '\n')
+        ]
+    );
+    table_body.appendChild(row);
+    alignment_description.appendChild(header);
+    alignment_description.appendChild(table_body);
     alignment_div.appendChild(alignment_description);
 }
 function formatAlignmentFooter(alignment_div, hit_record) {
