@@ -5,7 +5,7 @@ import logging
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 
-from apps.databases.models import ECOD
+from apps.databases import models as databases_models
 
 def read_json_file(fname, filter_key=None):
     "Read JSON file contents into Python format"
@@ -99,7 +99,7 @@ def get_object_or_404_for_removed_also(model, **kwargs):
         return m
 
 
-def format_gtalign_description(description):
+def format_gtalign_description(description, get_annotation=False):
     "Parse description from GTalign JSON"
     def parse_chain(chain_data):
         return chain_data.split(':')[1]
@@ -119,26 +119,77 @@ def format_gtalign_description(description):
     def afdb_id_to_uniprot(i):
         uniprot_ac = i.split('-')[1]
         return uniprot_ac
-    def ecod_identifier_to_domain_name(i):
+    def ecod_identifier_to_domain_name(i, get_annotation):
         ecod_uid = after_colon(i).split('.')[0]
-        ecod_data = ECOD.objects.filter(uid=int(ecod_uid))[0]
-        return ecod_data.ecod_domain_id
+        ecod_data = databases_models.ECOD.objects.filter(uid=int(ecod_uid))[0]
+        if get_annotation:
+            annotation_parts = []
+            if ecod_data.pdb_chain:
+                if ecod_data.pdb_chain.annotation:
+                    pdb_annotation = ecod_data.pdb_chain.annotation.annotation
+                    annotation_parts.append('Protein: %s' % pdb_annotation)
+                else:
+                    pdb_annotation = ''
+            else:
+                pdb_annotation = ''
+            ecod_names = {}
+            for d in ecod_data.annotations.all():
+                ecod_names[d.get_ecod_hierarchy_display()] = d.name
+            for h in ('A', 'X', 'H', 'T', 'F'):
+                try:
+                    if ecod_names[h]:
+                        annotation_parts.append('%s: %s' % (h, ecod_names[h]))
+                except KeyError:
+                    pass
+            return ecod_data.ecod_domain_id, ', '.join(annotation_parts)
+        else:
+            return ecod_data.ecod_domain_id
     def after_colon(i):
         return i.split(':')[1]
+    def get_uniprot_annotation(uniprot_ac):
+        uniprot_entries = databases_models.UniProt.objects.filter(
+            uniprot_ac=uniprot_ac
+            )
+        if len(uniprot_entries) == 0:
+            return ''
+        else:
+            return uniprot_entries[0].annotation
+    # Specific functions end here, and processing begins.
     parts = description.split()
     identifier = os.path.basename(parts[0])
     if identifier.startswith('ecod'):
-        ecod_domain_name = ecod_identifier_to_domain_name(identifier)
-        return ecod_domain_name
+        if get_annotation:
+            ecod_domain_name, annotation = ecod_identifier_to_domain_name(
+                identifier, True)
+            return ecod_domain_name, annotation
+        else:
+            ecod_domain_name = ecod_identifier_to_domain_name(identifier,
+                                                              False)
+            return ecod_domain_name
     elif identifier.startswith('scope'):
         identifier = trim_id(after_colon(identifier))
-        return identifier
+        if get_annotation:
+            scop_entry = databases_models.SCOP.objects.filter(
+                domain_id=identifier)[0]
+            return identifier, scop_entry.annotation
+        else:
+            return identifier
     elif identifier.startswith('swissprot') or identifier.startswith('uniref'):
-        return afdb_id_to_uniprot(after_colon(identifier))
+        uniprot_ac = afdb_id_to_uniprot(after_colon(identifier))
+        if get_annotation:
+            annotation = get_uniprot_annotation(uniprot_ac)
+            return uniprot_ac, annotation
+        else:
+            return uniprot_ac
     elif identifier.startswith('UP'):
         id_parts = identifier.split(':')
         identifier = afdb_id_to_uniprot(id_parts[1])
-        return '%s %a' % (identifier, trim_id(id_parts[0]))
+        proteomes_identifier = '%s %s' % (identifier, trim_id(id_parts[0]))
+        if get_annotation:
+            annotation = get_uniprot_annotation(identifier)
+            return proteomes_identifier, annotation
+        else:
+            return proteomes_identifier
     else:
         # Assuming PDB here
         if ':' in identifier:
@@ -149,7 +200,18 @@ def format_gtalign_description(description):
             model = parse_model(parts[2])
         except IndexError:
             model = 1
-        return '%s_%s_%s' % (identifier, chain, model)
+        pdb_identifier_to_show = '%s_%s_%s' % (identifier, chain, model)
+        if get_annotation:
+            pdb_entries = databases_models.Chain.objects.filter(
+                pdb_id=identifier, chain=chain)
+            if len(pdb_entries) == 0:
+                annotation = ''
+            else:
+                pdb_entry = pdb_entries[0]
+                annotation = pdb_entry.annotation.annotation
+            return pdb_identifier_to_show, annotation
+        else:
+            return pdb_identifier_to_show
 
 
 def correct_structure_file_path(

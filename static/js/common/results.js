@@ -303,6 +303,7 @@ function formatAlignment(result_no, hit_record, structure_search) {
     header.innerHTML += ' ';
     header.innerHTML += createLink(short_description);
     header.innerHTML += ' ' + other_description.join(' ');
+    if (structure_search) header.innerHTML += ' ';
     header.innerHTML += generateLinkToStructureAlignment(result_no, true);
     header.id = 'alignment_' + result_no;
     alignment_div.appendChild(header);

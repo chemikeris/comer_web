@@ -248,8 +248,11 @@ def prepare_results_json(results_json):
     res = results_json['gtalign_search']
     for i, hit_record in enumerate(res['search_results']):
         hr = hit_record['hit_record']
-        description = format_gtalign_description(hr['reference_description'])
+        description, annotation = format_gtalign_description(
+            hr['reference_description'], get_annotation=True
+            )
         hr['reference_description'] = description
+        hr['reference_annotation'] = annotation
         res['search_summary'][i]['summary_entry']['description'] = description
     return results_json
 
