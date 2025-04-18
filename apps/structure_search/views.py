@@ -79,6 +79,9 @@ def detailed(request, job_id, result_no):
         job.read_results_lst()[result_no]['results_json']
         )
     results, json_error = utils.read_json_file(results_file)
+    options_str = job.read_input_file('options')
+    results['gtalign_search']['sort_order'] = \
+        models.parse_gtalign_job_options(options_str)['--sort']
     processed_results = models.prepare_results_json(results)
     query_desc = utils.format_gtalign_description(
         results['gtalign_search']['query']['description']

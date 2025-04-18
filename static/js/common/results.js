@@ -31,7 +31,54 @@ function showResults(results) {
         var hit_record = search_hits[i].hit_record;
         // Parsing sequence summaries for summary display.
         var sequence_summary = formatSummary(search_summary[i].summary_entry, i);
-        var coloring_value = structure_search ? hit_record.alignment.tmscore_query : hit_record.alignment.pvalue;
+        if (structure_search)
+        {
+            var sort_order = parseInt(results['gtalign_search'].sort_order);
+            switch (sort_order) {
+                /* GTalign documentation says:
+                0: Sort results by the greater TM-score of the two;
+                1: Sort by reference length-normalized TM-score;
+                2: Sort by query length-normalized TM-score;
+                3: Sort by the harmonic mean of the two TM-scores;
+                4: Sort by RMSD.
+                5: Sort by the greater 2TM-score;
+                6: Sort by reference length-normalized 2TM-score;
+                7: Sort by query length-normalized 2TM-score.
+                8: Sort by the harmonic mean of the 2TM-scores;
+                */
+                case 0:
+                case 4:
+                    var coloring_value = Math.max(hit_record.alignment.tmscore_query, hit_record.alignment.tmscore_refn);
+                    break;
+                case 1:
+                    var coloring_value = hit_record.alignment.tmscore_refn;
+                    break;
+                case 2:
+                    var coloring_value = hit_record.alignment.tmscore_query;
+                    break;
+                case 3:
+                    var coloring_value = harmonicMean([hit_record.alignment.tmscore_query, hit_record.alignment.tmscore_refn]);
+                    break;
+                case 5:
+                    var coloring_value = Math.max(hit_record.alignment['2tmscore_query'], hit_record.alignment['2tmscore_refn']);
+                    break;
+                case 6:
+                    var coloring_value = hit_record.alignment['2tmscore_refn'];
+                    break;
+                case 7:
+                    var coloring_value = hit_record.alignment['2tmscore_query'];
+                    break;
+                case 8:
+                    var coloring_value = harmonicMean([hit_record.alignment['2tmscore_query'], hit_record.alignment['2tmscore_refn']]);
+                    break;
+                default:
+                    var coloring_value = hit_record.alignment.tmscore_query;
+            }
+        }
+        else
+        {
+            var coloring_value = hit_record.alignment.pvalue;
+        }
         addStyleForSummary(sequence_summary, hit_record.query_length, hit_record.alignment.query_from, hit_record.alignment.query_to, coloring_value);
         summary_div.appendChild(sequence_summary);
 
@@ -414,4 +461,13 @@ function navPrevious(element_class) {
     else {
         showPage(element_class, active_li_no-1);
     }
+}
+function harmonicMean(arr) {
+    var sum = 0; 
+    var n = arr.length;
+    for (var i = 0; i < n; i++) {
+        sum = sum + (1 / arr[i]);
+    }
+    var hm = n / sum;
+    return hm;
 }

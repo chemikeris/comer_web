@@ -218,6 +218,19 @@ def save_gtalign_settings(settings_file, database, input_settings):
         f.write('gtalign_db = %s\n' % database)
 
 
+def parse_gtalign_job_options(options_file_contents):
+    options = {}
+    for line in options_file_contents.splitlines():
+        opt = line.rstrip().split('=')
+        if len(opt) == 1:
+            options[opt[0]] = True
+        else:
+            key = opt[0].strip()
+            value = opt[1].strip()
+            options[key] = value
+    return options
+
+
 def prepare_results_json(results_json):
     "Remove unnecessary and add additional data from GTalign results JSON"
     res = results_json['gtalign_search']
