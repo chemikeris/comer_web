@@ -1,4 +1,4 @@
-'use sctrict';
+'use strict';
 function add_bootstrap_for_form() {
     var labels = document.getElementsByTagName('label');
     add_classes(labels, 'form-label');
@@ -11,12 +11,12 @@ function add_bootstrap_for_form() {
     show_errorlists_in_hidden_fields(['sequence_search_options', 'advanced_options']);
 }
 function add_classes(elements, class_name) {
-    for (i = 0; i < elements.length; i++) {
+    for (var i = 0; i < elements.length; i++) {
         elements[i].classList.add(class_name);
     }
 }
 function add_classes_for_inputs(inputs) {
-    for (i = 0; i < inputs.length; i++) {
+    for (var i = 0; i < inputs.length; i++) {
         if (inputs[i].type == 'checkbox') {
             inputs[i].classList.add('form-check-input');
         }

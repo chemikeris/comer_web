@@ -1,17 +1,17 @@
-'use sctrict';
+'use strict';
 function getResultsTableColumns() {
     return ['', 'No.', 'ID', 'TM-score (query)', 'TM-score (reference)', 'RMSD', 'd0 (query)', 'd0 (reference)', '2TM-score (query)', '2TM-score (reference)', 'Aligned residues', 'Query length', 'Reference length', ''];
 }
 function colorSummary(tm_score) {
-    color_value = 240 / (1 + Math.exp((12 * tm_score - 5)));
+    var color_value = 240 / (1 + Math.exp((12 * tm_score - 5)));
     return color_value;
 }
 function resultDescription(hit_record, button) {
     return hit_record.reference_description;
 }
 function generateLinkToStructureAlignment(i, button) {
-    href = aligned_structures_link_pattern + '/' + i;
-    a = '<a href="' + href + '" target=_blank ';
+    var href = aligned_structures_link_pattern + '/' + i;
+    var a = '<a href="' + href + '" target=_blank ';
     if (button) a += 'class="btn btn-secondary"';
     a += '>Superposition</a>';
     return a;
@@ -40,7 +40,7 @@ function fillSummaryTableRowData(row, hit_record, i) {
     // Reference length
     row.appendChild(createTableData(hit_record.reference_length));
     // Superposition button.
-    a = generateLinkToStructureAlignment(i, true);
+    var a = generateLinkToStructureAlignment(i, true);
     row.appendChild(createTableData(a));
 }
 function getTargetDescription(hit_record) {

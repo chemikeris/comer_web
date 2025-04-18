@@ -1,4 +1,3 @@
-'use sctrict';
 function show_cother_fields() {
     use_cother_checkbox = document.getElementById('id_use_cother');
     comer_db_input = document.getElementById('id_comer_db').parentElement;

@@ -1,4 +1,4 @@
-'use sctrict';
+'use strict';
 function getResultsTableColumns() {
     return ['', 'No.', 'ID', 'Description', 'P-value', 'E-value', 'Score (bit-score)', 'Aln. length'];
 }
@@ -6,14 +6,14 @@ function colorSummary(p) {
     // Coloring according to p value. Linear scheme is used between log10(p)<-10 (red) and log10(p)>-0.3 (p~0.5) (blue).
     // Different color schemes can be also implemented.
     if (p > 0.1) {
-        color_value = 220;
+        var color_value = 220;
     }
     else if (Math.log10(p) <= -10) {
-        color_value = 0;
+        var color_value = 0;
     }
     else {
         // Using logistic function to have midpoint at p=0.025
-        color_value = 220 / (1 + Math.exp(-120 * (p - 0.025)));
+        var color_value = 220 / (1 + Math.exp(-120 * (p - 0.025)));
     }
     return color_value;
 }
@@ -30,7 +30,7 @@ function fillSummaryTableRowData(row, hit_record, unused_i) {
     // Evalue
     row.appendChild(createTableData(hit_record.alignment.evalue));
     // Score (bits)
-    score_for_display = Math.round(hit_record.alignment.score) + ' (' + Math.round(hit_record.alignment.bit_score) + ')';
+    var score_for_display = Math.round(hit_record.alignment.score) + ' (' + Math.round(hit_record.alignment.bit_score) + ')';
     row.appendChild(createTableData(score_for_display));
     // Length
     row.appendChild(createTableData(hit_record.alignment.aln_length));

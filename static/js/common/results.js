@@ -1,4 +1,4 @@
-'use sctrict';
+'use strict';
 const ALIGNMENT_LENGTH = 80;
 function showResults(results) {
     const summary_div = document.getElementById('schematic_sequences');
@@ -6,7 +6,7 @@ function showResults(results) {
     const alignments_div = document.getElementById('alignments');
 
     var program = which_program(results);
-    structure_search = (program == 'gtalign') ? true : false;
+    var structure_search = (program == 'gtalign') ? true : false;
 
     var results_parts = resultsParts(results, structure_search);
     var search_summary = results_parts[0];
@@ -31,7 +31,7 @@ function showResults(results) {
         var hit_record = search_hits[i].hit_record;
         // Parsing sequence summaries for summary display.
         var sequence_summary = formatSummary(search_summary[i].summary_entry, i);
-        coloring_value = structure_search ? hit_record.alignment.tmscore_query : hit_record.alignment.pvalue;
+        var coloring_value = structure_search ? hit_record.alignment.tmscore_query : hit_record.alignment.pvalue;
         addStyleForSummary(sequence_summary, hit_record.query_length, hit_record.alignment.query_from, hit_record.alignment.query_to, coloring_value);
         summary_div.appendChild(sequence_summary);
 
@@ -65,7 +65,7 @@ function showResults(results) {
     results_table.appendChild(results_table_body);
     table_div.appendChild(results_table);
     // Creating initial pagination.
-    number_of_parts =  numberOfParts(number_of_hits)
+    var number_of_parts = numberOfParts(number_of_hits);
     summary_div.appendChild(createPaginationNav('summary', number_of_parts));
     showPage('summary', 0);
     table_div.appendChild(createPaginationNav('results_table_row', number_of_parts));
@@ -174,6 +174,7 @@ function createLinkToAlignment(result_no, description) {
     return a;
 }
 function createLink(result_id) {
+    var link = '';
     if (result_id.startsWith('PF')) {
         link = createPfamLink(result_id);
     }
@@ -205,25 +206,25 @@ function createLink(result_id) {
     return '<a href="' + link + '">' + result_id + '</a>'
 }
 function createSCOPeLink(scop_id, raw_id) {
-    scop_domain = raw_id ? scop_id : scop_id.split(/_(.*)/s)[1];
+    var scop_domain = raw_id ? scop_id : scop_id.split(/_(.*)/s)[1];
     return 'https://scop.berkeley.edu/sid=' + scop_domain;
 }
 function createECODLink(ecod_id, raw_id) {
-    ecod_domain = raw_id ? ecod_id : ecod_id.split('_')[2];
+    var ecod_domain = raw_id ? ecod_id : ecod_id.split('_')[2];
     return 'http://prodata.swmed.edu/ecod/complete/domain/' + ecod_domain;
 }
 function createPfamLink(pfam_id) {
     return 'https://www.ebi.ac.uk/interpro/entry/pfam/' + pfam_id.split('.')[0];
 }
 function createUniProtLink(swissprot_id, raw_id) {
-    uniprot_ac = raw_id ? swissprot_id : swissprot_id.split('|')[1];
+    var uniprot_ac = raw_id ? swissprot_id : swissprot_id.split('|')[1];
     return 'https://www.uniprot.org/uniprot/' + uniprot_ac;
 }
 function createNCBILink(cdd_or_cog_uid) {
     return 'https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=' + cdd_or_cog_uid;
 }
 function createRCSBLink(pdb_chain_id) {
-    pdb_id = pdb_chain_id.substr(0,4)
+    var pdb_id = pdb_chain_id.substr(0,4)
     return 'https://www.rcsb.org/structure/' + pdb_id;
 }
 function formatAlignment(result_no, hit_record, structure_search) {
@@ -281,8 +282,8 @@ function formatAlignment(result_no, hit_record, structure_search) {
         var aligned_target = hit_record.alignment[target_aln].substr(i, ALIGNMENT_LENGTH);
         var target_ss = hit_record.alignment[target_secstr].substr(i, ALIGNMENT_LENGTH);
 
-        query_ends = Math.min(hit_record.alignment.query_to, query_starts+ALIGNMENT_LENGTH-1-countGaps(aligned_query));
-        target_ends = Math.min(hit_record.alignment[target_to], target_starts+ALIGNMENT_LENGTH-1-countGaps(aligned_target));
+        var query_ends = Math.min(hit_record.alignment.query_to, query_starts+ALIGNMENT_LENGTH-1-countGaps(aligned_query));
+        var target_ends = Math.min(hit_record.alignment[target_to], target_starts+ALIGNMENT_LENGTH-1-countGaps(aligned_target));
 
         if (query_ss) alignment_str += query_sec_str_prefix + spacer + colorSS(query_ss).padEnd(ALIGNMENT_LENGTH, ' ') + '\n';
         alignment_str += query_prefix + query_starts.toString().padEnd(spacer_size, ' ') + colorResidues(aligned_query).padEnd(ALIGNMENT_LENGTH, ' ') + query_ends.toString().padStart(spacer_size, ' ') + '\n';
@@ -329,7 +330,7 @@ function colorSS(ss) {
     return colored_ss;
 }
 function percentageDisplay(a, b, sep=' ') {
-    percentage_display = '';
+    var percentage_display = '';
     percentage_display += a + '/' + b;
     percentage_display += sep;
     percentage_display += '(' + Math.round(100 * a / b) + '%)';
@@ -374,7 +375,7 @@ function showPage(element_class, part_no) {
     // Setting active nav element.
     var nav_ul = document.getElementById(navId(element_class));
     var nav_lis = nav_ul.childNodes;
-    for (i = 1; i < (nav_lis.length-1); i++) {
+    for (var i = 1; i < (nav_lis.length-1); i++) {
         if (i == (part_no+1)) {
             nav_lis[i].classList.add('active');
         }
