@@ -30,6 +30,9 @@ html {
 #id_min_tmscore, #id_max_tmscore {
     width: 5em!important;
 }
+#id_query_annotation {
+    width: 20em!important;
+}
 .resK, .resR {
     color: blue;
 }

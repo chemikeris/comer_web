@@ -126,3 +126,18 @@ function select_by_TMscore_both() {
     }
     select_checkboxes(selectable_checkboxes);
 }
+function select_by_annotation() {
+    select_all_results(false);
+    var query_text = document.getElementById('id_query_annotation').value.toLowerCase();
+    if (! query_text) return;
+    var search_hits = resultsParts(results, true)[1];
+    var selectable_checkboxes = [];
+    for (var i = 0; i < search_hits.length; i++) {
+        var hit_annotation = search_hits[i].hit_record.reference_annotation.toLowerCase();
+        if (hit_annotation.includes(query_text)) {
+            selectable_checkboxes.push('table_row_checkbox'+i);
+            selectable_checkboxes.push('alignment_checkbox'+i);
+        }
+    }
+    select_checkboxes(selectable_checkboxes);
+}
