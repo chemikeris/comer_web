@@ -26,15 +26,59 @@ class Command(BaseCommand):
                 [line for line in f if line[0] != '#'],
                 fieldnames=fieldnames, delimiter=delim
                 )
+            counter = 1
             for ecod_entry in reader:
                 e = ecod_entry
                 print(
-                    'Inserting ECOD entry %s, UID %s.' % (e['ecod_domain_id'],
-                                                          e['uid']
-                                                          )
+                    'Inserting ECOD entry %s: %s, UID %s.' % (
+                        counter, e['ecod_domain_id'], e['uid']
+                        )
                     )
-                databases_models.ECOD.objects.update_or_create(
-                    uid=ecod_entry['uid'],
-                    ecod_domain_id=ecod_entry['ecod_domain_id']
-                    )
+                pdb_obj, created = databases_models.PDB\
+                    .objects.get_or_create(id=e['pdb'])
+                chain_obj, created = databases_models.Chain\
+                    .objects.get_or_create(pdb=pdb_obj, chain=e['chain'])
+                ecod_obj, created = databases_models.ECOD\
+                    .objects.update_or_create(
+                        uid=ecod_entry['uid'],
+                        ecod_domain_id=ecod_entry['ecod_domain_id'],
+                        )
+                ecod_obj.pdb_chain = chain_obj
+                # A
+                annotation, created = databases_models.ECODAnnotation.objects\
+                    .get_or_create(
+                        ecod_hierarchy=databases_models.ECODAnnotation.A,
+                        name=e['arch_name']
+                        )
+                ecod_obj.annotations.add(annotation)
+                # X
+                annotation, created = databases_models.ECODAnnotation.objects\
+                    .get_or_create(
+                        ecod_hierarchy=databases_models.ECODAnnotation.X,
+                        name=e['x_name']
+                        )
+                ecod_obj.annotations.add(annotation)
+                # H
+                annotation, created = databases_models.ECODAnnotation.objects\
+                    .get_or_create(
+                        ecod_hierarchy=databases_models.ECODAnnotation.H,
+                        name=e['h_name']
+                        )
+                ecod_obj.annotations.add(annotation)
+                # T
+                annotation, created = databases_models.ECODAnnotation.objects\
+                    .get_or_create(
+                        ecod_hierarchy=databases_models.ECODAnnotation.T,
+                        name=e['t_name']
+                        )
+                ecod_obj.annotations.add(annotation)
+                # F
+                annotation, created = databases_models.ECODAnnotation.objects\
+                    .get_or_create(
+                        ecod_hierarchy=databases_models.ECODAnnotation.F,
+                        name=e['f_name']
+                        )
+                ecod_obj.annotations.add(annotation)
+                ecod_obj.save()
+                counter += 1
 
