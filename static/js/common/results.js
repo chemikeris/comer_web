@@ -30,7 +30,7 @@ function showResults(results) {
     for (var i = 0; i < number_of_hits; i++) {
         var hit_record = search_hits[i].hit_record;
         // Parsing sequence summaries for summary display.
-        var sequence_summary = formatSummary(search_summary[i].summary_entry, i);
+        var sequence_summary = formatSummary(search_summary[i].summary_entry, i, structure_search);
         if (structure_search)
         {
             var sort_order = parseInt(results['gtalign_search'].sort_order);
@@ -162,13 +162,17 @@ function shortDescription(description) {
         return description.split(' ')[0];
     }
 }
-function formatSummary(summary, result_no) {
+function formatSummary(summary, result_no, structure_search) {
     var summary_element = document.createElement('div');
     summary_element.classList.add('summary');
     summary_element.classList.add('summary_part_'+resultsPartNo(result_no));
     var short_description = shortDescription(summary.description);
-    var long_description = 'Score=' + summary.score + ', E-value=' + summary.evalue + ' ' + summary.description;
-
+    if (structure_search) {
+        var long_description = 'TM-score(query)=' + summary.tmscore_query + ', TM-score(reference)=' + summary.tmscore_refn + ' ' + summary.description;
+    }
+    else {
+        var long_description = 'Score=' + summary.score + ', E-value=' + summary.evalue + ' ' + summary.description;
+    }
     summary_element.title = long_description;
     summary_element.classList.add('sequence_scheme');
     summary_element.appendChild(createLinkToAlignment(result_no, short_description));
