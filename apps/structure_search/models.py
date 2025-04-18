@@ -71,7 +71,19 @@ class Job(SearchJob):
             # according to model number and chain name.
             aligned_file_name = '%s_input_%s.pdb' % (self.name, result_no)
         else:
-            aligned_file_name = '%s_%s_%s.pdb' % (self.name, result_no, hit_no)
+            results_json_file = self.results_file_path(
+                self.read_results_lst()[result_no]['results_json']
+                )
+            results, json_err = read_json_file(results_json_file)
+            results = results['gtalign_search']['search_results']
+            hit_record = results[hit_no]['hit_record']
+            description = format_gtalign_description(
+                hit_record['reference_description']
+                )
+            description = description.split()[0]
+            aligned_file_name = '%s_%s_%s.pdb' % (self.name,
+                                                  result_no,
+                                                  description)
         result_file_path = os.path.join(
             self.aligned_structures_subdirectory(), aligned_file_name
             )
@@ -114,7 +126,7 @@ class Job(SearchJob):
                 )
             sys.path.append(gtalign_backend_directory)
             from superpose1 import GetStructureModelChain
-        code, chain1 = GetStructureModelChain(
+        code, chain1, header1 = GetStructureModelChain(
             [query['file']], query['chain'], int(query['model'])
             )
         chain1.id = 'A'

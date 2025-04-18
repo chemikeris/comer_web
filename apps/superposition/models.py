@@ -231,7 +231,7 @@ class Job(Base3DJob, ComerWebServerJob):
             newly_superposed_ids = f.read().rstrip().splitlines()
         for superposed_id, rf in zip(newly_superposed_ids, results_files):
             ff, output_file = self.search_job.aligned_structure_file_exists(
-                self.result_no, superposed_id
+                self.result_no, int(superposed_id)
                 )
             rf_full_path = os.path.join(
                 self.get_directory(), rf['aligned_file']
