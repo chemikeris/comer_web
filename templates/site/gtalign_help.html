@@ -146,6 +146,34 @@ Additionally, GTalign-web offers functionality for constructing multiple structu
 Users can either select alignments individually or specify a TM-score range to filter alignments.
 The resulting multiple structure alignments are presented in the form of a multiple sequence alignment and are compatible with interactive visual analysis tools.
 </p>
+<h2 id="tm-score">A brief guide to TM-scores</h2>
+<p>
+GTalign-web ranks alignments using several measures, with the most widely used being the TM-score.
+The TM-score is a global measure of structural similarity between two protein structures, which can be normalized by the length of either the query or the reference (subject) structure.
+</p>
+<p>
+The TM-score is intuitive: it can be loosely interpreted as the fraction of a protein that aligns perfectly with another.
+For example, a TM-score of 0.5 suggests that approximately half of one protein aligns closely with the other.
+</p>
+<p>
+In practice, however, structural alignments typically include insertions and deletions, so perfect alignment is rare.
+In these cases, the TM-score reflects how closely one protein's structure fits the other in three-dimensional space, with higher TM-scores indicating closer spatial alignment.
+Empirically, a TM-score of 0.5 or greater is a strong indicator that two proteins share (with high probability) a common structural fold.
+</p>
+<p>
+By default, GTalign-web ranks alignments using the TM-score normalized by the query length, so the significance of the TM-score should be interpreted in relation to the query structure.
+For example, a TM-score of 0.5 means that the query likely shares the same fold as the matched region in the reference.
+</p>
+<p>
+Alternatively, the TM-score normalized by the shorter protein (i.e., the greater of the two TM-scores) reflects how well the shorter structure aligns within the context of the longer one.
+</p>
+<p>
+For comparisons between proteins of similar lengths, sorting by the harmonic mean of the two normalized TM-scores is often appropriate.
+</p>
+<p>
+Lastly, GTalign-web also provides the 2TM-score (secondary TM-score), which is calculated by excluding unmatched helices.
+This makes it a stricter measure for assessing topological similarity. All the above significance thresholds apply equally to the 2TM-score.
+</p>
 <h2>Runtimes</h2>
 <p>
 The table below shows the runtimes of GTalign searches against the PDB, UniProtKB/Swiss-Prot, and UniRef30 structure databases for query structures of varying lengths, using default server settings.

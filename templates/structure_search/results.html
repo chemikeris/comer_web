@@ -1,6 +1,7 @@
 {% extends 'base_results.html' %}
 {% block results %}
 {% load static %}
+{% load input_form %}
 <link rel="stylesheet" href="{% static 'css/site.css' %}">
 <h1>GTalign results</h1>
 {{ results|json_script:"raw_results" }}
@@ -14,8 +15,8 @@
 <p>
     <button class="btn btn-secondary my-2" onclick="select_all_results(true)" type="button">Select all</button>
     <button class="btn btn-secondary my-2" onclick="select_all_results(false)" type="button">Deselect all</button>
-    <label for="id_query_annotation">Query text:</label> <input type="text" id="id_query_annotation" class="form-control d-inline">
-    <button class="btn btn-secondary my-2" onclick="select_by_annotation()" type="button">Select by annotation</button>
+    <input type="text" id="id_query_annotation" class="form-control d-inline">
+    <button class="btn btn-secondary my-2" onclick="select_by_annotation()" type="button">Select by keyword</button>
 </p>
 <p>
     <label for="id_min_evalue">Minimum TM-score:</label> <input type="text" id="id_min_tmscore" class="form-control d-inline">
@@ -23,7 +24,10 @@
     <button class="btn btn-secondary my-2" onclick="select_by_TMscore('query')" type="button">Select by query TM-score</button>
     <button class="btn btn-secondary my-2" onclick="select_by_TMscore('reference')" type="button">Select by reference TM-score</button>
     <button class="btn btn-secondary my-2" onclick="select_by_TMscore_both()" type="button">Select by both TM-scores</button>
+    {{ 'tmscore_help'|help_tooltip_questionmark }}
 </p>
+    {% url 'gtalign_help' as help_url %}
+    {% with tmscore_tooltip='TM-score is a global measure of similarity between two structures. Empirically, a TM-score of 0.5 indicates that two proteins share a common structural fold. For more information, please refer to the <a href="'|add:help_url|add:'#tm-score" target="_blank">Help page</a>.' %}{{ 'tmscore_help'|help_tooltip:tmscore_tooltip }}{% endwith %}
 <p>
     Supplementary jobs:
     <input type="hidden" name="job_id" value="{{ job.name }}">
