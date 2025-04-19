@@ -159,11 +159,11 @@ def results(request, job_id, redirect_to_first=False):
             'generated_msas': [],
             'sequences': [],
             'reload': refresh,
-            'log': job.calculation_log,
-            'errors': errors,
+            'log': '' if removed else job.calculation_log,
+            'errors': '' if removed else errors,
             'active': 'not_finished',
-            'job_input': job.read_input_file('in'),
-            'job_options': job.read_input_file('options'),
+            'job_input': '' if removed else job.read_input_file('in'),
+            'job_options': '' if removed else job.read_input_file('options'),
             }
         return render(request, 'jobs/not_finished_or_removed.html', context)
 
