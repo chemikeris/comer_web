@@ -258,7 +258,7 @@ def prepare_results_json(results_json):
 
 
 def read_example_structure():
-    example_structure_fname = 'AF-A0A7S2WTE7-F1-model_v4.pdb'
+    example_structure_fname = '7wwv_A.pdb'
     example_structure_file = os.path.join(
         settings.BASE_DIR, 'doc', example_structure_fname
         )
