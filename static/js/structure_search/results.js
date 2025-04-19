@@ -1,6 +1,6 @@
 'use strict';
 function getResultsTableColumns() {
-    return ['', 'No.', 'ID', 'Annotation', 'TM-score (query)', 'TM-score (reference)', 'RMSD', 'd0 (query)', 'd0 (reference)', '2TM-score (query)', '2TM-score (reference)', 'Aligned residues', 'Query length', 'Reference length', ''];
+    return ['', 'No.', 'ID', 'Description', 'TM-score (query)', 'TM-score (reference)', 'RMSD', 'd0 (query)', 'd0 (reference)', '2TM-score (query)', '2TM-score (reference)', 'Aligned residues', 'Query length', 'Reference length', ''];
 }
 function colorSummary(tm_score) {
     var color_value = 240 / (1 + Math.exp((12 * tm_score - 5)));

@@ -27,7 +27,7 @@
     {{ 'tmscore_help'|help_tooltip_questionmark }}
 </p>
     {% url 'gtalign_help' as help_url %}
-    {% with tmscore_tooltip='TM-score is a global measure of similarity between two structures. Empirically, a TM-score of 0.5 indicates that two proteins share a common structural fold. For more information, please refer to the <a href="'|add:help_url|add:'#tm-score" target="_blank">Help page</a>.' %}{{ 'tmscore_help'|help_tooltip:tmscore_tooltip }}{% endwith %}
+    {% with tmscore_tooltip='TM-score is a global measure of similarity between two structures. Empirically, a TM-score of 0.5 or greater indicates that two proteins share a common structural fold. For more information, please refer to the <a href="'|add:help_url|add:'#tm-score" target="_blank">Help page</a>.' %}{{ 'tmscore_help'|help_tooltip:tmscore_tooltip }}{% endwith %}
 <p>
     Supplementary jobs:
     <input type="hidden" name="job_id" value="{{ job.name }}">

@@ -7,7 +7,7 @@ from . import default
 
 
 MAX_STRUCTURE_TEXT_INPUT = 2097152
-MAX_INPUT_FILE_SIZE_IN_MB = 50
+MAX_INPUT_FILE_SIZE_IN_MB = 10
 
 
 # Code below is from Django documentation

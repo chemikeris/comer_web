@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
+<div class="help_page">
 <h1>Tutorial: Using GTalign-web</h1>
 <p>
 Users are encouraged to refer to the <a href="{% url 'gtalign_help' %}">Help page</a> for a detailed overview of the services provided by GTalign-web, the GTalign web server.
@@ -44,6 +45,7 @@ Once the job is complete, links to individual results pages for each query chain
 <h2>Step 7: Choose alignments to analyze</h2>
 <p>
 For each query, a results summary and a detailed table are displayed.
+The schematic alignments are colored according to TM-score values, taking into account the chosen sorting order.
 Clicking on the schematic alignment or a row number in the table helps access the corresponding pairwise alignment.
 </p>
 <p><img src="{% static 'img/gtalign_tutorial/7_results.png' %}" alt="Results" class="img-fluid border border-dark"></p>
@@ -69,7 +71,7 @@ Each results page provides the following information:
 	<li>Transformation data, rotation matrices and translation vectors, for superimposing the reference structure onto the query.</li>
 </ul>
 <p><img src="{% static 'img/gtalign_tutorial/8_alignment.png' %}" alt="Alignment" class="img-fluid border border-dark"></p>
-<h2>Step 9: Select pairwise alignments</h2>
+<h2>Step 9: View structure superpositons</h2>
 <p>
 View structure superposition after clicking on "Superposition" buttons in results table or next to alignments.
 </p>
@@ -79,7 +81,7 @@ View structure superposition after clicking on "Superposition" buttons in result
 <p><img src="{% static 'img/gtalign_tutorial/9c_superposition.png' %}" alt="Superposed structures" class="img-fluid border border-dark"></p>
 <h2>Step 10: Select pairwise alignments</h2>
 <p>
-Select pairwise alignments from the results, either manually or by specifying criteria such as a range of TM-scores.
+Select pairwise alignments from the results, either manually or by specifying criteria such as a range of TM-scores or keyword search in result descriptions.
 </p>
 <p><img src="{% static 'img/gtalign_tutorial/10_select.png' %}" alt="Select results" class="img-fluid border border-dark"></p>
 <h2>Step 11: Construct a Multiple Sequence Alignment (MSA) from structure alignments</h2>
@@ -92,4 +94,5 @@ Based on the selected pairwise alignments, construct an MSA. The resulting MSA w
 <p><img src="{% static 'img/gtalign_tutorial/12a_download_superpositions_button.png' %}" alt="Superpositions button" class="img-fluid border border-dark"></p>
 <p>Superpositions download page opens in a new tab, and after some time it is possible to download them in one ZIP file.</p>
 <p><img src="{% static 'img/gtalign_tutorial/12b_download_superpositions.png' %}" alt="Superpositions button" class="img-fluid border border-dark"></p>
+</div>
 {% endblock %}

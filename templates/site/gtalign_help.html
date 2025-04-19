@@ -17,7 +17,7 @@ GTalign-web also provides functionality for constructing multiple structure alig
 <h2 id ="help_input">Input</h2>
 <p>
 GTalign-web allows users to input single or multiple structure queries in various formats, with submissions requiring a single file.
-The maximum file size for upload is 50 MB.
+The maximum file size for upload is 10 MB.
 </p>
 <p>
 For a single query, the input file can be optionally gzipped and must be in either PDB or PDBx/mmCIF format with appropriate extensions.
@@ -216,12 +216,13 @@ A0A175WFP4         2006              227              159          5760
 </pre>
 <h2>Limits</h2>
 <ul>
-	<li>File size: The maximum upload size for input files is 50 MB.</li>
+	<li>File size: The maximum upload size for input files is 10 MB.</li>
 	<li>Residue length: Query structures shorter than 20 residues or longer than 4000 residues will not be processed.</li>
 	<li>
 		Job duration: The maximum runtime for a job is 24 hours.
 		If a job exceeds this limit, it will be canceled, and the user will be notified.
 	</li>
+    <li>Jobs are saved for 2 weeks.</li>
 </ul>
 <p>
 If some queries in a job fail, an error log will provide a brief description of the problem, visible to the user.
