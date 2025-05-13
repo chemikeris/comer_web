@@ -182,8 +182,26 @@ def process_input_data(input_data, input_files, example=False):
     input_directory = os.path.join(new_job.get_directory(), job_name, 'input')
     os.makedirs(input_directory)
     if structure_str:
+        structure_str = structure_str.lstrip()
         if structure_str.startswith('data_'):
             extension = '.cif'
+        elif structure_str.startswith('#'):
+            input_lines = structure_str.splitlines()
+            format_found = False
+            parsing = False
+            line, input_lines = input_lines[0], input_lines[1:]
+            while not format_found and input_lines:
+                if line.startswith('#'):
+                    line, input_lines = input_lines[0], input_lines[1:]
+                    continue
+                else:
+                    if line.startswith('data_'):
+                        extension = '.cif'
+                    else:
+                        extension = '.pdb'
+                    format_found = True
+            if not format_found:
+                extension = '.pdb'
         else:
             extension = '.pdb'
         fname = os.path.join(input_directory, job_name+extension)
