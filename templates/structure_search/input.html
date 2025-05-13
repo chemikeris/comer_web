@@ -58,7 +58,7 @@
     {# Pre-score #}
     <div class="col-12">{{ form.prescore.errors }}</div>
     <div class="col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.prescore.label_tag }} {{ 'prescore_help'|help_tooltip_questionmark }}</div><div class="col-auto">{{ form.prescore }}</div>
-    {{ 'prescore_help'|help_tooltip:'Minimum provisional TM-score, ranging from 0 to 1 (exclusive), for structure pairs to proceed to further stages. A value of 0 means all pairs are subject to further processing.' }}
+    {{ 'prescore_help'|help_tooltip:'Minimum provisional TM-score, ranging from 0.3 to 1 (exclusive), for structure pairs to proceed to further stages. A value of 0 means all pairs are subject to further processing.' }}
     {# Speed #}
     <div class="col-12">{{ form.speed.errors }}</div>
     <div class="col-lg-3 col-md-4 col-sm-6 col-form-label">{{ form.speed.label_tag }} {{ 'speed_help'|help_tooltip_questionmark }}</div><div class="col-auto">{{ form.speed }}</div>

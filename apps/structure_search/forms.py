@@ -80,9 +80,10 @@ class StructureInputForm(forms.Form):
         )
     prescore = forms.FloatField(
         label='Minimal provisional TM-score',
-        min_value=0, max_value=1,
+        min_value=0.3, max_value=1,
         initial=default.settings['prescore']
         )
+    prescore.widget.attrs.update({'step': 0.01})
     speed = forms.IntegerField(
         label='GTalign algorithm speed',
         min_value=0, max_value=13,
