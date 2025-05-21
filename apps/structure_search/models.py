@@ -14,7 +14,7 @@ from django.urls import reverse
 
 from apps.core.models import SearchJob, generate_job_name, Databases
 from apps.core.utils import read_json_file, format_gtalign_description, \
-        correct_structure_file_path
+        correct_structure_file_path, split_gtalign_description
 from comer_web import calculation_server
 
 class Job(SearchJob):
@@ -145,16 +145,13 @@ class Job(SearchJob):
 class StructureSearchResultsSummary:
     def __init__(self, job, results_data):
         r = results_data
-        input_structure_data = r['structure_description'].split()
+        input_structure_data = split_gtalign_description(
+            r['structure_description']
+            )
         structure_file = input_structure_data[0]
         self.structure_file = structure_file.split(':')[-1]
-        chain_desc = input_structure_data[1]
-        self.chain = chain_desc.split(':')[-1]
-        try:
-            model_desc = input_structure_data[2]
-            self.model = model_desc.lstrip('(').rstrip(')').split(':')[-1]
-        except IndexError:
-            self.model = 1
+        self.chain = input_structure_data[1]
+        self.model = input_structure_data[2]
         self.input_description = '%s Chain:%s M:%s' % (
             self.structure_file, self.chain, self.model)
         self.input_length = r['structure_length']

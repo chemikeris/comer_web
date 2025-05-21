@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import re
 
 from django.shortcuts import get_object_or_404
 from django.http import Http404
@@ -101,10 +102,6 @@ def get_object_or_404_for_removed_also(model, **kwargs):
 
 def format_gtalign_description(description, get_annotation=False):
     "Parse description from GTalign JSON"
-    def parse_chain(chain_data):
-        return chain_data.split(':')[1]
-    def parse_model(model_data):
-        return model_data[1:-1].split(':')[1]
     def trim_id(i):
         if i.endswith('.cif.gz'):
             return i.split('.')[0]
@@ -155,7 +152,7 @@ def format_gtalign_description(description, get_annotation=False):
         else:
             return uniprot_entries[0].annotation
     # Specific functions end here, and processing begins.
-    parts = description.split()
+    parts = split_gtalign_description(description)
     identifier = os.path.basename(parts[0])
     if identifier.startswith('ecod'):
         if get_annotation:
@@ -169,9 +166,13 @@ def format_gtalign_description(description, get_annotation=False):
     elif identifier.startswith('scope'):
         identifier = trim_id(after_colon(identifier))
         if get_annotation:
-            scop_entry = databases_models.SCOP.objects.filter(
-                domain_id=identifier)[0]
-            return identifier, scop_entry.annotation
+            scop_entries = databases_models.SCOP.objects.filter(
+                domain_id=identifier)
+            if scop_entries:
+                annptation = scop_entries[0].annotation
+            else:
+                annotation = ''
+            return identifier, annotation
         else:
             return identifier
     elif identifier.startswith('swissprot') or identifier.startswith('uniref'):
@@ -195,11 +196,8 @@ def format_gtalign_description(description, get_annotation=False):
         if ':' in identifier:
             identifier = identifier.split(':')[1]
         identifier = trim_id(identifier)
-        chain = parse_chain(parts[1])
-        try:
-            model = parse_model(parts[2])
-        except IndexError:
-            model = 1
+        chain = parts[1]
+        model = parts[2]
         pdb_identifier_to_show = '%s_%s_%s' % (identifier, chain, model)
         if get_annotation:
             pdb_entries = databases_models.Chain.objects.filter(
@@ -217,16 +215,28 @@ def format_gtalign_description(description, get_annotation=False):
 def correct_structure_file_path(
         description, old_dir, new_dir, tar_replacement=None
         ):
-    parts = description.split()
+    parts = split_gtalign_description(description)
     remote_path = parts[0]
-    chain = parts[1].split(':')[1]
-    try:
-        model = parts[2][1:-1].split(':')[1]
-    except IndexError:
-        model = 1
+    chain = parts[1]
+    model = parts[2]
     local_path = remote_path.replace(old_dir, new_dir)
     if tar_replacement:
         local_path = local_path.replace(tar_replacement[0], tar_replacement[1])
     output = {'file': local_path, 'chain': chain, 'model': model}
     return output
+
+
+def split_gtalign_description(description):
+    "Split description from GTalign JSON to parts"
+    m = re.search(
+        r'\s*(Chn\:([^"\s\)]+))?(\s+\(M\:([^"\s\)]+)\))?$',
+        description
+        )
+    # Should match the "string Chn:A (M:1)" pattern where Chn and M parts are
+    # optional.
+    path = description[0:m.span()[0]]
+    chain = m.group(2)
+    model_group = m.group(4)
+    model = 1 if model_group is None else int(model_group)
+    return path, chain, model
 

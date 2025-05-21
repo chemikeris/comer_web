@@ -117,6 +117,42 @@ class TestUtils(TestCase):
         self.assertFalse(utils.suitable_for_structure_modeling(cog_id))
         self.assertFalse(utils.suitable_for_structure_modeling(kog_id))
 
+    def test_split_gtalign_description(self):
+        description = '/path/to/file.pdb Chn:A (M:1)'
+        expected_output = ('/path/to/file.pdb', 'A', 1)
+        parts = utils.split_gtalign_description(description)
+        self.assertEqual(expected_output, parts)
+
+    def test_split_gtalign_description_no_model(self):
+        description = '/path/to/file.pdb Chn:A'
+        expected_output = ('/path/to/file.pdb', 'A', 1)
+        parts = utils.split_gtalign_description(description)
+        self.assertEqual(expected_output, parts)
+
+    def test_split_gtalign_description_no_model_no_chain(self):
+        description = '/path/to/file.pdb'
+        expected_output = ('/path/to/file.pdb', None, 1)
+        parts = utils.split_gtalign_description(description)
+        self.assertEqual(expected_output, parts)
+
+    def test_split_gtalign_description_with_spaces(self):
+        description = '/path/to/file name.pdb Chn:A (M:1)'
+        expected_output = ('/path/to/file name.pdb', 'A', 1)
+        parts = utils.split_gtalign_description(description)
+        self.assertEqual(expected_output, parts)
+
+    def test_split_gtalign_description_no_model_with_spaces(self):
+        description = '/path/to/file name.pdb Chn:A'
+        expected_output = ('/path/to/file name.pdb', 'A', 1)
+        parts = utils.split_gtalign_description(description)
+        self.assertEqual(expected_output, parts)
+
+    def test_split_gtalign_description_no_model_no_chain_with_spaces(self):
+        description = '/path/to/file name.pdb'
+        expected_output = ('/path/to/file name.pdb', None, 1)
+        parts = utils.split_gtalign_description(description)
+        self.assertEqual(expected_output, parts)
+
 
 class TestParsingCalculationServerConfig(TestCase):
     "Test parsing calculation server config file"
