@@ -169,7 +169,7 @@ def format_gtalign_description(description, get_annotation=False):
             scop_entries = databases_models.SCOP.objects.filter(
                 domain_id=identifier)
             if scop_entries:
-                annptation = scop_entries[0].annotation
+                annotation = scop_entries[0].annotation
             else:
                 annotation = ''
             return identifier, annotation
