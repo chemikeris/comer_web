@@ -109,6 +109,13 @@ class Job(SearchJob):
         query_structure_description = results_lst[result_no]['structure_description']
         query_remote_dir = config['comer-ws-backend_path']['jobs_directory']
         query_dir = self.get_directory()
+        # Path to query file is sometimes truncated in the query structure
+        # description, this needs to be corrected.
+        if query_structure_description.startswith('...'):
+            fname_and_suffix = os.path.basename(query_structure_description)
+            query_structure_description = os.path.join(
+                query_remote_dir, self.name, fname_and_suffix
+                )
         query = correct_structure_file_path(
             query_structure_description, query_remote_dir, query_dir+'/',
             ('%s.tar:' % self.name, 'input/')
