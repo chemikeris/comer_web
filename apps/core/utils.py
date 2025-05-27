@@ -206,7 +206,11 @@ def format_gtalign_description(description, get_annotation=False):
                 annotation = ''
             else:
                 pdb_entry = pdb_entries[0]
-                annotation = pdb_entry.annotation.annotation
+                annotation_data = pdb_entry.annotation
+                if annotation_data is None:
+                    annotation = ''
+                else:
+                    annotation = annotation_data.annotation
             return pdb_identifier_to_show, annotation
         else:
             return pdb_identifier_to_show
