@@ -8,6 +8,7 @@ from . import default
 
 MAX_STRUCTURE_TEXT_INPUT = 2097152
 MAX_INPUT_FILE_SIZE_IN_MB = 10
+MAX_INPUT_FILE_NAME_LENGTH = 100
 
 
 # Code below is from Django documentation
@@ -26,6 +27,17 @@ class MultipleFileField(forms.FileField):
             result = [single_file_clean(d, initial) for d in data]
         else:
             result = [single_file_clean(data, initial)]
+        errors = []
+        for r in result:
+            if len(r.name) > MAX_INPUT_FILE_NAME_LENGTH:
+                errors.append(
+                    ValidationError(
+                        'Name of file %s exceeds maximum allowed length (%s).' \
+                            % (r, MAX_INPUT_FILE_NAME_LENGTH)
+                        )
+                    )
+        if errors:
+            raise ValidationError(errors)
         return result
 ##
 
