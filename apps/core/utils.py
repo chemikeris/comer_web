@@ -111,6 +111,8 @@ def format_gtalign_description(description, get_annotation=False):
             return i.split('.')[0]
         elif i.endswith('.tar'):
             return i.split('.')[0]
+        elif i.endswith('.pdb'):
+            return i.split('.')[0]
         else:
             return i
     def afdb_id_to_uniprot(i):
@@ -182,6 +184,13 @@ def format_gtalign_description(description, get_annotation=False):
             return uniprot_ac, annotation
         else:
             return uniprot_ac
+    elif identifier.startswith('bfvd'):
+        uniprot_ac = trim_id(after_colon(identifier))
+        if get_annotation:
+            annotation = get_uniprot_annotation(uniprot_ac)
+            return uniprot_ac, annotation
+        else:
+            return uniprot_ac
     elif identifier.startswith('UP'):
         id_parts = identifier.split(':')
         identifier = afdb_id_to_uniprot(id_parts[1])
@@ -238,7 +247,8 @@ def split_gtalign_description(description):
         )
     # Should match the "string Chn:A (M:1)" pattern where Chn and M parts are
     # optional.
-    path = description[0:m.span()[0]]
+    path = description[0:m.span()[0]].replace('tar:./', 'tar:')
+    # Replacement here is necessary for special case with BVFD identifiers.
     chain = m.group(2)
     model_group = m.group(4)
     model = 1 if model_group is None else int(model_group)

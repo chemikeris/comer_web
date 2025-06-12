@@ -12,7 +12,8 @@ from django.conf import settings
 from comer_web import calculation_server
 from apps.core.models import ComerWebServerJob, Base3DJob, Databases, \
         generate_job_name
-from apps.core.utils import read_json_file, correct_structure_file_path
+from apps.core.utils import read_json_file, correct_structure_file_path, \
+        split_gtalign_description
 from apps.structure_search.models import Job as StructureSearchJob
 
 
@@ -279,8 +280,9 @@ def save_structure_superposition_job(post_data):
         return found_old_job
 
 
-def database_remote_directory(gtalign_structure_result_file):
-    identifier = os.path.basename(gtalign_structure_result_file)
+def database_remote_directory(gtalign_result_description):
+    description_parts = split_gtalign_description(gtalign_result_description)
+    identifier = os.path.basename(description_parts[0])
     if identifier.startswith('ecod'):
         db_name = 'ecod'
     elif identifier.startswith('scope'):
@@ -291,6 +293,8 @@ def database_remote_directory(gtalign_structure_result_file):
         db_name = 'uniref30'
     elif identifier.startswith('UP'):
         db_name = 'proteomes'
+    elif identifier.startswith('bfvd'):
+        db_name = 'bfvd'
     else:
         db_name = 'pdb_mmcif'
     db = Databases.objects.get(program='gtalign', db=db_name)

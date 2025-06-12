@@ -434,7 +434,9 @@ class Databases(models.Model):
         elif self.db == 'pdb_scop_ecod':
             return 'PDB mmCIF|SCOPe40|ECOD_F70'
         elif self.db == 'pdb_scop_ecod_sw_prot':
-            return 'PDB mmCIF|SCOPe40|ECOD_F70|SwissProt|Reference Proteomes' 
+            return 'PDB mmCIF|SCOPe40|ECOD_F70|SwissProt|Reference Proteomes'
+        elif self.db == 'bfvd':
+            return 'BFVD (viral proteins)'
         else:
             raise ValueError('Unknown database name: %s' % self.db)
 
