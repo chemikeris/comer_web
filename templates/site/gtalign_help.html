@@ -55,6 +55,7 @@ GTalign-web provides access to the following structure databases for search:
 <li>UniProtKB/Swiss-Prot: Reviewed entries from the UniProt Knowledgebase [5,6]</li>
 <li>Reference proteomes: A collection of 48 representative proteomes [5,6]</li>
 <li>UniRef30: UniProt entries clustered at 30% sequence identity [5,6]</li>
+<li>BFVD: the Big Fantastic Virus Database [7]
 </ul>
 <h2 id='search_options'>Search options</h2>
 <p>
@@ -119,14 +120,14 @@ Each structure alignment is accompanied by the following statistics:
 </p>
 <ul>
 	<li>
-        TM-score (Refn./Query): Length-normalized TM-scores for the reference (database entry) and the query [7].
+        TM-score (Refn./Query): Length-normalized TM-scores for the reference (database entry) and the query [8].
         A TM-score of 1 indicates a perfect match.
     </li>
 	<li>
         2TM-score: Secondary TM-score that excludes unmatched helices [1].
         A 2TM-score of 1 also indicates a perfect match.
     </li>
-	<li>d0 (Refn./Query): Normalizing inter-residue distance (d0) for the reference and query [7].</li>
+	<li>d0 (Refn./Query): Normalizing inter-residue distance (d0) for the reference and query [8].</li>
 	<li>RMSD: Root-mean-square deviation in angstroms (A).</li>
 	<li>
 		Identities, Matched, and Gaps: These indicate the number of identical aligned residues, residues aligned within 5 angstroms, and unaligned residues, respectively.
@@ -237,6 +238,7 @@ Results for successfully completed queries within the same job will remain avail
 	{# 4 #}<li>Schaeffer R, Liao Y, Cheng H, Grishin N. ECOD: new developments in the evolutionary classification of domains. <a href="https://doi.org/10.1093/nar/gkw1137">Nucleic Acids Res. 45, D296-D302 (2017)</a>.</li>
 	{# 5 #}<li>UniProt Consortium. UniProt: the universal protein knowledgebase in 2021. <a href="https://doi.org/10.1093/nar/gkaa1100">Nucleic Acids Res. 49, D480-D489 (2021)</a>.</li>
 	{# 6 #}<li>Varadi M. et al. AlphaFold Protein Structure Database in 2024: providing structure coverage for over 214 million protein sequences. <a href="https://doi.org/10.1093/nar/gkad1011">Nucleic Acids Res 52, D368-D375 (2024)</a>.</li>
-	{# 7 #}<li>Zhang, Y. and Skolnick, J. Scoring function for automated assessment of protein structure template quality. <a href="https://doi.org/10.1002/prot.20264">Proteins 57, 702-710 (2004)</a>.</li>
+	{# 7 #}<li>Kil RS et al. BFVD-a large repository of predicted viral protein structures. <a href="https://doi.org/10.1093/nar/gkae1119"> Nucleic Acids Res, 53, D340-D347 (2025)</a>.</li>
+	{# 8 #}<li>Zhang, Y. and Skolnick, J. Scoring function for automated assessment of protein structure template quality. <a href="https://doi.org/10.1002/prot.20264">Proteins 57, 702-710 (2004)</a>.</li>
 </ol>
 {% endblock %}
