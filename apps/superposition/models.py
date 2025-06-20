@@ -60,9 +60,6 @@ class Superposition(models.Model):
         gtalign_backend_directory = os.path.join(
             config['local_paths']['gtalign_backend'], 'bin'
             )
-        query_structure_fname = self\
-            .search_job\
-            .input_structure_file_for_result(self.result_no)
         print(
             'Creating GTalign aligned structures for %s, result %s, hit %s.' % \
             (self.search_job.name, self.result_no, self.hit_no)
@@ -85,10 +82,6 @@ class Superposition(models.Model):
         alignment_command = [
             os.path.join(settings.BASE_DIR, 'virtualenv', 'bin', 'python'),
             aligner,
-            '--i1', self.search_job.input_structure_file_for_result(
-                self.result_no
-                ),
-            '--c1', 'A',
             '--i2', reference['file'],
             '--c2', reference['chain'],
             '--m2', str(reference['model']),
