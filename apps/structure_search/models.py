@@ -113,6 +113,11 @@ class Job(SearchJob):
         # description, this needs to be corrected.
         if query_structure_description.startswith('...'):
             fname_and_suffix = os.path.basename(query_structure_description)
+            # Sometimes query descriptions are even more truncated, let's try
+            # to fix it.
+            if fname_and_suffix.startswith('...'):
+                fname_and_suffix = fname_and_suffix.split('.tar:')[1]
+                fname_and_suffix = '%s.tar:%s' % (self.name, fname_and_suffix)
             query_structure_description = os.path.join(
                 query_remote_dir, self.name, fname_and_suffix
                 )
