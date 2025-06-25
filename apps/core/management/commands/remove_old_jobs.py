@@ -121,6 +121,7 @@ class Command(BaseCommand):
                         print('Keeping example job, only MSAs are deleted.')
                         remove_this_job = False
                 else:
+                    print('Keeping example job, only MSAs are deleted.')
                     remove_this_job = False
                 print('Removing example MSAs.')
                 for m in StructureMSAJob.objects.filter(search_job=j):

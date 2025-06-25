@@ -1,0 +1,1 @@
+0 3 * * * cd /opt/comer_web/; ./src/virtualenv/bin/python ./src/manage.py remove_old_jobs --gtalign > ./logs/remove_gtalign_jobs_$(date +\%Y_\%m_\%d_\%H_\%M).log 2>&1
