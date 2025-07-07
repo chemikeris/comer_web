@@ -30,6 +30,7 @@ class Command(BaseCommand):
                     annotation_obj, created = databases_models.PDBAnnotation\
                         .objects.update_or_create(annotation=annotation)
                     databases_models.Chain.objects.update_or_create(
-                        pdb=pdb_obj, chain=chain, annotation=annotation_obj
+                        pdb=pdb_obj, chain=chain,
+                        defaults={'annotation': annotation_obj}
                         )
 
