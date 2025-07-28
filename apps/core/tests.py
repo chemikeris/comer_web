@@ -153,6 +153,24 @@ class TestUtils(TestCase):
         parts = utils.split_gtalign_description(description)
         self.assertEqual(expected_output, parts)
 
+    def test_split_gtalign_description_chain_space(self):
+        description = '/path/to/file.pdb Chn: (M:1)'
+        expected_output = ('/path/to/file.pdb', ' ', 1)
+        parts = utils.split_gtalign_description(description)
+        self.assertEqual(expected_output, parts)
+
+    def test_split_gtalign_description_chain_space_no_model(self):
+        description = '/path/to/file.pdb Chn: '
+        expected_output = ('/path/to/file.pdb', ' ', 1)
+        parts = utils.split_gtalign_description(description)
+        self.assertEqual(expected_output, parts)
+
+    def test_split_gtalign_description_with_spaces_and_chain_space(self):
+        description = '/path/to/file name.pdb Chn:  (M:1)'
+        expected_output = ('/path/to/file name.pdb', ' ', 1)
+        parts = utils.split_gtalign_description(description)
+        self.assertEqual(expected_output, parts)
+
 
 class TestParsingCalculationServerConfig(TestCase):
     "Test parsing calculation server config file"

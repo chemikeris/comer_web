@@ -250,6 +250,11 @@ def split_gtalign_description(description):
     path = description[0:m.span()[0]].replace('tar:./', 'tar:')
     # Replacement here is necessary for special case with BVFD identifiers.
     chain = m.group(2)
+    # The code below solves the problem with chains named with space in PDB
+    # files, which might be sometimes possible.
+    if (chain is None) and path.endswith('Chn:'):
+        path = path.rsplit(' ', 1)[0]
+        chain = ' '
     model_group = m.group(4)
     model = 1 if model_group is None else int(model_group)
     return path, chain, model
