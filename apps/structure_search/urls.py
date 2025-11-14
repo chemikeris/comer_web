@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('', views.input, name='gtalign_index'),
+    # GTalign URLs
     path('input/', views.input, name='gtalign_input'),
     path(
         'results/<slug:job_id>',
@@ -51,4 +52,8 @@ urlpatterns = [
         views.api_available_databases,
         name='gtalign_api_databases'
         ),
+    # GTcomplex URLs
+    path(
+        'input_complex/', views.input_complex, name='gtcomplex_input'
+        )
 ]

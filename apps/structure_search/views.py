@@ -30,6 +30,7 @@ def input(request):
     context = {
         'form': form,
         'page_title': 'GTalign-web',
+        'search_method': 'gtalign',
         'example_str': mark_safe(models.read_example_structure())
         }
     return render(request, 'structure_search/input.html', context)
@@ -39,7 +40,8 @@ def results(request, job_id):
     job = get_object_or_404(models.Job, name=job_id)
     print(job)
     finished, removed, status_msg, errors, refresh = job.status_info()
-    page_title = 'GTalign results - %s' % job.nice_name()
+    method_used = 'GTcomplex' if job.is_complex_job else 'GTalign'
+    page_title = '%s results - %s' % (method_used, job.nice_name())
     input_url = job.input_file_download_url()
     input_url_a = mark_safe(f'<a href="{input_url}">Download input</a>')
     if finished and not removed:
@@ -209,4 +211,28 @@ def api_job_status(request, job_id):
         else:
             result['log'] = job.calculation_log
     return JsonResponse(result)
+
+
+# GTcomplex search functions
+def input_complex(request):
+    "View to input GTcomplex query and settings"
+    from .forms import ComplexStructureInputForm
+
+    if request.method == 'POST':
+        form = ComplexStructureInputForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_job = models.process_input_data(
+                form.cleaned_data, request.FILES, gtcomplex=True
+                )
+            return redirect('gtalign_results', job_id=new_job.name)
+    else:
+        form = ComplexStructureInputForm()
+    context = {
+        'form': form,
+        'page_title': 'GTalign-web',
+        'search_method': 'gtcomplex',
+        'example_str': mark_safe(models.read_example_structure())
+        }
+    return render(request, 'structure_search/input.html', context)
+
 

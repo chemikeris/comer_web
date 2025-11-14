@@ -119,3 +119,19 @@ class StructureInputForm(forms.Form):
             cleaned_data['nogaps'] = False
 
 
+class ComplexStructureInputForm(StructureInputForm):
+    database = forms.ChoiceField(
+        choices=get_databases_for('gtalign', ['asm']),
+        label='Database'
+        )
+    # GTcomplex settings
+    speed = forms.IntegerField(
+        label='GTcomplex algorithm speed',
+        min_value=0, max_value=16,
+        initial=default.complex_settings['speed']
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['sort'].initial = default.complex_settings['sort']
+

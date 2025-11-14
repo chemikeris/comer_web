@@ -437,6 +437,8 @@ class Databases(models.Model):
             return 'PDB mmCIF|SCOPe40|ECOD_F70|SwissProt|Reference Proteomes'
         elif self.db == 'bfvd':
             return 'BFVD (viral proteins)'
+        elif self.db == 'asm':
+            return 'PDB Biological Assemblies'
         else:
             raise ValueError('Unknown database name: %s' % self.db)
 

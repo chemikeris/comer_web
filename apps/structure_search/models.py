@@ -19,8 +19,13 @@ from comer_web import calculation_server
 
 class Job(SearchJob):
     "GTalign search job"
+    is_complex_job = models.BooleanField()
+
     def method(self):
-        return 'gtalign'
+        if self.is_complex_job:
+            return 'gtcomplex'
+        else:
+            return 'gtalign'
 
     def server(self):
         return 'GTalign-web'
@@ -30,6 +35,13 @@ class Job(SearchJob):
 
     def process(self):
         return 'gtalign'
+
+    def task(self):
+        app_label = self._meta.app_label
+        if self.is_complex_job:
+            return 'complex_'+app_label
+        else:
+            return app_label
 
     def uri(self):
         uri = reverse('gtalign_results', args=[self.name])
@@ -172,7 +184,7 @@ class StructureSearchResultsSummary:
         self.number_of_results = len(results_json['search_results'])
 
 
-def process_input_data(input_data, input_files, example=False):
+def process_input_data(input_data, input_files, example=False, gtcomplex=False):
     "Process input data for GTalign search"
     structure_str = input_data.pop('structure')
     email = input_data.pop('email')
@@ -185,7 +197,8 @@ def process_input_data(input_data, input_files, example=False):
     del input_data['input_query_files']
     job_name = example or generate_job_name()
     new_job = Job.objects.create(
-        name=job_name, email=email, description=description
+        name=job_name, email=email, description=description,
+        is_complex_job=gtcomplex
         )
     # Writing input files.
     input_directory = os.path.join(new_job.get_directory(), job_name, 'input')
@@ -229,12 +242,14 @@ def process_input_data(input_data, input_files, example=False):
         for fname in os.listdir(input_directory):
             tf.add(os.path.join(input_directory, fname), arcname=fname)
     save_gtalign_settings(
-        new_job.get_input_file('options'), database, input_data
+        new_job.get_input_file('options'), database, input_data, gtcomplex
         )
     return new_job
 
 
-def save_gtalign_settings(settings_file, database, input_settings):
+def save_gtalign_settings(
+        settings_file, database, input_settings, gtcomplex=False
+        ):
     default_settings_file = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), 'default_settings.txt')
     shutil.copy(default_settings_file, settings_file)
@@ -254,7 +269,8 @@ def save_gtalign_settings(settings_file, database, input_settings):
                     f.write(f'--{s}\n')
             else:
                 f.write(f'--{s}={value}\n')
-        f.write('gtalign_db = %s\n' % database)
+        method_description = 'gtcomplex' if gtcomplex else 'gtalign'
+        f.write('%s_db = %s\n' % (method_description, database))
 
 
 def parse_gtalign_job_options(options_file_contents):
