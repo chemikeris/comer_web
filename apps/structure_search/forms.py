@@ -51,7 +51,7 @@ class StructureInputForm(forms.Form):
         required=False, label='Upload structure file(s)'
         )
     database = forms.ChoiceField(
-        choices=get_databases_for('gtalign'),
+        choices=get_databases_for('gtalign', ignore_dbs=['asm']),
         initial=get_databases_for('gtalign', ['pdb_mmcif'])[0],
         label='Database'
         )

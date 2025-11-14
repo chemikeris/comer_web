@@ -443,13 +443,15 @@ class Databases(models.Model):
             raise ValueError('Unknown database name: %s' % self.db)
 
 
-def get_databases_for(program, db=None):
+def get_databases_for(program, db=None, ignore_dbs=None):
     try:
         databases = Databases.objects\
             .filter(program=program).order_by('pk').all()
         if db:
             # db should be a list of database names
             databases = databases.filter(db__in=db)
+        if ignore_dbs:
+            databases = databases.exclude(db__in=ignore_dbs)
         descriptions = []
         for d in databases:
             if program == 'gtalign':
