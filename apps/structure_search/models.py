@@ -286,9 +286,9 @@ def parse_gtalign_job_options(options_file_contents):
     return options
 
 
-def prepare_results_json(results_json):
+def prepare_results_json(results_json, first_header):
     "Remove unnecessary and add additional data from GTalign results JSON"
-    res = results_json['gtalign_search']
+    res = results_json[first_header]
     for i, hit_record in enumerate(res['search_results']):
         hr = hit_record['hit_record']
         description, annotation = format_gtalign_description(

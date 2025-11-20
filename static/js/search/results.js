@@ -1,5 +1,5 @@
 'use strict';
-function getResultsTableColumns() {
+function getResultsTableColumns(unused_argument) {
     return ['', 'No.', 'ID', 'Description', 'P-value', 'E-value', 'Score (bit-score)', 'Aln. length'];
 }
 function colorSummary(p) {

@@ -1,6 +1,11 @@
 'use strict';
-function getResultsTableColumns() {
-    return ['', 'No.', 'ID', 'Description', 'TM-score (query)', 'TM-score (reference)', 'RMSD', 'd0 (query)', 'd0 (reference)', '2TM-score (query)', '2TM-score (reference)', 'Aligned residues', 'Query length', 'Reference length', ''];
+function getResultsTableColumns(multimer_search) {
+    if (multimer_search) {
+        return ['', 'No.', 'ID', 'Description', 'TM-score (query)', 'TM-score (reference)', 'RMSD', '2TM-score (query)', '2TM-score (reference)', 'Aligned residues', 'Query chains (residues)', 'Reference chains (residues)', ''];
+    }
+    else {
+        return ['', 'No.', 'ID', 'Description', 'TM-score (query)', 'TM-score (reference)', 'RMSD', 'd0 (query)', 'd0 (reference)', '2TM-score (query)', '2TM-score (reference)', 'Aligned residues', 'Query length', 'Reference length', ''];
+    }
 }
 function colorSummary(tm_score) {
     var color_value = 240 / (1 + Math.exp((12 * tm_score - 5)));
@@ -44,6 +49,31 @@ function fillSummaryTableRowData(row, hit_record, i) {
     // Superposition button.
     var a = generateLinkToStructureAlignment(i, true);
     row.appendChild(createTableData(a));
+}
+function fillSummaryTableRowDataForMultimer(row, hit_record, i) {
+    // ID
+    row.appendChild(createTableData(createLink(shortDescription(hit_record.reference_description))));
+    // Annotation
+    row.appendChild(createTableData(hit_record.reference_annotation));
+    // TM-score query
+    row.appendChild(createTableData(hit_record.tmscore_query));
+    // TM-score reference
+    row.appendChild(createTableData(hit_record.tmscore_refrn));
+    // RMSD
+    row.appendChild(createTableData(hit_record.rmsd));
+    // 2TM-score query
+    row.appendChild(createTableData(hit_record['2tmscore_query']));
+    // 2TM-score reference
+    row.appendChild(createTableData(hit_record['2tmscore_refrn']));
+    // Aligned residues
+    row.appendChild(createTableData(hit_record.n_aligned - hit_record.n_gaps));
+    // Query chains
+    row.appendChild(createTableData(`${hit_record.n_query_chains} (${hit_record.query_length})`));
+    // Reference length
+    row.appendChild(createTableData(`${hit_record.n_refrn_chains} (${hit_record.reference_length})`));
+    // Superposition button.
+    var a = generateLinkToStructureAlignment(i, true);
+    row.appendChild(createTableData(a));    ;
 }
 function getTargetDescription(hit_record) {
     return hit_record.reference_description+' '+hit_record.reference_annotation;
@@ -111,6 +141,20 @@ function formatAlignmentFooter(alignment_div, hit_record) {
     transformation_matrix_table.appendChild(tmatrix_body);
     footer.appendChild(transformation_matrix_table);
     alignment_div.appendChild(footer);
+}
+function generateChainSummaryIDForMultimer(chain, hit_no) {
+    return `reference_chain_${hit_no}_corresponding_to_query_chain_${chain}`;
+}
+function createEmptyChainSummaryDivForMultimer(chain_description, width, id_value) {
+    var chain_summary = document.createElement('div');
+    chain_summary.classList.add('sequence_scheme_query_'+chain_description);
+    chain_summary.style.display = 'inline-block';
+    chain_summary.style.position = 'relative';
+    chain_summary.style.width = width + '%';
+    chain_summary.style.marginLeft = '1px';
+    chain_summary.style.marginRight = '1px';
+    chain_summary.id = id_value;
+    return chain_summary;
 }
 
 showResults(results);

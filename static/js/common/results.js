@@ -6,81 +6,141 @@ function showResults(results) {
     const alignments_div = document.getElementById('alignments');
 
     var program = which_program(results);
-    var structure_search = (program == 'gtalign') ? true : false;
+    switch (program) {
+        case 'gtcomplex':
+            var structure_search = true;
+            var results_header = 'gtcomplex_search';
+            var multimer_search = true;
+            break;
+        case 'gtalign':
+            var structure_search = true;
+            var results_header = 'gtalign_search';
+            var multimer_search = false;
+            break;
+        default:
+            var structure_search = false;
+            var results_header = 'comer_search'
+            var multimer_search = false;
+    }
 
     var results_parts = resultsParts(results, structure_search);
     var search_summary = results_parts[0];
     var search_hits = results_parts[1];
-    var number_of_hits = search_hits.length
+    var number_of_hits = search_hits.length;
 
     var results_table = document.createElement('table');
     results_table.classList.add('table');
     results_table.classList.add('table-striped');
     results_table.classList.add('table-sm');
-    var results_table_columns = getResultsTableColumns(); // Defined separately for COMER and GTalign
+    var results_table_columns = getResultsTableColumns(multimer_search); // Defined separately for COMER and GTalign, and further differences are possible for GTcomplex
     var results_table_head = createTableHeader(results_table_columns);
     results_table.appendChild(results_table_head);
     var results_table_body = document.createElement('tbody');
     // Creating query sequence schematic view.
-    var query_summary_element = document.createElement('div');
-    query_summary_element.classList.add('sequence_scheme');
-    query_summary_element.style.background = 'grey';
-    query_summary_element.innerHTML = '<a>Query</a>';
-    summary_div.appendChild(query_summary_element);
+    if (multimer_search) {
+        var query_summary_chains = document.createElement('div');
+        query_summary_chains.classList.add('sequence_scheme');
+        var query_chains = results[results_header].query.chain_list;
+        var chain_summary_widths = new Map();
+        for (var i = 0; i < query_chains.length; i++) {
+            var chain_info = query_chains[i].chain_details;
+            var w = Math.round(100 * (chain_info.length / results[results_header].query.length - 0.002));
+            chain_summary_widths.set(chain_info.id, w);
+            var chain_summary = createEmptyChainSummaryDivForMultimer(chain_info.id, w, `summary_for_query_chain_${query_chains[i].chain_details.id}`);
+            chain_summary.innerHTML = '<a>Query chain ' + query_chains[i].chain_details.id + '</a>';
+            chain_summary.title = `${chain_info.type}, ${chain_info.length} residues.`;
+            chain_summary.style.background = 'grey';
+            query_summary_chains.appendChild(chain_summary);
+        }
+        summary_div.appendChild(query_summary_chains);
+    }
+    else {
+        var query_summary_element = document.createElement('div');
+        query_summary_element.classList.add('sequence_scheme');
+        query_summary_element.style.background = 'grey';
+        query_summary_element.style.marginLeft = '1px';
+        query_summary_element.style.marginRight = '1px';
+        query_summary_element.innerHTML = '<a>Query</a>';
+        summary_div.appendChild(query_summary_element);
+    }
     for (var i = 0; i < number_of_hits; i++) {
         var hit_record = search_hits[i].hit_record;
         // Parsing sequence summaries for summary display.
-        var sequence_summary = formatSummary(search_summary[i].summary_entry, i, structure_search);
-        if (structure_search)
-        {
-            var sort_order = parseInt(results['gtalign_search'].sort_order);
-            switch (sort_order) {
-                /* GTalign documentation says:
-                0: Sort results by the greater TM-score of the two;
-                1: Sort by reference length-normalized TM-score;
-                2: Sort by query length-normalized TM-score;
-                3: Sort by the harmonic mean of the two TM-scores;
-                4: Sort by RMSD.
-                5: Sort by the greater 2TM-score;
-                6: Sort by reference length-normalized 2TM-score;
-                7: Sort by query length-normalized 2TM-score.
-                8: Sort by the harmonic mean of the 2TM-scores;
-                */
-                case 0:
-                case 4:
-                    var coloring_value = Math.max(hit_record.alignment.tmscore_query, hit_record.alignment.tmscore_refn);
-                    break;
-                case 1:
-                    var coloring_value = hit_record.alignment.tmscore_refn;
-                    break;
-                case 2:
-                    var coloring_value = hit_record.alignment.tmscore_query;
-                    break;
-                case 3:
-                    var coloring_value = harmonicMean([hit_record.alignment.tmscore_query, hit_record.alignment.tmscore_refn]);
-                    break;
-                case 5:
-                    var coloring_value = Math.max(hit_record.alignment['2tmscore_query'], hit_record.alignment['2tmscore_refn']);
-                    break;
-                case 6:
-                    var coloring_value = hit_record.alignment['2tmscore_refn'];
-                    break;
-                case 7:
-                    var coloring_value = hit_record.alignment['2tmscore_query'];
-                    break;
-                case 8:
-                    var coloring_value = harmonicMean([hit_record.alignment['2tmscore_query'], hit_record.alignment['2tmscore_refn']]);
-                    break;
-                default:
-                    var coloring_value = hit_record.alignment.tmscore_query;
+        if (multimer_search) {
+            var multiple_chains_summary_div = document.createElement('div');
+            multiple_chains_summary_div.classList.add('sequence_scheme');
+            multiple_chains_summary_div.classList.add('summary');
+            multiple_chains_summary_div.classList.add('summary_part_'+resultsPartNo(i));
+            var alignments_order = new Map();
+            for (const [chain, width] of chain_summary_widths) {
+                var chain_id_value = generateChainSummaryIDForMultimer(chain, i);
+                var chain_summary_div = createEmptyChainSummaryDivForMultimer(`${chain}_result_${i}`, width, chain_id_value);
+                multiple_chains_summary_div.appendChild(chain_summary_div);
+            }
+            summary_div.appendChild(multiple_chains_summary_div);
+            for (var j = 0; j < hit_record.assignment_table.length; j++) {
+                var chain_correspondence_info = hit_record.assignment_table[j].assignment_entry;
+                var result_chain_summary_div = document.getElementById(generateChainSummaryIDForMultimer(chain_correspondence_info.query_chain, i));
+                var current_chain_summary_div = document.createElement('div');
+                current_chain_summary_div.appendChild(createLinkToAlignment(`${i}_${j}`, chain_correspondence_info.refrn_chain));
+                addStyleForSummary(current_chain_summary_div, chain_correspondence_info.query_chain_length, chain_correspondence_info.query_chain_from, chain_correspondence_info.query_chain_to, chain_correspondence_info.tmscore_query);
+                result_chain_summary_div.appendChild(current_chain_summary_div);
+
             }
         }
-        else
-        {
-            var coloring_value = hit_record.alignment.pvalue;
+        else {
+            var sequence_summary = formatSummary(search_summary[i].summary_entry, i, structure_search);
+            if (structure_search)
+            {
+                var sort_order = parseInt(results[results_header].sort_order);
+                switch (sort_order) {
+                    /* GTalign documentation says:
+                    0: Sort results by the greater TM-score of the two;
+                    1: Sort by reference length-normalized TM-score;
+                    2: Sort by query length-normalized TM-score;
+                    3: Sort by the harmonic mean of the two TM-scores;
+                    4: Sort by RMSD.
+                    5: Sort by the greater 2TM-score;
+                    6: Sort by reference length-normalized 2TM-score;
+                    7: Sort by query length-normalized 2TM-score.
+                    8: Sort by the harmonic mean of the 2TM-scores;
+                    */
+                    case 0:
+                    case 4:
+                        var coloring_value = Math.max(hit_record.alignment.tmscore_query, hit_record.alignment.tmscore_refn);
+                        break;
+                    case 1:
+                        var coloring_value = hit_record.alignment.tmscore_refn;
+                        break;
+                    case 2:
+                        var coloring_value = hit_record.alignment.tmscore_query;
+                        break;
+                    case 3:
+                        var coloring_value = harmonicMean([hit_record.alignment.tmscore_query, hit_record.alignment.tmscore_refn]);
+                        break;
+                    case 5:
+                        var coloring_value = Math.max(hit_record.alignment['2tmscore_query'], hit_record.alignment['2tmscore_refn']);
+                        break;
+                    case 6:
+                        var coloring_value = hit_record.alignment['2tmscore_refn'];
+                        break;
+                    case 7:
+                        var coloring_value = hit_record.alignment['2tmscore_query'];
+                        break;
+                    case 8:
+                        var coloring_value = harmonicMean([hit_record.alignment['2tmscore_query'], hit_record.alignment['2tmscore_refn']]);
+                        break;
+                    default:
+                        var coloring_value = hit_record.alignment.tmscore_query;
+                }
+            }
+            else
+            {
+                var coloring_value = hit_record.alignment.pvalue;
+            }
+            addStyleForSummary(sequence_summary, hit_record.query_length, hit_record.alignment.query_from, hit_record.alignment.query_to, coloring_value);
+            summary_div.appendChild(sequence_summary);
         }
-        addStyleForSummary(sequence_summary, hit_record.query_length, hit_record.alignment.query_from, hit_record.alignment.query_to, coloring_value);
-        summary_div.appendChild(sequence_summary);
 
         // Parsing detailed information on search hits and adding info to table and formatting alignments for display.
         var row = document.createElement('tr');
@@ -96,12 +156,22 @@ function showResults(results) {
         number_column.appendChild(createLinkToAlignment(i, i+1));
         row.appendChild(number_column);
         // Fill row with data.
-        fillSummaryTableRowData(row, hit_record, i);
+        if (multimer_search) {
+            fillSummaryTableRowDataForMultimer(row, hit_record, i);
+        }
+        else {
+            fillSummaryTableRowData(row, hit_record, i);
+        }
         // Finished table row.
         results_table_body.appendChild(row);
 
         // Formatting sequence alignments.
-        alignments_div.appendChild(formatAlignment(i, hit_record, structure_search));
+        if (multimer_search) {
+            ;
+        }
+        else {
+            alignments_div.appendChild(formatAlignment(i, hit_record, structure_search));
+        }
     }
     if (number_of_hits == 0) {
         summary_div.innerHTML += '<p>No hits found.</p>';
@@ -182,8 +252,8 @@ function addStyleForSummary(summary_element, query_length, query_starts, query_e
     // Adding length styling according to query and alignment length.
     var left_margin = Math.round(100 * ((query_starts - 1) / query_length));
     var right_margin = 100 - Math.round(100 * (query_ends / query_length));
-    summary_element.style.marginLeft = left_margin + '%';
-    summary_element.style.marginRight = right_margin + '%';
+    summary_element.style.marginLeft = `max(1px, ${left_margin}%`;
+    summary_element.style.marginRight = `max(1px, ${right_margin}%`;
     // coloring_value is p for COMER, and TM-score for GTalign
     var color_value = colorSummary(coloring_value);
     summary_element.style.background = 'hsl(' + color_value + ', 100%, 40%)';

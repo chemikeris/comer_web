@@ -82,11 +82,15 @@ def detailed(request, job_id, result_no):
         )
     results, json_error = utils.read_json_file(results_file)
     options_str = job.read_input_file('options')
-    results['gtalign_search']['sort_order'] = \
+    if job.is_complex_job:
+        header = 'gtcomplex_search'
+    else:
+        header = 'gtalign_search'
+    results[header]['sort_order'] = \
         models.parse_gtalign_job_options(options_str)['--sort']
-    processed_results = models.prepare_results_json(results)
+    processed_results = models.prepare_results_json(results, header)
     query_desc = utils.format_gtalign_description(
-        results['gtalign_search']['query']['description']
+        results[header]['query']['description']
         )
     page_title = 'GTalign results - %s - %s' % (job.nice_name(), query_desc)
     context = {
