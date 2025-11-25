@@ -14,7 +14,8 @@ from django.urls import reverse
 
 from apps.core.models import SearchJob, generate_job_name, Databases
 from apps.core.utils import read_json_file, format_gtalign_description, \
-        correct_structure_file_path, split_gtalign_description
+        correct_structure_file_path, split_gtalign_description, \
+        get_pdb_chain_annotation
 from comer_web import calculation_server
 
 class Job(SearchJob):
@@ -289,6 +290,10 @@ def parse_gtalign_job_options(options_file_contents):
 def prepare_results_json(results_json, first_header):
     "Remove unnecessary and add additional data from GTalign results JSON"
     res = results_json[first_header]
+    if first_header.startswith('gtcomplex'):
+        gtcomplex_results = True
+    else:
+        gtcomplex_results = False
     for i, hit_record in enumerate(res['search_results']):
         hr = hit_record['hit_record']
         description, annotation = format_gtalign_description(
@@ -297,6 +302,15 @@ def prepare_results_json(results_json, first_header):
         hr['reference_description'] = description
         hr['reference_annotation'] = annotation
         res['search_summary'][i]['summary_entry']['description'] = description
+        if gtcomplex_results:
+            pdb_id = description.split('_')[0]
+            for chain_alignment in hr['alignment_section']:
+                c_ali = chain_alignment['chain_alignment_entry']
+                c_ali['reference_description'] = '%s_%s' % (
+                    pdb_id, c_ali['refrn_chain']
+                    )
+                c_ali['reference_annotation'] = \
+                    get_pdb_chain_annotation(pdb_id, c_ali['refrn_chain'])
     return results_json
 
 

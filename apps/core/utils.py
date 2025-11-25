@@ -207,22 +207,41 @@ def format_gtalign_description(description, get_annotation=False):
         identifier = trim_id(identifier)
         chain = parts[1]
         model = parts[2]
-        pdb_identifier_to_show = '%s_%s_%s' % (identifier, chain, model)
+        if 'assembly' in identifier: # This is GTcomplex result
+            this_is_gtcomplex_result = True
+            pdb_id, other = identifier.split('.')[0].split('-')
+            assembly_no = re.sub('\D', '', other)
+            pdb_identifier_to_show = '%s_%s' % (pdb_id, assembly_no)
+        else:
+            this_is_gtcomplex_result = False
+            pdb_identifier_to_show = '%s_%s_%s' % (identifier, chain, model)
         if get_annotation:
-            pdb_entries = databases_models.Chain.objects.filter(
-                pdb_id=identifier, chain=chain)
-            if len(pdb_entries) == 0:
+            if this_is_gtcomplex_result:
                 annotation = ''
             else:
-                pdb_entry = pdb_entries[0]
-                annotation_data = pdb_entry.annotation
-                if annotation_data is None:
-                    annotation = ''
-                else:
-                    annotation = annotation_data.annotation
+                annotation = get_pdb_chain_annotation(identifier, chain)
             return pdb_identifier_to_show, annotation
         else:
             return pdb_identifier_to_show
+
+
+def get_pdb_chain_annotation(pdb_id, chain):
+    "Get annotation of PDB chain"
+    if '-' in chain:
+        chain = chain.split('-')[0] # For Biological Assembly chains
+    pdb_entries = databases_models.Chain.objects.filter(
+        pdb_id=pdb_id, chain=chain
+        )
+    if len(pdb_entries) == 0:
+        annotation = ''
+    else:
+        pdb_entry = pdb_entries[0]
+        annotation_data = pdb_entry.annotation
+        if annotation_data is None:
+            annotation = ''
+        else:
+            annotation = annotation_data.annotation
+    return annotation
 
 
 def correct_structure_file_path(

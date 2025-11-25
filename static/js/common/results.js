@@ -85,7 +85,6 @@ function showResults(results) {
                 current_chain_summary_div.appendChild(createLinkToAlignment(`${i}_${j}`, chain_correspondence_info.refrn_chain));
                 addStyleForSummary(current_chain_summary_div, chain_correspondence_info.query_chain_length, chain_correspondence_info.query_chain_from, chain_correspondence_info.query_chain_to, chain_correspondence_info.tmscore_query);
                 result_chain_summary_div.appendChild(current_chain_summary_div);
-
             }
         }
         else {
@@ -167,10 +166,39 @@ function showResults(results) {
 
         // Formatting sequence alignments.
         if (multimer_search) {
-            ;
+            var multimer_result_alignments_div = document.createElement('div');
+            var header = document.createElement('h3');
+            header.innerHTML += (i+1).toString();
+            header.innerHTML = '<input type="checkbox" id="alignment_checkbox' + i + '" class="alignment_checkbox form-check-input h5"> ';
+        header.innerHTML += (i+1).toString();
+            formatTargetDescription(header, hit_record);
+            header.innerHTML += '';
+            header.innerHTML += generateLinkToStructureAlignment(i, true);
+            multimer_result_alignments_div.appendChild(header);
+            for (var j = 0; j < hit_record.alignment_section.length; j++) {
+                // Formatting GTcomplex chain alignment in the format of GTalign
+                var hr = hit_record.alignment_section[j].chain_alignment_entry;
+                hr.query_length = hr.query_chain_length;
+                hr.reference_length = hr.refrn_chain_length;
+                hr.alignment.query_secstr = hr.alignment.query_chain_secstr;
+                hr.alignment.query_aln = hr.alignment.query_chain_aln;
+                hr.alignment.query_from = hr.alignment.query_chain_from;
+                hr.alignment.query_to = hr.alignment.query_chain_to;
+                hr.alignment.refrn_secstr = hr.alignment.refrn_chain_secstr;
+                hr.alignment.refrn_aln = hr.alignment.refrn_chain_aln;
+                hr.alignment.refn_from = hr.alignment.refrn_chain_from;
+                hr.alignment.refn_to = hr.alignment.refrn_chain_to;
+                hr.alignment.tmscore_refn = hr.alignment.tmscore_refrn;
+                hr.alignment['2tmscore_refn'] = hr.alignment['2tmscore_refrn'];
+                hr.alignment.d0_refn = hr.alignment.d0_refrn;
+                var alignment_for_one_chain_div = formatAlignment(j, hr, structure_search, multimer_search);
+                alignment_for_one_chain_div.classList.add('gtcomplex_chain_alignment');
+                multimer_result_alignments_div.appendChild(alignment_for_one_chain_div);
+            }
+            alignments_div.appendChild(multimer_result_alignments_div);
         }
         else {
-            alignments_div.appendChild(formatAlignment(i, hit_record, structure_search));
+            alignments_div.appendChild(formatAlignment(i, hit_record, structure_search, multimer_search));
         }
     }
     if (number_of_hits == 0) {
@@ -348,7 +376,7 @@ function createRCSBLink(pdb_chain_id) {
     var pdb_id = pdb_chain_id.substr(0,4)
     return 'https://www.rcsb.org/structure/' + pdb_id;
 }
-function formatAlignment(result_no, hit_record, structure_search) {
+function formatAlignment(result_no, hit_record, structure_search, multimer_search) {
     // Different target description names are used for GTalign and COMER, therefore...
     if (structure_search) {
         var target_from = 'refn_from';
@@ -365,16 +393,22 @@ function formatAlignment(result_no, hit_record, structure_search) {
     var alignment_div = document.createElement('div');
     alignment_div.classList.add('alignment');
     alignment_div.classList.add('alignment_part_'+resultsPartNo(result_no));
-    // Alignment header.
-    var header = document.createElement('h3');
-    header.innerHTML = '<input type="checkbox" id="alignment_checkbox' + result_no + '" class="alignment_checkbox form-check-input h5"> ';
-    header.innerHTML += (result_no+1).toString();
-    var [short_description, ...other_description] = getTargetDescription(hit_record).split(" ");
-    header.innerHTML += ' ';
-    header.innerHTML += createLink(short_description);
-    header.innerHTML += ' ' + other_description.join(' ');
-    if (structure_search) header.innerHTML += ' ';
-    header.innerHTML += generateLinkToStructureAlignment(result_no, true);
+    // Alignment header, different for standard search and for multimer search.
+    if (multimer_search) {
+        var header = document.createElement('h4');
+        ;
+    }
+    else {
+        var header = document.createElement('h3');
+        header.innerHTML = '<input type="checkbox" id="alignment_checkbox' + result_no + '" class="alignment_checkbox form-check-input h5"> ';
+        header.innerHTML += (result_no+1).toString();
+    }
+    if (multimer_search) header.innerHTML += 'Chain ' + (result_no+1) + ': ';
+    formatTargetDescription(header, hit_record);
+    if (! multimer_search) {
+        if (structure_search) header.innerHTML += ' ';
+        header.innerHTML += generateLinkToStructureAlignment(result_no, true);
+    }
     header.id = 'alignment_' + result_no;
     alignment_div.appendChild(header);
 
@@ -421,9 +455,17 @@ function formatAlignment(result_no, hit_record, structure_search) {
     alignment_div.appendChild(sequence_alignment_div);
 
     // Footer.
-    formatAlignmentFooter(alignment_div, hit_record);
+    if (! multimer_search) {
+        formatAlignmentFooter(alignment_div, hit_record);
+    }
 
     return alignment_div;
+}
+function formatTargetDescription(header_element, hit_record) {
+    var [short_description, ...other_description] = getTargetDescription(hit_record).split(" ");
+    header_element.innerHTML += ' ';
+    header_element.innerHTML += createLink(short_description);
+    header_element.innerHTML += ' ' + other_description.join(' ');
 }
 function colorResidues(sequence) {
     var colored_sequence = '';

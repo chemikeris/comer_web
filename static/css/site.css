@@ -118,3 +118,6 @@ ol ol > li:before {
 textarea {
     font-family: monospace,Monospace;
 }
+.gtcomplex_chain_alignment {
+    margin-left: 2em;
+}
