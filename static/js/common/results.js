@@ -40,6 +40,15 @@ function showResults(results) {
     if (multimer_search) {
         var query_summary_chains = document.createElement('div');
         query_summary_chains.classList.add('sequence_scheme');
+        // Create title column.
+        var query_summary_title = document.createElement('div');
+        query_summary_title.classList.add('gtcomplex_summary_title');
+        query_summary_title.innerHTML = '<a>Query</a>';
+        query_summary_title.style.background = 'grey';
+        query_summary_chains.appendChild(query_summary_title);
+        // Summaries for chains.
+        var query_summary_chains_container = document.createElement('div');
+        query_summary_chains_container.classList.add('gtcomplex_summary_data');
         var query_chains = results[results_header].query.chain_list;
         var chain_summary_widths = new Map();
         for (var i = 0; i < query_chains.length; i++) {
@@ -47,11 +56,12 @@ function showResults(results) {
             var w = Math.round(100 * (chain_info.length / results[results_header].query.length - 0.002));
             chain_summary_widths.set(chain_info.id, w);
             var chain_summary = createEmptyChainSummaryDivForMultimer(chain_info.id, w, `summary_for_query_chain_${query_chains[i].chain_details.id}`);
-            chain_summary.innerHTML = '<a>Query chain ' + query_chains[i].chain_details.id + '</a>';
+            chain_summary.innerHTML = '<a>' + query_chains[i].chain_details.id + '</a>';
             chain_summary.title = `${chain_info.type}, ${chain_info.length} residues.`;
             chain_summary.style.background = 'grey';
-            query_summary_chains.appendChild(chain_summary);
+            query_summary_chains_container.appendChild(chain_summary);
         }
+        query_summary_chains.appendChild(query_summary_chains_container);
         summary_div.appendChild(query_summary_chains);
     }
     else {
@@ -71,12 +81,20 @@ function showResults(results) {
             multiple_chains_summary_div.classList.add('sequence_scheme');
             multiple_chains_summary_div.classList.add('summary');
             multiple_chains_summary_div.classList.add('summary_part_'+resultsPartNo(i));
+            // Creating header column.
+            var result_summary_title = document.createElement('div');
+            result_summary_title.classList.add('gtcomplex_summary_title');
+            result_summary_title.innerHTML = '<a>' + shortDescription(hit_record.reference_description) + '</a>';
+            multiple_chains_summary_div.appendChild(result_summary_title);
+            var result_summary_container = document.createElement('div');
+            result_summary_container.classList.add('gtcomplex_summary_data');
             var alignments_order = new Map();
             for (const [chain, width] of chain_summary_widths) {
                 var chain_id_value = generateChainSummaryIDForMultimer(chain, i);
                 var chain_summary_div = createEmptyChainSummaryDivForMultimer(`${chain}_result_${i}`, width, chain_id_value);
-                multiple_chains_summary_div.appendChild(chain_summary_div);
+                result_summary_container.appendChild(chain_summary_div);
             }
+            multiple_chains_summary_div.appendChild(result_summary_container);
             summary_div.appendChild(multiple_chains_summary_div);
             for (var j = 0; j < hit_record.assignment_table.length; j++) {
                 var chain_correspondence_info = hit_record.assignment_table[j].assignment_entry;

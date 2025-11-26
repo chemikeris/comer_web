@@ -18,6 +18,15 @@ html {
     font-weight: bold;
     text-decoration: none;
 }
+.gtcomplex_summary_title {
+    width: 5em;
+    margin-left: 1px;
+    margin-right: 1px;
+    float: left;
+}
+.gtcomplex_summary_data {
+    overflow: hidden;
+}
 .sequence_alignment {
     font-family: monospace;
     white-space: pre;
