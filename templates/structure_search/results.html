@@ -3,7 +3,7 @@
 {% load static %}
 {% load input_form %}
 <link rel="stylesheet" href="{% static 'css/site.css' %}">
-<h1>GTalign results</h1>
+<h1>{% if job.is_complex_job %}GTcomplex{% else %}GTalign{% endif %} results</h1>
 {{ results|json_script:"raw_results" }}
 <script>const results = JSON.parse(document.getElementById('raw_results').textContent);</script>
 <script>const aligned_structures_link_pattern = "{{ aligned_structures_url_pattern }}";</script>
@@ -32,7 +32,7 @@
     Supplementary jobs:
     <input type="hidden" name="job_id" value="{{ job.name }}">
     <input type="hidden" name="result_no" value="{{ sequence_no }}">
-    <input type="submit" formaction="{% url 'submit_structural_msa' %}" name="msa" value="Construct MSA" id="submit_msa" class="results_button btn btn-secondary my-2">
+    {% if not job.is_complex_job %}<input type="submit" formaction="{% url 'submit_structural_msa' %}" name="msa" value="Construct MSA" id="submit_msa" class="results_button btn btn-secondary my-2">{% endif %}
     <input type="submit" formaction="{% url 'gtalign_submit_multiple_superpositions' %}" name="model" value="Download selected superpositions" id="submit_multiple_superpositions" class="results_button btn btn-secondary my-2" formtarget="_blank">
 </p><div id="results_table"></div>
 <h2>Alignments</h2>
