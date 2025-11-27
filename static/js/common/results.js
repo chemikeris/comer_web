@@ -67,7 +67,7 @@ function showResults(results) {
         var chain_summary_widths = new Map();
         for (var i = 0; i < query_chains.length; i++) {
             var chain_info = query_chains[i].chain_details;
-            var w = Math.floor(100 * (chain_info.length / results[results_header].query.length));
+            var w = Math.floor(100000 * (chain_info.length / results[results_header].query.length)) / 1000;
             var width = `calc(${w}% - 2px)`;
             chain_summary_widths.set(chain_info.id, w);
             var chain_summary = createEmptyChainSummaryDivForMultimer(chain_info.id, width, `summary_for_query_chain_${query_chains[i].chain_details.id}`);
