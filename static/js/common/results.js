@@ -4,7 +4,6 @@ function showResults(results) {
     const summary_div = document.getElementById('schematic_sequences');
     const table_div = document.getElementById('results_table');
     const alignments_div = document.getElementById('alignments');
-    var base_url = window.location.origin + window.location.pathname.split('/').slice(2, -3).join('/');
 
     var program = which_program(results);
     switch (program) {
@@ -22,6 +21,21 @@ function showResults(results) {
             var structure_search = false;
             var results_header = 'comer_search'
             var multimer_search = false;
+    }
+    if (multimer_search) {
+        var url_parts = Array();
+        var adding = true;
+        for (var part of window.location.pathname.split('/')) {
+            if (part == 'gtalign') {
+                adding = false;
+            }
+            if (adding) {
+                url_parts.push(part);
+            }
+        }
+        var base_url = window.location.origin + url_parts.join('/');
+        // Because base_url is only necessary for multimer results now.
+        console.log(base_url);
     }
 
     var results_parts = resultsParts(results, structure_search);
