@@ -122,6 +122,47 @@ function formatAlignmentDescription(alignment_div, hit_record) {
     alignment_description.appendChild(table_body);
     alignment_div.appendChild(alignment_description);
 }
+function formatAlignmentDescriptionMultimer(alignment_div, hit_record) {
+    var alignment_description = document.createElement('table');
+    alignment_description.classList.add('table', 'w-auto', 'text-center', 'align-middle', 'alignment_header_table');
+    var header = createTableHeader(
+        [
+            'TM-score\n(query)',
+            'TM-score\n(reference)',
+            'RMSD',
+            'd0\n(query)',
+            'd0\n(reference)',
+            '2TM-score\n(query)',
+            '2TM-score\n(reference)',
+            'Length\n(query)',
+            'Length\n(reference)',
+            'Identities',
+            'Matched',
+            'Gaps'
+        ]
+    );
+    var table_body = document.createElement('tbody');
+    var row = createTableRow(
+        [
+            hit_record.tmscore_query,
+            hit_record.tmscore_refrn,
+            hit_record.rmsd,
+            hit_record.d0_query,
+            hit_record.d0_refrn,
+            hit_record['2tmscore_query'],
+            hit_record['2tmscore_refrn'],
+            hit_record.query_length,
+            hit_record.reference_length,
+            percentageDisplay(hit_record.n_identities, hit_record.n_aligned, '\n'),
+            percentageDisplay(hit_record.n_matched, hit_record.n_aligned, '\n'),
+            percentageDisplay(hit_record.n_gaps, hit_record.n_aligned, '\n')
+        ]
+    );
+    table_body.appendChild(row);
+    alignment_description.appendChild(header);
+    alignment_description.appendChild(table_body);
+    alignment_div.appendChild(alignment_description);
+}
 function formatAlignmentFooter(alignment_div, hit_record) {
     // Rotation-translation matrix should be here.
     var footer = document.createElement('div');
@@ -150,9 +191,7 @@ function createEmptyChainSummaryDivForMultimer(chain_description, width, id_valu
     chain_summary.classList.add('sequence_scheme_query_'+chain_description);
     chain_summary.style.display = 'inline-block';
     chain_summary.style.position = 'relative';
-    chain_summary.style.width = width + '%';
-    chain_summary.style.marginLeft = '1px';
-    chain_summary.style.marginRight = '1px';
+    chain_summary.style.width = width;
     chain_summary.id = id_value;
     return chain_summary;
 }

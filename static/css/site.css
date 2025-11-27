@@ -19,10 +19,13 @@ html {
     text-decoration: none;
 }
 .gtcomplex_summary_title {
-    width: 5em;
+    width: 6em;
     margin-left: 1px;
     margin-right: 1px;
     float: left;
+}
+.gtcomplex_summary_title a {
+    display: inline;
 }
 .gtcomplex_summary_data {
     overflow: hidden;
@@ -129,4 +132,12 @@ textarea {
 }
 .gtcomplex_chain_alignment {
     margin-left: 2em;
+    background: whitesmoke;
+    border-bottom: solid 0.1em black;
+    padding: 0.5em;
+    width: fit-content;
+}
+.link_icon {
+    max-height: 16px;
+    display: inline;
 }

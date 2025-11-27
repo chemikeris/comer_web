@@ -4,6 +4,7 @@ function showResults(results) {
     const summary_div = document.getElementById('schematic_sequences');
     const table_div = document.getElementById('results_table');
     const alignments_div = document.getElementById('alignments');
+    var base_url = window.location.origin + window.location.pathname.split('/').slice(2, -3).join('/');
 
     var program = which_program(results);
     switch (program) {
@@ -53,12 +54,15 @@ function showResults(results) {
         var chain_summary_widths = new Map();
         for (var i = 0; i < query_chains.length; i++) {
             var chain_info = query_chains[i].chain_details;
-            var w = Math.round(100 * (chain_info.length / results[results_header].query.length - 0.002));
+            var w = Math.round(100 * (chain_info.length / results[results_header].query.length));
+            var width = `calc(${w}% - 2px)`;
             chain_summary_widths.set(chain_info.id, w);
-            var chain_summary = createEmptyChainSummaryDivForMultimer(chain_info.id, w, `summary_for_query_chain_${query_chains[i].chain_details.id}`);
+            var chain_summary = createEmptyChainSummaryDivForMultimer(chain_info.id, width, `summary_for_query_chain_${query_chains[i].chain_details.id}`);
             chain_summary.innerHTML = '<a>' + query_chains[i].chain_details.id + '</a>';
             chain_summary.title = `${chain_info.type}, ${chain_info.length} residues.`;
             chain_summary.style.background = 'grey';
+            chain_summary.style.marginLeft = '1px';
+            chain_summary.style.marginRight = '1px';
             query_summary_chains_container.appendChild(chain_summary);
         }
         query_summary_chains.appendChild(query_summary_chains_container);
@@ -84,14 +88,14 @@ function showResults(results) {
             // Creating header column.
             var result_summary_title = document.createElement('div');
             result_summary_title.classList.add('gtcomplex_summary_title');
-            result_summary_title.innerHTML = '<a>' + shortDescription(hit_record.reference_description) + '</a>';
+            result_summary_title.innerHTML = '<a>' + shortDescription(hit_record.reference_description) + '</a> <a href="#alignment_' + i + '"><img class="link_icon" src="' + base_url + '/static/img/icons/link-45deg.svg"></a>';
             multiple_chains_summary_div.appendChild(result_summary_title);
             var result_summary_container = document.createElement('div');
             result_summary_container.classList.add('gtcomplex_summary_data');
             var alignments_order = new Map();
             for (const [chain, width] of chain_summary_widths) {
                 var chain_id_value = generateChainSummaryIDForMultimer(chain, i);
-                var chain_summary_div = createEmptyChainSummaryDivForMultimer(`${chain}_result_${i}`, width, chain_id_value);
+                var chain_summary_div = createEmptyChainSummaryDivForMultimer(`${chain}`, `${width}%`, chain_id_value);
                 result_summary_container.appendChild(chain_summary_div);
             }
             multiple_chains_summary_div.appendChild(result_summary_container);
@@ -194,6 +198,7 @@ function showResults(results) {
             header.innerHTML += generateLinkToStructureAlignment(i, true);
             header.id = 'alignment_' + i;
             multimer_result_alignments_div.appendChild(header);
+            formatAlignmentDescriptionMultimer(multimer_result_alignments_div, hit_record);
             for (var j = 0; j < hit_record.alignment_section.length; j++) {
                 // Formatting GTcomplex chain alignment in the format of GTalign
                 var hr = hit_record.alignment_section[j].chain_alignment_entry;
@@ -214,6 +219,7 @@ function showResults(results) {
                 alignment_for_one_chain_div.classList.add('gtcomplex_chain_alignment');
                 multimer_result_alignments_div.appendChild(alignment_for_one_chain_div);
             }
+            formatAlignmentFooter(multimer_result_alignments_div, hit_record);
             alignments_div.appendChild(multimer_result_alignments_div);
         }
         else {
@@ -422,7 +428,7 @@ function formatAlignment(result_no, hit_record, structure_search, multimer_searc
         header.innerHTML = '<input type="checkbox" id="alignment_checkbox' + result_no + '" class="alignment_checkbox form-check-input h5"> ';
         header.innerHTML += (result_no+1).toString();
     }
-    if (multimer_search) header.innerHTML += 'Chain ' + hit_record.number + ': ';
+    if (multimer_search) header.innerHTML += hit_record.alignment_type + ' chain alignment ' + hit_record.number + ': ';
     formatTargetDescription(header, hit_record);
     if (! multimer_search) {
         if (structure_search) header.innerHTML += ' ';
@@ -445,8 +451,14 @@ function formatAlignment(result_no, hit_record, structure_search, multimer_searc
     var spacer_size = 6;
     var prefix_size = 15;
     var spacer = ' '.repeat(spacer_size);
-    var query_sec_str_prefix = 'Query_SS'.padEnd(prefix_size, ' ');
-    var query_prefix = 'Query'.padEnd(prefix_size, ' ');
+    if (multimer_search) {
+        var query_sec_str_prefix = `Query_${hit_record.query_chain}_SS`.padEnd(prefix_size, ' ');
+        var query_prefix = ('Query_'+hit_record.query_chain).padEnd(prefix_size, ' ');
+    }
+    else {
+        var query_sec_str_prefix = 'Query_SS'.padEnd(prefix_size, ' ');
+        var query_prefix = 'Query'.padEnd(prefix_size, ' ');
+    }
     var middle_prefix = ' '.repeat(prefix_size);
     var result_prefix = shortDescription(getTargetDescription(hit_record)).padEnd(prefix_size, ' ');
     var target_sec_str_prefix = (shortDescription(getTargetDescription(hit_record))+'_SS').padEnd(prefix_size, ' ');
