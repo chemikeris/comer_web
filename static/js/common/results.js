@@ -100,7 +100,7 @@ function showResults(results) {
                 var chain_correspondence_info = hit_record.assignment_table[j].assignment_entry;
                 var result_chain_summary_div = document.getElementById(generateChainSummaryIDForMultimer(chain_correspondence_info.query_chain, i));
                 var current_chain_summary_div = document.createElement('div');
-                current_chain_summary_div.appendChild(createLinkToAlignment(`${i}_${j}`, chain_correspondence_info.refrn_chain));
+                current_chain_summary_div.appendChild(createLinkToAlignment(`${i}_${chain_correspondence_info.refrn_chain}`, chain_correspondence_info.refrn_chain));
                 addStyleForSummary(current_chain_summary_div, chain_correspondence_info.query_chain_length, chain_correspondence_info.query_chain_from, chain_correspondence_info.query_chain_to, chain_correspondence_info.tmscore_query);
                 result_chain_summary_div.appendChild(current_chain_summary_div);
             }
@@ -188,10 +188,11 @@ function showResults(results) {
             var header = document.createElement('h3');
             header.innerHTML += (i+1).toString();
             header.innerHTML = '<input type="checkbox" id="alignment_checkbox' + i + '" class="alignment_checkbox form-check-input h5"> ';
-        header.innerHTML += (i+1).toString();
+            header.innerHTML += (i+1).toString();
             formatTargetDescription(header, hit_record);
             header.innerHTML += '';
             header.innerHTML += generateLinkToStructureAlignment(i, true);
+            header.id = 'alignment_' + i;
             multimer_result_alignments_div.appendChild(header);
             for (var j = 0; j < hit_record.alignment_section.length; j++) {
                 // Formatting GTcomplex chain alignment in the format of GTalign
@@ -209,7 +210,7 @@ function showResults(results) {
                 hr.alignment.tmscore_refn = hr.alignment.tmscore_refrn;
                 hr.alignment['2tmscore_refn'] = hr.alignment['2tmscore_refrn'];
                 hr.alignment.d0_refn = hr.alignment.d0_refrn;
-                var alignment_for_one_chain_div = formatAlignment(j, hr, structure_search, multimer_search);
+                var alignment_for_one_chain_div = formatAlignment(i, hr, structure_search, multimer_search);
                 alignment_for_one_chain_div.classList.add('gtcomplex_chain_alignment');
                 multimer_result_alignments_div.appendChild(alignment_for_one_chain_div);
             }
@@ -421,13 +422,18 @@ function formatAlignment(result_no, hit_record, structure_search, multimer_searc
         header.innerHTML = '<input type="checkbox" id="alignment_checkbox' + result_no + '" class="alignment_checkbox form-check-input h5"> ';
         header.innerHTML += (result_no+1).toString();
     }
-    if (multimer_search) header.innerHTML += 'Chain ' + (result_no+1) + ': ';
+    if (multimer_search) header.innerHTML += 'Chain ' + hit_record.number + ': ';
     formatTargetDescription(header, hit_record);
     if (! multimer_search) {
         if (structure_search) header.innerHTML += ' ';
         header.innerHTML += generateLinkToStructureAlignment(result_no, true);
     }
-    header.id = 'alignment_' + result_no;
+    if (multimer_search) {
+        header.id = 'alignment_' + result_no + '_' + hit_record.refrn_chain;
+    }
+    else {
+        header.id = 'alignment_' + result_no;
+    }
     alignment_div.appendChild(header);
 
     formatAlignmentDescription(alignment_div, hit_record);
