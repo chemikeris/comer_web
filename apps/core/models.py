@@ -284,6 +284,9 @@ class SearchJob(ComerWebServerJob):
     def get_output_name(self):
         return '%s__%s_out' % (self.name, self.method())
 
+    def first_results_header(self):
+        return '%s_search' % self.method()
+
     def __str__(self):
         s = '%s job\n' % self.method().upper()
         s += 'Date started: %s\n' % self.date

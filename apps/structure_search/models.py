@@ -80,23 +80,38 @@ class Job(SearchJob):
 
     def aligned_structure_file_exists(self, result_no, hit_no=None):
         if hit_no is None:
-            # Input structure is necessary, that is selected from input file
-            # according to model number and chain name.
-            aligned_file_name = '%s_input_%s.pdb' % (self.name, result_no)
+            if self.is_complex_job:
+                query_structure_description = \
+                    self.read_results_lst()[result_no]['structure_description']
+                query_structure_fname = query_structure_description.split()[0]
+                if query_structure_fname.endswith('gz'):
+                    query_structure_fname = query_structure_fname.rstrip('.gz')
+                unused_fname, ext = os.path.splitext(query_structure_fname)
+                ext = ext.lstrip('.')
+            else:
+                # Input structure is necessary, that is selected from input file
+                # according to model number and chain name for monomers.
+                ext = 'pdb'
+            aligned_file_name = '%s_input_%s.%s' % (self.name, result_no, ext)
         else:
             results_json_file = self.results_file_path(
                 self.read_results_lst()[result_no]['results_json']
                 )
             results, json_err = read_json_file(results_json_file)
-            results = results['gtalign_search']['search_results']
+            results = results[self.first_results_header()]['search_results']
             hit_record = results[hit_no]['hit_record']
             description = format_gtalign_description(
                 hit_record['reference_description']
                 )
             description = description.split()[0]
-            aligned_file_name = '%s_%s_%s.pdb' % (self.name,
+            if self.is_complex_job:
+                ext = 'cif'
+            else:
+                ext = 'pdb'
+            aligned_file_name = '%s_%s_%s.%s' % (self.name,
                                                   result_no,
-                                                  description)
+                                                  description,
+                                                  ext)
         result_file_path = os.path.join(
             self.aligned_structures_subdirectory(), aligned_file_name
             )
@@ -142,7 +157,12 @@ class Job(SearchJob):
             'Creating GTalign query structure file for %s, result %s.' % \
                 (self.name, result_no)
             )
-        # Using code from calculation backend module.
+        # For multimer, simply copying the input file.
+        if self.is_complex_job:
+            shutil.copy(query['file'], result_file_path)
+            return result_file_path
+        # For monomers, using code from calculation backend module to get the
+        # necessary chain.
         try:
             from superpose1 import GetStructureModelChain
         except ImportError:

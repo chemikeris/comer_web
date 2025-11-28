@@ -54,7 +54,7 @@ class Superposition(models.Model):
             self.search_job.read_results_lst()[self.result_no]['results_json']
             )
         results, json_error = read_json_file(results_json_file)
-        results = results['gtalign_search']
+        results = results[self.search_job.first_results_header()]
         results_lst = self.search_job.read_results_lst()
         config = calculation_server.read_config_file()
         gtalign_backend_directory = os.path.join(
@@ -76,20 +76,32 @@ class Superposition(models.Model):
         # Reading transformation data.
         matrix = ','.join(map(str, hit_record['rotation_matrix_rowmajor']))
         vector = ','.join(map(str, hit_record['translation_vector']))
-        aligner = os.path.join(
-            gtalign_backend_directory,  'superpose1.py'
-            )
-        alignment_command = [
-            os.path.join(settings.BASE_DIR, 'virtualenv', 'bin', 'python'),
-            aligner,
-            '--i2', reference['file'],
-            '--c2', reference['chain'],
-            '--m2', str(reference['model']),
-            '-r', matrix,
-            '-t', vector,
-            '-o', result_file_path,
-            '-2'
-            ]
+        if self.search_job.is_complex_job:
+            aligner = os.path.join(
+                gtalign_backend_directory, 'supcomplex1.pl'
+                )
+            alignment_command = [
+                aligner,
+                '-i', reference['file'],
+                '-r', matrix,
+                '-t', vector,
+                '-o', result_file_path
+                ]
+        else:
+            aligner = os.path.join(
+                gtalign_backend_directory,  'superpose1.py'
+                )
+            alignment_command = [
+                os.path.join(settings.BASE_DIR, 'virtualenv', 'bin', 'python'),
+                aligner,
+                '--i2', reference['file'],
+                '--c2', reference['chain'],
+                '--m2', str(reference['model']),
+                '-r', matrix,
+                '-t', vector,
+                '-o', result_file_path,
+                '-2'
+                ]
         subprocess.run(alignment_command)
         return result_file_path
 
@@ -289,7 +301,10 @@ def database_remote_directory(gtalign_result_description):
     elif identifier.startswith('bfvd'):
         db_name = 'bfvd'
     else:
-        db_name = 'pdb_mmcif'
+        if 'assembly' in identifier:
+            db_name = 'asm'
+        else:
+            db_name = 'pdb_mmcif'
     db = Databases.objects.get(program='gtalign', db=db_name)
     return db.remote_directory
 
