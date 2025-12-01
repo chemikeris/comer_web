@@ -138,7 +138,7 @@ class Job(Base3DJob, ComerWebServerJob):
                 if created:
                     process_this_hit = True
                 else:
-                    file_exists, fname = superposition.reference_file_exists()
+                    file_exists, fname, ext = superposition.reference_file_exists()
                     if file_exists:
                         process_this_hit = False
                     else:
@@ -236,7 +236,7 @@ class Job(Base3DJob, ComerWebServerJob):
         with open(options_file) as f:
             newly_superposed_ids = f.read().rstrip().splitlines()
         for superposed_id, rf in zip(newly_superposed_ids, results_files):
-            ff, output_file = self.search_job.aligned_structure_file_exists(
+            ff, output_file, ext = self.search_job.aligned_structure_file_exists(
                 self.result_no, int(superposed_id)
                 )
             rf_full_path = os.path.join(
