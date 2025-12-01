@@ -81,6 +81,7 @@ class Job(SearchJob):
     def aligned_structure_file_exists(self, result_no, hit_no=None):
         if hit_no is None:
             if self.is_complex_job:
+                # Input file is taken from results file.
                 query_structure_description = \
                     self.read_results_lst()[result_no]['structure_description']
                 query_structure_fname = query_structure_description.split()[0]
@@ -118,18 +119,20 @@ class Job(SearchJob):
         if os.path.isfile(result_file_path):
             logging.info('Using already aligned structure file %s',
                          result_file_path)
-            return True, result_file_path
+            return True, result_file_path, ext
         else:
-            return False, result_file_path
+            return False, result_file_path, ext
 
     def input_file_download_url(self):
         return reverse('gtalign_download_input', args=[self.name])
 
     def input_structure_file_for_result(self, result_no):
         "Generate name of file with input structure (exact model and chain)"
-        exists, result_file_path = self.aligned_structure_file_exists(result_no)
+        exists, result_file_path, ext = self.aligned_structure_file_exists(
+            result_no
+            )
         if exists:
-            return result_file_path
+            return result_file_path, ext
         # Reading config file
         config = calculation_server.read_config_file()
         results_lst = self.read_results_lst()
@@ -160,7 +163,7 @@ class Job(SearchJob):
         # For multimer, simply copying the input file.
         if self.is_complex_job:
             shutil.copy(query['file'], result_file_path)
-            return result_file_path
+            return result_file_path, ext
         # For monomers, using code from calculation backend module to get the
         # necessary chain.
         try:
@@ -184,7 +187,7 @@ class Job(SearchJob):
         io = PDB.PDBIO()
         io.set_structure(outstr)
         io.save(result_file_path)
-        return result_file_path
+        return result_file_path, ext
 
 
 class StructureSearchResultsSummary:

@@ -22,7 +22,16 @@ def aligned_structures(request, structure_search_job_id, result_no, hit_no):
     job = utils.get_object_or_404_for_removed_also(
         models.StructureSearchJob, name=structure_search_job_id
         )
-    page_title = 'GTalign results - structure superposition'
+    if job.is_complex_job:
+        program_name = 'GTcomplex'
+        unused_fname, input_ext = job.input_structure_file_for_result(result_no)
+        input_format = input_ext
+        aligned_format = 'cif'
+    else:
+        program_name = 'GTalign'
+        input_format = 'pdb'
+        aligned_format = 'pdb'
+    page_title = '%s results - structure superposition' % program_name
     context = {
         'job': job,
         'page_title': page_title,
@@ -30,6 +39,8 @@ def aligned_structures(request, structure_search_job_id, result_no, hit_no):
         'generated_msas': job.get_generated_msas().get(result_no, []),
         'result_no': result_no,
         'hit_no': hit_no,
+        'input_format': input_format,
+        'aligned_format': aligned_format,
         }
     return render(
             request,

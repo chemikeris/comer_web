@@ -41,7 +41,7 @@ class Superposition(models.Model):
 
     def prepare_aligned_structure(self, do_not_generate=False):
         "Prepare one aligned structure to show using web server"
-        exists, result_file_path = self.reference_file_exists()
+        exists, result_file_path, ext = self.reference_file_exists()
         if exists:
             # Using existing file.
             return result_file_path

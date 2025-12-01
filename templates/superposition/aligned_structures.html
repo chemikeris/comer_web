@@ -9,6 +9,6 @@
 <p><span style="display:inline-block; background-color:red; width:1em; height:1em"></span> Query structure (<a href="{{ input_structure_url }}" download>download</a>)</p>
 <p><span style="display:inline-block; background-color:blue; width:1em; height:1em"></span> Reference structure (<a href="{{ aligned_structure_url }}" download>download</a>)</p>
 <div id="aligned_structure" class="structure_viewer">
-    <script>show_structures("{{ input_structure_url }}", "{{ aligned_structure_url }}", "aligned_structure");</script>
+    <script>show_structures("{{ input_structure_url }}", "{{ aligned_structure_url }}", "{{ input_format }}", "{{ aligned_format }}", "aligned_structure");</script>
 </div>
 {% endblock %}

@@ -114,7 +114,7 @@ def download_input(request, job_id, result_no=None):
     if result_no is None:
         fname = job.get_input_file(job.query_suffix())
     else:
-        fname = job.input_structure_file_for_result(result_no)
+        fname, unused_ext = job.input_structure_file_for_result(result_no)
     return FileResponse(open(fname, 'rb'))
 
 
