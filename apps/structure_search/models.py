@@ -193,6 +193,8 @@ class Job(SearchJob):
 class StructureSearchResultsSummary:
     def __init__(self, job, results_data):
         r = results_data
+        json_file = job.results_file_path(r['results_json'])
+        results_json, err = read_json_file(json_file, job.method()+'_search')
         input_structure_data = split_gtalign_description(
             r['structure_description']
             )
@@ -200,11 +202,15 @@ class StructureSearchResultsSummary:
         self.structure_file = structure_file.split(':')[-1]
         self.chain = input_structure_data[1]
         self.model = input_structure_data[2]
-        self.input_description = '%s Chain:%s M:%s' % (
-            self.structure_file, self.chain, self.model)
+        if job.is_complex_job:
+            self.number_of_chains = results_json['query']['n_chains']
+            self.input_description = '%s M:%s' % (
+                self.structure_file, self.model)
+        else:
+            self.number_of_chains = 1
+            self.input_description = '%s Chain:%s M:%s' % (
+                self.structure_file, self.chain, self.model)
         self.input_length = r['structure_length']
-        json_file = job.results_file_path(r['results_json'])
-        results_json, err = read_json_file(json_file, job.method()+'_search')
         self.number_of_results = len(results_json['search_results'])
 
 
