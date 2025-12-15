@@ -7,10 +7,11 @@
 <script>const example_data={{ example_str|stringformat:"r" }};</script>
 {% if search_method == 'gtalign' %}
 <h1>GTalign web server</h1>
-<p>High-performance search and alignment for protein structures.</p>
+<p>High-performance search and alignment for protein structures and <a href="{% url 'gtcomplex_input' %}">macromolecular complexes</a>.</p>
 <p>This server is free and open to all users and there is no login requirement.</p>
 {% elif search_method == 'gtcomplex' %}
 <h1>GTcomplex</h1>
+<p>High-performance 3D search and alignment of macromolecular complexes containing proteins, RNAs and DNAs.</p>
 {% endif %}
 <form action="." method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
 <div>{{ form.non_field_errors }}</div>
