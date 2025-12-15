@@ -1,0 +1,2 @@
+--dev-min-length=3
+--nchns=1000

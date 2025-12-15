@@ -1,0 +1,2 @@
+--dev-min-length=20
+--add-search-by-ss

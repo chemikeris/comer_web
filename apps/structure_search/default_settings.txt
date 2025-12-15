@@ -2,5 +2,3 @@
 --hetatm
 --referenced
 --dev-max-length=4000
---dev-min-length=20
---add-search-by-ss

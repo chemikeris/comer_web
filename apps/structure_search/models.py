@@ -275,9 +275,22 @@ def save_gtalign_settings(
         settings_file, database, input_settings, gtcomplex=False
         ):
     default_settings_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), 'default_settings.txt')
+        os.path.dirname(os.path.abspath(__file__)), 'default_settings.txt'
+        )
+    if gtcomplex:
+        additional_settings_file = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'default_settings_gtcomplex.txt'
+            )
+    else:
+        additional_settings_file = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'default_settings_gtalign.txt'
+            )
     shutil.copy(default_settings_file, settings_file)
     with open(settings_file, 'a') as f:
+        with open(additional_settings_file) as af:
+            f.write(af.read())
         for setting, value in input_settings.items():
             if setting.startswith('pre'):
                 s = setting.replace('pre', 'pre-')
