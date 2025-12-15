@@ -21,9 +21,9 @@
 <p>
     <label for="id_min_evalue">Minimum TM-score:</label> <input type="text" id="id_min_tmscore" class="form-control d-inline">
     <label for="id_max_evalue">Maximum TM-score:</label> <input type="text" id="id_max_tmscore" class="form-control d-inline">
-    <button class="btn btn-secondary my-2" onclick="select_by_TMscore('query')" type="button">Select by query TM-score</button>
-    <button class="btn btn-secondary my-2" onclick="select_by_TMscore('reference')" type="button">Select by reference TM-score</button>
-    <button class="btn btn-secondary my-2" onclick="select_by_TMscore_both()" type="button">Select by both TM-scores</button>
+    <button class="btn btn-secondary my-2" onclick="select_by_TMscore('query', {% if job.is_complex_job %}true{% else %}false{% endif %})" type="button">Select by query TM-score</button>
+    <button class="btn btn-secondary my-2" onclick="select_by_TMscore('reference', {% if job.is_complex_job %}true{% else %}false{% endif %})" type="button">Select by reference TM-score</button>
+    <button class="btn btn-secondary my-2" onclick="select_by_TMscore_both({% if job.is_complex_job %}true{% else %}false{% endif %})" type="button">Select by both TM-scores</button>
     {{ 'tmscore_help'|help_tooltip_questionmark }}
 </p>
     {% url 'gtalign_help' as help_url %}

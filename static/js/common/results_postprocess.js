@@ -69,7 +69,7 @@ function select_by_Evalue() {
     }
     select_checkboxes(selectable_checkboxes);
 }
-function select_by_TMscore(query_or_reference) {
+function select_by_TMscore(query_or_reference, gtcomplex) {
     select_all_results(false);
     var min_tmscore = document.getElementById("id_min_tmscore").value;
     var max_tmscore = document.getElementById("id_max_tmscore").value;
@@ -84,7 +84,7 @@ function select_by_TMscore(query_or_reference) {
         field = 'tmscore_query';
     }
     else if (query_or_reference == 'reference') {
-        field = 'tmscore_refn';
+        field = gtcomplex ? 'tmscore_refrn' : 'tmscore_refn';
     }
     else
     {
@@ -93,7 +93,12 @@ function select_by_TMscore(query_or_reference) {
     var search_hits = resultsParts(results, true)[1];
     var selectable_checkboxes = [];
     for (var i = 0; i < search_hits.length; i++) {
-        var hit_tmscore = parseFloat(search_hits[i].hit_record.alignment[field])
+        if (gtcomplex) {
+            var hit_tmscore = parseFloat(search_hits[i].hit_record[field]);
+        }
+        else {
+            var hit_tmscore = parseFloat(search_hits[i].hit_record.alignment[field]);
+        }
         if (hit_tmscore > min_tmscore && hit_tmscore < max_tmscore) {
             selectable_checkboxes.push('table_row_checkbox'+i);
             selectable_checkboxes.push('alignment_checkbox'+i);
@@ -101,7 +106,7 @@ function select_by_TMscore(query_or_reference) {
     }
     select_checkboxes(selectable_checkboxes);
 }
-function select_by_TMscore_both() {
+function select_by_TMscore_both(gtcomplex) {
     select_all_results(false);
     var min_tmscore = document.getElementById("id_min_tmscore").value;
     var max_tmscore = document.getElementById("id_max_tmscore").value;
@@ -115,8 +120,14 @@ function select_by_TMscore_both() {
     var search_hits = resultsParts(results, true)[1];
     var selectable_checkboxes = [];
     for (var i = 0; i < search_hits.length; i++) {
-        var hit_tmscore_query = parseFloat(search_hits[i].hit_record.alignment.tmscore_query)
-        var hit_tmscore_reference = parseFloat(search_hits[i].hit_record.alignment.tmscore_refn)
+        if (gtcomplex) {
+            var hit_tmscore_query = parseFloat(search_hits[i].hit_record.tmscore_query);
+            var hit_tmscore_reference = parseFloat(search_hits[i].hit_record.tmscore_refrn);
+        }
+        else {
+            var hit_tmscore_query = parseFloat(search_hits[i].hit_record.alignment.tmscore_query);
+            var hit_tmscore_reference = parseFloat(search_hits[i].hit_record.alignment.tmscore_refn);
+        }
         if (hit_tmscore_query > min_tmscore && hit_tmscore_reference > min_tmscore) {
             if (hit_tmscore_query < max_tmscore && hit_tmscore_reference < max_tmscore) {
                 selectable_checkboxes.push('table_row_checkbox'+i);
