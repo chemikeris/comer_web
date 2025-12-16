@@ -5,6 +5,7 @@ import logging
 import tarfile
 import glob
 import subprocess
+import gzip
 
 from Bio import PDB
 
@@ -15,7 +16,7 @@ from django.urls import reverse
 from apps.core.models import SearchJob, generate_job_name, Databases
 from apps.core.utils import read_json_file, format_gtalign_description, \
         correct_structure_file_path, split_gtalign_description, \
-        get_pdb_chain_annotation
+        get_pdb_chain_annotation, is_gzipped
 from comer_web import calculation_server
 
 class Job(SearchJob):
@@ -162,7 +163,13 @@ class Job(SearchJob):
             )
         # For multimer, simply copying the input file.
         if self.is_complex_job:
-            shutil.copy(query['file'], result_file_path)
+            if is_gzipped(query['file']):
+                with open(result_file_path, 'wb') as out_f:
+                    with gzip.open(query['file'], 'rb') as in_f:
+                        out_f.write(in_f.read())
+                        out_f.flush()
+            else:
+                shutil.copy(query['file'], result_file_path)
             return result_file_path, ext
         # For monomers, using code from calculation backend module to get the
         # necessary chain.
