@@ -1,5 +1,6 @@
 import os
 import copy
+import gzip
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import FileResponse, Http404, HttpResponse, JsonResponse, \
@@ -115,7 +116,11 @@ def download_input(request, job_id, result_no=None):
         fname = job.get_input_file(job.query_suffix())
     else:
         fname, unused_ext = job.input_structure_file_for_result(result_no)
-    return FileResponse(open(fname, 'rb'))
+    if utils.is_gzipped(fname):
+        open_file = gzip.open(fname, 'rb')
+    else:
+        open_file = open(fname, 'rb')
+    return FileResponse(open_file)
 
 
 def download_results(request, job_id, result_no=None):

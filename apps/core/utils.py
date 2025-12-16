@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import re
+import gzip
 
 from django.shortcuts import get_object_or_404
 from django.http import Http404
@@ -277,4 +278,11 @@ def split_gtalign_description(description):
     model_group = m.group(4)
     model = 1 if model_group is None else int(model_group)
     return path, chain, model
+
+
+def is_gzipped(path):
+    if os.path.getsize(path) < 2:
+        return False
+    with open(path, 'rb') as f:
+        return f.read(2) == b'\x1f\x8b'
 
