@@ -120,6 +120,13 @@ class Job(Base3DJob, ComerWebServerJob):
     def process(self):
         return 'gtalign'
 
+    def task(self):
+        app_label = self._meta.app_label
+        if self.search_job.is_complex_job:
+            return 'complex_'+app_label
+        else:
+            return app_label
+
     def create_input_data(self, hit_ids):
         job_exists = self.get_job_matching_hit_ids_set(hit_ids)
         if job_exists is None:
