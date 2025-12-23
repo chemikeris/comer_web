@@ -14,6 +14,7 @@ class PDB(models.Model):
     id = models.CharField(
         max_length=20, unique=True, db_collation='utf8_bin', primary_key=True
         )
+    title = models.TextField(db_collation='utf8_bin', null=True)
 
 
 class PDBAnnotation(models.Model):

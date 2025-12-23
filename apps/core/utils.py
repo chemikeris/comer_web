@@ -218,7 +218,7 @@ def format_gtalign_description(description, get_annotation=False):
             pdb_identifier_to_show = '%s_%s_%s' % (identifier, chain, model)
         if get_annotation:
             if this_is_gtcomplex_result:
-                annotation = ''
+                annotation = get_PDB_entry_title(pdb_id)
             else:
                 annotation = get_pdb_chain_annotation(identifier, chain)
             return pdb_identifier_to_show, annotation
@@ -243,6 +243,15 @@ def get_pdb_chain_annotation(pdb_id, chain):
         else:
             annotation = annotation_data.annotation
     return annotation
+
+
+def get_PDB_entry_title(pdb_id):
+    pdb_entries = databases_models.PDB.objects.filter(id=pdb_id)
+    if pdb_entries:
+        pdb_entry = pdb_entries[0]
+        return pdb_entry.title
+    else:
+        return ''
 
 
 def correct_structure_file_path(

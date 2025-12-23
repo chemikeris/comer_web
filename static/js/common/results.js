@@ -207,7 +207,7 @@ function showResults(results) {
             header.innerHTML = '<input type="checkbox" id="alignment_checkbox' + i + '" class="alignment_checkbox form-check-input h5"> ';
             header.innerHTML += (i+1).toString();
             formatTargetDescription(header, hit_record);
-            header.innerHTML += '';
+            header.innerHTML += ' ';
             header.innerHTML += generateLinkToStructureAlignment(i, true);
             header.id = 'alignment_' + i;
             multimer_result_alignments_div.appendChild(header);
