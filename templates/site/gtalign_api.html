@@ -16,6 +16,8 @@
 <h2 id="gtalign_api_help_submit">Submitting query structure(s)</h2>
 <p>One or more structure files can be submitted using the following command:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_submit' %} -F input_query_files=@first_structure.pdb -F input_query_files=@second_structure.cif</code></p>
+<p>To submit for a multimer search using GTcomplex, use a different URL:</p>
+<p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_submit_complex' %} -F input_query_files=@multimeric_structure_file.cif</code></p>
 <p>The server responds in JSON format:</p>
 <code><pre id='submit_json_success'></pre></code>
 <p>The field "success" indicates if there are any errors, and "job_id" is the identifier of the GTaling-web job.
@@ -29,13 +31,15 @@ This identifier can be used in further requests or for opening the job in a brow
 </script>
 <h2 id="gtalign_api_help_databases">Specifying search databases</h2>
 <p>Search is possible using the same databases that are available in the web interface.
-The list if databases can be cheched using the following command:</p>
+The list of available databases for monomeric protein search can be cheched using the following command:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_databases' %}</code></p>
 <p>The response contains database descriptions and names for querying the server:</p>
 <code><pre id='databases_response'></pre></code>
 <script>nice_json({"databases": [{"description": "PDB mmCIF", "server_name": "mmCIF"}, {"description": "SCOPe40", "server_name": "scope40_208"}, {"description": "ECOD_F70", "server_name": "ecod_20240325_F70"}, {"description": "UniProtKB/SwissProt", "server_name": "swissprot_v4"}, {"description": "UniProt Reference Proteomes", "server_name": "selected_proteomes"}, {"description": "UniRef30", "server_name": "uniref30"}, {"description": "PDB mmCIF|SCOPe40|ECOD_F70", "server_name": "mmCIF|scope40_208|ecod_20240325_F70"}, {"description": "PDB mmCIF|SCOPe40|ECOD_F70|SwissProt|Reference Proteomes", "server_name": "mmCIF|scope40_208|ecod_20240325_F70|swissprot_v4|selected_proteomes"}]}, 'databases_response');</script>
 <p>For example, the following command submits a query to search in the UniProtKB/SwissProt database:</p>
 <p><code>curl https://{{ request.get_host }}{% url 'gtalign_api_submit' %} -F input_query_files=@structure.pdb -F database=swissprot_v4</code></p>
+<p>Similarly, available databases can be queried for a GTcomplex search:</p>
+<p><code>curl https://{{ request.get_host }}{% url 'gtcomplex_api_databases' %}</code></p>
 <h2 id="gtalign_api_help_settings">Specifying search settings</h2>
 <p>Search settings can be specified using the following keywords:</p>
 <ul>

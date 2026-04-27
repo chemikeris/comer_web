@@ -143,21 +143,30 @@ def download_results(request, job_id, result_no=None):
 
 # API functions
 @csrf_exempt
-def api_submit(request):
+def api_submit(request, gtcomplex=False):
     if request.method == 'POST':
         # Implemented in the same way as submitting to COMER web server
         input_data_and_settings = QueryDict(mutable=True)
         input_data_and_settings.update(copy.deepcopy(default.settings))
         input_data_and_settings.update(request.POST)
+        if gtcomplex:
+            database = get_databases_for('gtalign', ['asm'])[0][0]
+            print(database)
+        else:
+            database = get_databases_for('gtalign', ['pdb_mmcif'])[0][0]
         input_data_and_settings.setdefault(
-            'database', get_databases_for('gtalign', ['pdb_mmcif'])[0][0]
+            'database', database
             )
-        from .forms import StructureInputForm
-        form = StructureInputForm(input_data_and_settings, request.FILES)
+        from .forms import StructureInputForm, ComplexStructureInputForm
+        if gtcomplex:
+            form = ComplexStructureInputForm(input_data_and_settings,
+                                             request.FILES)
+        else:
+            form = StructureInputForm(input_data_and_settings, request.FILES)
         result = {}
         if form.is_valid():
             new_job = models.process_input_data(
-                form.cleaned_data, request.FILES
+                form.cleaned_data, request.FILES, gtcomplex=gtcomplex
                 )
             result['success'] = True
             result['job_id'] = new_job.name
@@ -169,8 +178,11 @@ def api_submit(request):
     return JsonResponse(result)
 
 
-def api_available_databases(request):
-    databases = get_databases_for('gtalign')
+def api_available_databases(request, monomer=True):
+    if monomer:
+        databases = get_databases_for('gtalign', ignore_dbs=['asm'])
+    else:
+        databases = get_databases_for('gtalign', db=['asm'])
     result = {'databases': []}
     for (setting, description) in databases:
         r = {}
