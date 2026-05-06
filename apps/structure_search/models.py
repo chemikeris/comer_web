@@ -196,6 +196,18 @@ class Job(SearchJob):
         io.save(result_file_path)
         return result_file_path, ext
 
+    def input_structure_file_format(self, result_no):
+        unused_filename, input_ext = self.input_structure_file_for_result(
+            result_no
+            )
+        if input_ext == 'cif':
+            input_format = 'mmcif'
+        elif input_ext.startswith('pdb'):
+            input_format = 'pdb'
+        else:
+            input_format = input_ext
+        return input_format
+
 
 class StructureSearchResultsSummary:
     def __init__(self, job, results_data):

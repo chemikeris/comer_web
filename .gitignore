@@ -12,6 +12,7 @@ custom_servers.ini
 migrations
 comer_web/settings/google_analytics.py
 static/*.js
+static/molstar*
 static/bootstrap*
 !static/msa.min.js
 *.log

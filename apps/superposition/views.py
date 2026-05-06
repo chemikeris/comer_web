@@ -24,9 +24,8 @@ def aligned_structures(request, structure_search_job_id, result_no, hit_no):
         )
     if job.is_complex_job:
         program_name = 'GTcomplex'
-        unused_fname, input_ext = job.input_structure_file_for_result(result_no)
-        input_format = input_ext
-        aligned_format = 'cif'
+        input_format = job.input_structure_file_format(result_no)
+        aligned_format = 'mmcif'
     else:
         program_name = 'GTalign'
         input_format = 'pdb'
