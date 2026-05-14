@@ -25,7 +25,7 @@
         <a class="navbar-brand" href="{% url 'index'|add_program_if_necessary:program %}"><img src="{% static 'img/{PROGRAM}_server.png'|replace_name:program %}" alt="C" height="30">{% if sequence_search %}COMER web server{% else %}GTalign-web{% endif %}</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleMainMenu"><span class="navbar-toggler-icon"></span></button>
         <div id="collapsibleMainMenu" class="collapse navbar-collapse"><ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link" href="{% url 'input'|add_program_if_necessary:program %}">Input{% if structure_search %}-proteins{% endif %}</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'input'|add_program_if_necessary:program %}">Input{% if structure_search %}-monomers{% endif %}</a></li>
             {% if structure_search %}<li class="nav-item"><a class="nav-link" href="{% url 'gtcomplex_input' %}">Input-complexes</a></li>{% endif %}
             {% if sequence_search %}
             <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Recent jobs</a>
