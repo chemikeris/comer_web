@@ -38,8 +38,11 @@ def split_fasta(fasta_str):
             logging.error('Error parsing FASTA: %s', s)
             problematic_sequences.append(s)
             continue
-        sequence = ''.join(sequence.split())
-        sequences.append((description, sequence))
+        sequence = ''.join(sequence.split()).strip()
+        if sequence:
+            sequences.append((description, sequence))
+        else:
+            problematic_sequences.append(s)
     return sequences, problematic_sequences
 
 
