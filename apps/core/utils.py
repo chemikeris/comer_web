@@ -285,7 +285,14 @@ def split_gtalign_description(description):
         path = path.rsplit(' ', 1)[0]
         chain = ' '
     model_group = m.group(4)
-    model = 1 if model_group is None else int(model_group)
+    if model_group is None:
+        model = 1
+    else:
+        try:
+            model = int(model_group)
+        except ValueError as err:
+            logging.warning('Problem with parsing model number: %s', err)
+            model = 1
     return path, chain, model
 
 
